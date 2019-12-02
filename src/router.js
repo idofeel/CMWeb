@@ -1,12 +1,36 @@
-import React from 'react';
-import { Router, Route, Switch } from 'dva/router';
-import IndexPage from './routes/IndexPage';
+import React from "react";
+import { Router, Route, Switch } from "dva/router";
+import SubRoutes from "./utils/SubRoutes";
 
-function RouterConfig({ history }) {
+const RoutersConfig = [
+  {
+    path: "/view",
+    component: () => import("./pages/CMReader"),
+    model: []
+  },
+  {
+    path: "/",
+    component: () => import("./routes/IndexPage"),
+    model: [],
+    routes: [
+      {
+        path: "/home",
+        component: () => import("./pages/home/home"),
+        model: []
+      }
+    ]
+  }
+];
+function RouterConfig({ history, app }) {
   return (
     <Router history={history}>
       <Switch>
-        <Route path="/" exact component={IndexPage} />
+        {/* <Route path="/" exact component={IndexPage} />
+        <Route path="/home" exact component={AsyncComponent(Home)} /> */}
+
+        {RoutersConfig.map((route, i) => (
+          <SubRoutes key={i} {...route} app={app} />
+        ))}
       </Switch>
     </Router>
   );
