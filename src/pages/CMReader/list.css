@@ -1,0 +1,42 @@
+/** @format */
+:global .listContainer {
+  padding-bottom: 20px;
+}
+:global .listContainer .ant-spin {
+  margin-top: 80px;
+}
+:global .CMListCard {
+  display: inline-block;
+  margin: 10px;
+  width: 320px;
+  vertical-align: middle;
+}
+:global .CMListCard .ant-card-body {
+  padding: 18px;
+}
+:global .CMListCard .ant-card-body .ant-card-meta-title {
+  white-space: normal;
+  text-align: left;
+}
+:global .CMListCard .ant-card-body .ant-card-meta-title .ant-typography {
+  font-size: 16px;
+}
+:global .CMListCard .ant-card-body .ant-card-meta-description {
+  text-align: left;
+  word-break: normal;
+}
+:global .CMListCard .ant-card-body .CMListDesc {
+  font-size: 12px;
+  color: #ccc;
+}
+:global .CMListCard .ant-card-body .ant-card-meta-detail {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100px;
+}
+@media (max-width: 375px) {
+  :global .CMListCard {
+    margin: 10px 0;
+  }
+}

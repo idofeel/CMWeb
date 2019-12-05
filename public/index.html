@@ -1,42 +1,47 @@
+<!-- @format -->
+
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta http-equiv="X-UA-Compatible" content="IE=11" />
-    <title>Dva Demo</title>
-    <link rel="stylesheet" href="index.css" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script src="index.js"></script>
-  </body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta http-equiv="X-UA-Compatible" content="IE=11" />
+		<!--[if IE 9]>
+			<script src="./history.js"></script>
+		<![endif]-->
+		<title>Dva Demo</title>
+		<link rel="stylesheet" href="index.css" />
+	</head>
+	<body>
+		<div id="root"></div>
+		<script src="index.js"></script>
+	</body>
 </html>
 <script>
-  window.onload = function() {
-    if (!window.console || !console.firebug) {
-      var names = [
-        "log",
-        "debug",
-        "info",
-        "warn",
-        "error",
-        "assert",
-        "dir",
-        "dirxml",
-        "group",
-        "groupEnd",
-        "time",
-        "timeEnd",
-        "count",
-        "trace",
-        "profile",
-        "profileEnd"
-      ];
+	// window.onload = function() {
+	//   if (!window.console || !console.firebug) {
+	//     var names = [
+	//       "log",
+	//       "debug",
+	//       "info",
+	//       "warn",
+	//       "error",
+	//       "assert",
+	//       "dir",
+	//       "dirxml",
+	//       "group",
+	//       "groupEnd",
+	//       "time",
+	//       "timeEnd",
+	//       "count",
+	//       "trace",
+	//       "profile",
+	//       "profileEnd"
+	//     ];
 
-      window.console = {};
-      for (var i = 0; i < names.length; ++i)
-        window.console[names[i]] = function() {};
-    }
-  };
+	//     window.console = {};
+	//     for (var i = 0; i < names.length; ++i)
+	//       window.console[names[i]] = function() {};
+	//   }
+	// };
 </script>

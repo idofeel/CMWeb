@@ -1,14 +1,17 @@
 export default {
-    source:{
-        // 公开资源列表
-        public:'./?r=cle&d=list&o=public',  // {ids[],st}
-        // 私有资源列表
-        private:'./?r=cle&d=list&o=private', // {ids[],st}
+    main: {
+        menu: '/?r=common&d=menu'
     },
-    fileInfo:{
+    source: {
+        // 公开资源列表
+        public: '/?r=cle&d=list&o=public',  // {ids[],st}
+        // 私有资源列表
+        private: '/?r=cle&d=list&o=private', // {ids[],st}
+    },
+    fileInfo: {
         // les 文件信息
-        les:'./?r=cle&d=les', // {pid}
+        les: '/?r=cle&d=les', // {pid}
         // cle 文件信息
-        cle:'./?r=cle&d=file' // {pid,devid}
+        cle: '/?r=cle&d=file' // {pid,devid}
     }
 }

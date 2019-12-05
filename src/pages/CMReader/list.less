@@ -1,0 +1,53 @@
+/** @format */
+
+:global {
+	.listContainer {
+		padding-bottom: 20px;
+		.ant-spin {
+			margin-top: 80px;
+		}
+	}
+
+	.CMListCard {
+		display: inline-block;
+		margin: 10px;
+		width: 320px;
+		vertical-align: middle;
+
+		.ant-card-body {
+			padding: 18px;
+
+			.ant-card-meta-title {
+				white-space: normal;
+				text-align: left;
+
+				.ant-typography {
+					font-size: 16px;
+				}
+			}
+
+			.ant-card-meta-description {
+				text-align: left;
+				word-break: normal;
+			}
+
+			.CMListDesc {
+				font-size: 12px;
+				color: #ccc;
+			}
+
+			.ant-card-meta-detail {
+				display: flex;
+				flex-direction: column;
+				justify-content: space-between;
+				height: 100px;
+			}
+		}
+	}
+
+	@media (max-width: 375px) {
+		.CMListCard {
+			margin: 10px 0;
+		}
+	}
+}

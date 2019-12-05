@@ -1,3 +1,4 @@
+/** @format */
 .homePage {
   flex-direction: column !important;
   flex: column;
@@ -17,20 +18,43 @@
 .logo img {
   width: 100%;
 }
+:global #root {
+  background: #f0f2f5;
+}
 :global .logoBox {
   position: absolute;
   right: 0;
   left: 0;
   padding: 0 50px;
 }
-:global .logoBox .anticon {
+:global .logoBox .ant-btn {
   font-size: 26px;
   color: #fff;
   position: absolute;
   left: 0;
+  top: 0;
+  margin: 13px;
+  display: none;
+}
+:global .logoBox .bodyContainer {
+  padding: "0 50px";
+  margin-top: 20;
+  text-align: "center";
+}
+:global .HomeDrawer .ant-drawer-body {
+  padding: 0;
+}
+:global .HomeDrawer .ant-drawer-wrapper-body {
+  background: #00152a;
 }
 @media (max-width: 768px) {
   :global .logoBox {
     text-align: center;
+  }
+  :global .logoBox .ant-btn {
+    display: block;
+  }
+  :global #root .bodyContainer {
+    padding: 0;
   }
 }

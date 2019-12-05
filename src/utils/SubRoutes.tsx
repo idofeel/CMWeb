@@ -8,46 +8,47 @@
 
 import React from 'react';
 import { Route, Redirect } from 'dva/router';
-import dynamic from 'dva/dynamic';
+// import dynamic from 'dva/dynamic';
 import NoMatch from '../components/NoMatch';
 import { connect } from 'dva';
-import asyncComponent from './AsyncComponent';
+import dynamic from './AsyncComponent/dynamic';
+
 // // 动态加载路由
-// const dynamicComponent = ({
-//     app,
-//     model: models,
-//     component,
-//     routes,
-//     authorty,
-//     global,
-//     parmas,
-// }) =>
-//     dynamic({
-//         app,
-//         models: () => models,
-//         component: () =>
-//             component().then((res) => {
-//                 const Component = res.default || res;
-//                 if (authorty) {
-//                     return () => <Redirect to={'/login'} />;
-//                 }
-//                 return (props) => (
-//                     <Component
-//                         {...props}
-//                         app={app}
-//                         routes={routes}
-//                         global={global}
-//                         parmas={parmas}
-//                     />
-//                 );
-//             }),
-//     });
+const dynamicComponent = ({
+    app,
+    model: models,
+    component,
+    routes,
+    authorty,
+    global,
+    parmas,
+}) =>
+    dynamic({
+        app,
+        models: () => models,
+        component: () =>
+            component().then((res) => {
+                const Component = res.default || res;
+                if (authorty) {
+                    return () => <Redirect to={'/login'} />;
+                }
+                return (props) => (
+                    <Component
+                        {...props}
+                        app={app}
+                        routes={routes}
+                        global={global}
+                        parmas={parmas}
+                    />
+                );
+            }),
+    });
 
 // exports.DynamicComponent = dynamicComponent;
 
 // 子路由组件
 function SubRoutes(props) {
-    return <Route component={asyncComponent(props)} />;
+    return <Route component={dynamicComponent(props)} />;
 }
 
 //  重定向路由组件

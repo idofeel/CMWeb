@@ -1,18 +1,44 @@
-.logo {
-    width: 151px;
-    height: 54px;
-    float: left;
-    margin: 5px 0;
+.homePage {
+  flex-direction: column !important;
+  flex: column;
+  text-align: center;
 
-    img {
-        width: 100%;
-    }
+  .header {
+    padding-left: 250px;
+    position: relative;
+    text-align: left;
+    overflow: hidden;
+  }
 }
 
-.homePage {
+.logo {
+  width: 151px;
+  height: 54px;
+  margin: 5px 0;
 
-    .ant-menu {
-        text-align: center;
+  img {
+    width: 100%;
+  }
+}
+
+:global {
+  .logoBox {
+    position: absolute;
+    right: 0;
+    left: 0;
+    padding: 0 50px;
+
+    .anticon {
+      font-size: 26px;
+      color: #fff;
+      position: absolute;
+      left: 0;
     }
+  }
 
+  @media (max-width: 768px) {
+    .logoBox {
+      text-align: center;
+    }
+  }
 }

@@ -1,39 +1,41 @@
-import React from "react";
-import { Router, Route, Switch } from "dva/router";
-import SubRoutes from "./utils/SubRoutes";
+/** @format */
+
+import React from "react"
+import { Router, Route, Switch } from "dva/router"
+import SubRoutes from "./utils/SubRoutes"
 
 const RoutersConfig = [
-  {
-    path: "/view",
-    component: () => import("./pages/CMReader"),
-    model: []
-  },
-  {
-    path: "/",
-    component: () => import("./routes/IndexPage"),
-    model: [],
-    routes: [
-      {
-        path: "/home",
-        component: () => import("./pages/home/home"),
-        model: []
-      }
-    ]
-  }
-];
+	{
+		path: "/view",
+		component: () => import("./pages/CMReader"),
+		model: [],
+	},
+	{
+		path: "/",
+		component: () => import("./pages/indexPage"),
+		model: [import("./models/menus")],
+		routes: [
+			{
+				path: "/home",
+				component: () => import("./pages/home/home"),
+				model: [import("./models/CMList")],
+			},
+		],
+	},
+]
 function RouterConfig({ history, app }) {
-  return (
-    <Router history={history}>
-      <Switch>
-        {/* <Route path="/" exact component={IndexPage} />
+	return (
+		<Router history={history}>
+			<Switch>
+				{/* <Route path="/" exact component={IndexPage} />
         <Route path="/home" exact component={AsyncComponent(Home)} /> */}
 
-        {RoutersConfig.map((route, i) => (
-          <SubRoutes key={i} {...route} app={app} />
-        ))}
-      </Switch>
-    </Router>
-  );
+				{RoutersConfig.map((route, i) => (
+					<SubRoutes key={i} {...route} app={app} />
+				))}
+			</Switch>
+		</Router>
+	)
 }
 
-export default RouterConfig;
+export default RouterConfig

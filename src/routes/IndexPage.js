@@ -1,56 +1,52 @@
 import React from "react";
 import { connect } from "dva";
-import { Tabs, Affix, Button, Menu, Layout } from "antd";
+import { Tabs, Affix, Button, Menu, Layout, Row, Col, Drawer } from "antd";
 import styles from "./IndexPage.less";
-import NetCore from "../components/ClientCheck/NetCoreCheck";
 import { Switch } from "dva/router";
 import SubRoutes, { NoMatchRoute, RedirectRoute } from "../utils/SubRoutes";
+import Categroys from "../components/Categroys/Categroys";
+import { IEVersion } from "../utils/Browser";
+
+const IE = IEVersion();
 
 const { TabPane } = Tabs;
 
-const { Header, Content, Footer } = Layout;
+const { Header, Content, Footer, Sider } = Layout;
 
 function IndexPage({ routes, global, dispatch, app }) {
   return (
     <Layout className={styles.homePage}>
-      <Header
-      //   style={{ position: "fixed", zIndex: 1, width: "100%" }}
-      >
-        <img
-          className={styles.logo}
-          src="https://nwzimg.wezhan.cn/contents/sitefiles2033/10167896/images/10181979.png"
-        />
-        <Menu
-          theme="dark"
-          mode="horizontal"
-          defaultSelectedKeys={["2"]}
-          style={{ lineHeight: "64px" }}
-        >
-          <Menu.Item
-            key="1"
-            onClick={() => {
-              dispatch({
-                type: "global/save",
-                payload: {
-                  uname: "ddddd"
-                }
-              });
-            }}
-          >
-            菜单 12
-          </Menu.Item>
-          <Menu.Item key="2">菜单 2</Menu.Item>
-          <Menu.Item key="3">菜单 3</Menu.Item>
-        </Menu>
+      <Header className={styles.header}>
+        <Col xs={24} md={24} className="logoBox">
+          <img
+            className={styles.logo}
+            src="https://nwzimg.wezhan.cn/contents/sitefiles2033/10167896/images/10181979.png"
+          />
+        </Col>
+        <Row>
+          <Col md={24} xs={0}>
+            <Categroys mode="horizontal" />
+          </Col>
+        </Row>
       </Header>
+      <Drawer
+        title="Basic Drawer"
+        placement={"left"}
+        closable={false}
+        onClose={() => {}}
+        visible={true}
+        maskClosable={true}
+      >
+        <Categroys mode="inline" />
+      </Drawer>
       <Content
-        style={{ padding: "0 50px", marginTop: 20, textAlign: "center" }}
+        style={{ padding: "0 50px", marginTop: 50, textAlign: "center" }}
       >
         <Affix offsetTop={10}>
-          <Tabs defaultActiveKey="1" animated={!isIE()}>
+          <Tabs defaultActiveKey="1" animated={!IE || IE >= 10}>
             <TabPane tab="Tab 1" key="1">
               {global.uname}
-              <a href="#/view" target="_blank">
+              <a href="#/view?pid=4" target="_blank">
                 打开文件
               </a>
             </TabPane>
@@ -74,15 +70,9 @@ function IndexPage({ routes, global, dispatch, app }) {
           Content
         </div> */}
       </Content>
-      <Footer style={{ textAlign: "center" }}>
-        {/* Ant Design ©2018 Created by Ant UED */}
-      </Footer>
+      <Footer style={{ textAlign: "center" }}></Footer>
     </Layout>
   );
-  function isIE() {
-    if (window.navigator.userAgent.indexOf("MSIE") >= 1) return true;
-    else return false;
-  }
 }
 
 IndexPage.propTypes = {};
