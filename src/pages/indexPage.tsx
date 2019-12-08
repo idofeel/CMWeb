@@ -25,6 +25,9 @@ class IndexPage extends Component<RoutesProps, State> {
 		return (
 			<Layout className={styles.homePage}>
 				<Header className={styles.header}>
+					<Button type='primary' icon="download" size={"large"} className={styles.download}>
+						<a href="http://fm.aijk.xyz/softcenter/CMWebSetup.exe"/>
+					</Button>
 					<Col xs={24} md={24} className='logoBox'>
 						<Button
 							type='primary'
@@ -41,6 +44,7 @@ class IndexPage extends Component<RoutesProps, State> {
 							className={styles.logo}
 							src='https://nwzimg.wezhan.cn/contents/sitefiles2033/10167896/images/10181979.png'
 						/>
+
 					</Col>
 					<Row>
 						<Col md={24} xs={0}>

@@ -60,27 +60,62 @@ class CMView extends Component<Props, State> {
 			</div>
 		)
 	}
-
-	componentWillMount() {
-		// 拦截判断是否离开当前页面
-		window.addEventListener("beforeunload", this.beforeunload)
+	sleep(time: number) {
+		return new Promise(function (resolve, reject) {
+			setTimeout(() => {
+				resolve();
+			}, time);
+		});
 	}
+	InitCLE() {
+		// 检测CMWeb控件是否安装     
+		try {
+			var ver = CMWeb.GetVerion();
+			if (ver < 1001007) {
+				// 检测控件新增接口时使用，
+				// 提示下载升级新版本
+				return;
+			}
 
-	componentDidMount() {
-		CMWeb.Init3DViewer && CMWeb.Init3DViewer(this.state.initType)
-		// this.ShowUI()
-		const { pid, deviceData } = this.props
-		let cleUrl = "http://fm.aijk.xyz/rs/120/5b5ac8b006d0abe225e5867b68b8/9eba.cle"
-		let lesUrl: string = `http://fm.aijk.xyz/?r=cle&d=les&pid=4&d=les&devid=${deviceData}`
+		}
+		catch (err) {
+			if (confirm('您尚未安装CMWeb控件')) {
+				// windows.location=''; //引号里可以写控件的下载地址url
+			}
+			return;
+		}
+
+		// 初始化CLE引擎
+		if (CMWeb.Init3DViewer(0) != 0) {
+			alert("通用模型控件初始化失败！");
+		}
+
+		// 打开CLE文件
+		const { pid, cleUrl, deviceData } = this.props
+		// let cleUrl = "http://fm.aijk.xyz/rs/120/5b5ac8b006d0abe225e5867b68b8/9eba.cle"
+		let lesUrl: string = `http://fm.aijk.xyz/?r=cle&d=les&pid=${pid}&d=les&devid=${deviceData}`
 
 		this.OpenDRMFile(cleUrl, lesUrl)
+	}
+
+
+
+	async componentDidMount() {
+		// 拦截判断是否离开当前页面
+		window.addEventListener("beforeunload", this.beforeunload)
+		this.InitCLE();
+		// const { pid, cleUrl, deviceData } = this.props
+		// // let cleUrl = "http://fm.aijk.xyz/rs/120/5b5ac8b006d0abe225e5867b68b8/9eba.cle"
+		// let lesUrl: string = `http://fm.aijk.xyz/?r=cle&d=les&pid=${pid}&d=les&devid=${deviceData}`
+
+		// this.OpenDRMFile(cleUrl, lesUrl)
 		// alert(`cleFileUrl:${url}    lesFileUrl:${`${url}&d=les&devid=${deviceData}`}`)
 	}
 
 	getVerion() {
 		try {
 			var version = CMWeb.GetVerion && CMWeb.GetVerion()
-		} catch (error) {}
+		} catch (error) { }
 
 		// alert("" + version);
 	}
@@ -94,7 +129,7 @@ class CMView extends Component<Props, State> {
 			// CMWeb.ShowControlPane(1, 40);
 			CMWeb.UpdateNavigationPaneItem("0;1;2;3")
 			CMWeb.UpdatePropertyPaneItem("4;5;6")
-		} catch (error) {}
+		} catch (error) { }
 	}
 
 	HideUI() {
@@ -104,32 +139,33 @@ class CMView extends Component<Props, State> {
 			CMWeb.ShowPropertyPane(0, 200)
 			// CMWeb.ShowTextPane(0, 50);
 			// CMWeb.ShowControlPane(0, 40);
-		} catch (error) {}
+		} catch (error) { }
 	}
 
 	closeFile() {
 		try {
-			CMWeb.CloseFile()
-			CMWeb.UnInit3DViewer()
+			// CMWeb.CloseFile()
+			// CMWeb.UnInit3DViewer()
 		} catch (error) {
 		} finally {
+			window.close();
 		}
 	}
 
 	OpenDRMFile(cleFileUrl: string, lesFileUrl: string) {
 		try {
 			CMWeb.OpenDRMFile(cleFileUrl, lesFileUrl)
-		} catch (error) {}
+		} catch (error) { }
 	}
 	componentWillUnmount() {
-		this.closeFile()
+		// this.closeFile()
 		window.removeEventListener("beforeunload", this.beforeunload)
 	}
 
 	beforeunload(e) {
+		debugger
 		CMWeb.CloseFile()
 		CMWeb.UnInit3DViewer()
-
 		// return false;
 	}
 }

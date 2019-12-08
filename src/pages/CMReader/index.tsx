@@ -89,6 +89,7 @@ class CMReader extends Component<Props, State> {
 	checkLicense() {
 		try {
 			this.license = NetCoreCheck.CheckLicense && NetCoreCheck.CheckLicense()
+
 		} catch (error) {
 			message.error(error)
 		}
@@ -100,9 +101,10 @@ class CMReader extends Component<Props, State> {
 	getDeviceData() {
 		try {
 			this.deviceData = NetCoreCheck.GetDeviceData && NetCoreCheck.GetDeviceData()
-			if (!this.deviceData) message.info("请允许NetCoreCheck插件,以运行模型", 8)
+			if (!this.deviceData) message.info("获取设备id失败", 8)
 			return this.deviceData
 		} catch (error) {
+
 			message.error(error)
 		}
 	}
