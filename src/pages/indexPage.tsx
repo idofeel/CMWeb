@@ -26,7 +26,8 @@ class IndexPage extends Component<RoutesProps, State> {
 			<Layout className={styles.homePage}>
 				<Header className={styles.header}>
 					<Button type='primary' icon="download" size={"large"} className={styles.download}>
-						<a href="http://fm.aijk.xyz/softcenter/CMWebSetup.exe"/>
+						{/* <a href="http://fm.aijk.xyz/softcenter/CMWebSetup.exe" /> */}
+						<a href="./../../public/CMWebSetup.zip" download />
 					</Button>
 					<Col xs={24} md={24} className='logoBox'>
 						<Button
@@ -87,9 +88,9 @@ class IndexPage extends Component<RoutesProps, State> {
 	componentDidMount() {
 		const { search } = this.props.location
 		const parmas = queryString(search)
-
+		const { dispatch } = this.props;
 		// 获取设置菜单
-		this.props.dispatch({
+		dispatch({
 			type: "HomeStore/getMenus",
 			payload: {
 				selectKey: parmas.m,
@@ -99,6 +100,15 @@ class IndexPage extends Component<RoutesProps, State> {
 				replaceState(search, payload)
 			},
 		})
+		console.log(this.props)
+
+		// dispatch({
+		// 	type: "CMList/getData",
+		// 	payload: {
+		// 		id: this.secondaryKey,
+		// 		start: 0,
+		// 	},
+		// })
 
 		window.addEventListener("resize", this.resize.bind(this))
 	}

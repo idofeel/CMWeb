@@ -18,7 +18,7 @@ interface Props {
 	dispatch?: any
 	mode?: MenuMode
 }
-interface State {}
+interface State { }
 interface MenusItem {
 	id: string
 	name: string
@@ -116,7 +116,7 @@ class SecondaryCates extends Component<any, State> {
 				<Tabs
 					activeKey={secondaryKey}
 					tabBarStyle={{ background: "#fff" }}
-					animated={!IE || IE >= 10}
+					animated={!IE}
 					onChange={(key) => {
 						this.currentKey = key
 						dispatch({
@@ -128,6 +128,7 @@ class SecondaryCates extends Component<any, State> {
 						dispatch({
 							type: "CMList/save",
 							payload: {
+								list: [],
 								loading: true,
 								empty: false,
 							},
@@ -139,7 +140,10 @@ class SecondaryCates extends Component<any, State> {
 								start: 0,
 							},
 							callback: (payload: any) => {
-								console.log(payload.id, this.currentKey)
+								replaceState(this.props.location.search, {
+									secondaryKey: key,
+									selectKey: this.props.selectKey
+								})
 								return payload.id === this.currentKey
 							},
 						})

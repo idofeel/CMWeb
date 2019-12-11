@@ -1,94 +1,108 @@
 /** @format */
 
 .homePage {
-	flex-direction: column !important;
-	flex: column;
-	text-align: center;
+    flex-direction: column !important;
+    flex: column;
+    text-align: center;
 
-	.header {
-		padding-left: 250px;
-		padding-right: 100px;
-		position: relative;
-		text-align: left;
-		overflow: hidden;
-	}
-	.download{
-		position: absolute;
-		right: 10px;
-		top:10px;
-		cursor: pointer;
-		z-index: 1;
-		a{
-			position: absolute;
-			width: 100%;
-			height: 100%;
-			left: 0;
-			top: 0;
-		}
-	}
+    .header {
+        padding-left: 250px;
+        padding-right: 100px;
+        position: relative;
+        text-align: left;
+        overflow: hidden;
+    }
+
+    .download {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+        cursor: pointer;
+        z-index: 1;
+
+        a {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+        }
+    }
 }
 
 .logo {
-	width: 151px;
-	height: 54px;
-	margin: 5px 0;
+    width: 151px;
+    height: 54px;
+    margin: 5px 0;
 
-	img {
-		width: 100%;
-	}
+    img {
+        width: 100%;
+    }
 }
 
 :global {
-	#root {
-		background: #f0f2f5;
-	}
+    body {
+        overflow-y: scroll;
+    }
 
-	.logoBox {
-		position: absolute;
-		right: 0;
-		left: 0;
-		padding: 0 50px;
+    #root {
+        background: #f0f2f5;
+    }
 
-		.ant-btn {
-			font-size: 26px;
-			color: #fff;
-			position: absolute;
-			left: 0;
-			top: 0;
-			margin: 13px;
-			display: none;
-		}
+    .divider {
+        .ant-divider-inner-text {
+            font-weight: 400;
+            font-size: 12px;
+            color: #ccc;
+        }
+    }
 
-		.bodyContainer {
-			padding: "0 50px";
-			margin-top: 20;
-			text-align: "center";
-		}
-	}
+    .logoBox {
+        position: absolute;
+        right: 0;
+        left: 0;
+        padding: 0 50px;
 
-	.HomeDrawer {
-		.ant-drawer-body {
-			padding: 0;
-		}
+        .ant-btn {
+            font-size: 26px;
+            color: #fff;
+            position: absolute;
+            left: 0;
+            top: 0;
+            margin: 13px;
+            display: none;
+        }
 
-		.ant-drawer-wrapper-body {
-			background: #00152a;
-		}
-	}
+        .bodyContainer {
+            padding: "0 50px";
+            margin-top: 20;
+            text-align: "center";
+        }
+    }
 
-	@media (max-width: 768px) {
-		.logoBox {
-			text-align: center;
+    .HomeDrawer {
+        .ant-drawer-body {
+            padding: 0;
+        }
 
-			.ant-btn {
-				display: block;
-			}
-		}
+        .ant-drawer-wrapper-body {
+            background: #00152a;
+        }
+    }
 
-		#root {
-			.bodyContainer {
-				padding: 0;
-			}
-		}
-	}
+    @media (max-width: 768px) {
+        .logoBox {
+            text-align: center;
+
+            .ant-btn {
+                display: block;
+            }
+        }
+
+        #root {
+            .bodyContainer {
+                padding: 0;
+            }
+        }
+    }
 }

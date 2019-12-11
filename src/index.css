@@ -1,5 +1,7 @@
+/** @format */
 
-html, body, :global(#root) {
-  height: 100%;
+html,
+body,
+:global(#root) {
+	height: 100%;
 }
-

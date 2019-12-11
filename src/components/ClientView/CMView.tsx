@@ -85,15 +85,32 @@ class CMView extends Component<Props, State> {
 			return;
 		}
 
+		// // 初始化CLE引擎
+		// if (CMWeb.Init3DViewer(0) != 0) {
+		// 	alert("通用模型控件初始化失败！");
+		// }
+
 		// 初始化CLE引擎
-		if (CMWeb.Init3DViewer(0) != 0) {
-			alert("通用模型控件初始化失败！");
+		var nResult = CMWeb.Init3DViewer(0);
+
+		if (nResult == 6) {
+			alert("初始化错误");
+			return;
 		}
+
+		else if (nResult == 11) {
+			alert("激活窗口错误");
+			return;
+		}
+
+		// 获取硬件信息
+		var deviceInfo = CMWeb.GetDeviceData();
+		// alert(deviceInfo);
 
 		// 打开CLE文件
 		const { pid, cleUrl, deviceData } = this.props
 		// let cleUrl = "http://fm.aijk.xyz/rs/120/5b5ac8b006d0abe225e5867b68b8/9eba.cle"
-		let lesUrl: string = `http://fm.aijk.xyz/?r=cle&d=les&pid=${pid}&d=les&devid=${deviceData}`
+		let lesUrl: string = `http://fm.aijk.xyz/?r=cle&d=les&pid=${pid}&d=les&devid=${deviceInfo}`
 
 		this.OpenDRMFile(cleUrl, lesUrl)
 	}
@@ -163,7 +180,7 @@ class CMView extends Component<Props, State> {
 	}
 
 	beforeunload(e) {
-		debugger
+		// debugger
 		CMWeb.CloseFile()
 		CMWeb.UnInit3DViewer()
 		// return false;

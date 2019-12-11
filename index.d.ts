@@ -1,3 +1,3 @@
 /** @format */
 
-declare module "*"
+// declare module "*"

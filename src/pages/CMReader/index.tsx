@@ -42,8 +42,8 @@ class CMReader extends Component<Props, State> {
 		return (
 			<div className='NetCoreCheckBox'>
 				<object id='NetCoreCheck' width='0' height='0' classID={clsid} />
-				<Spin size='large' spinning={!(deviceData && cleUrl)} tip='模型加载中...'>
-					{deviceData && cleUrl && (
+				<Spin size='large' spinning={!(cleUrl)} tip='模型加载中...'>
+					{cleUrl && (
 						<CMView cleUrl={cleUrl} pid={pid} deviceData={deviceData} title={this.title} />
 					)}
 				</Spin>
@@ -60,15 +60,15 @@ class CMReader extends Component<Props, State> {
 	}
 
 	async NetCoreInitCheck() {
-		const deviceID = this.checkLicense()
-			.getVerion()
-			.getDeviceData()
+		// const deviceID = this.checkLicense()
+		// 	.getVerion()
+		// 	.getDeviceData()
 		// if (!deviceID) return;
 		const res = await get(API.fileInfo.cle, { pid: this.state.pid })
 		if (res.success) {
 			this.setState({
 				cleUrl: res.data.cle,
-				deviceData: deviceID,
+				// deviceData: deviceID,
 			})
 		}
 	}

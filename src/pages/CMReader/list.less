@@ -2,17 +2,22 @@
 
 :global {
 	.listContainer {
-		padding-bottom: 20px;
+		padding: 20px;
+		text-align: center;
+
 		.ant-spin {
 			margin-top: 80px;
+		}
+
+		.ant-spin-container {
+			text-align: left;
 		}
 	}
 
 	.CMListCard {
 		display: inline-block;
-		margin: 10px;
-		width: 320px;
 		vertical-align: middle;
+		border: none;
 
 		.ant-card-body {
 			padding: 18px;
@@ -26,28 +31,36 @@
 				}
 			}
 
-			.ant-card-meta-description {
-				text-align: left;
-				word-break: normal;
-			}
+			// .ant-card-meta-description {
+			//     text-align: left;
+			//     word-break: normal;
+			// }
 
 			.CMListDesc {
 				font-size: 12px;
 				color: #ccc;
 			}
 
-			.ant-card-meta-detail {
-				display: flex;
-				flex-direction: column;
-				justify-content: space-between;
-				height: 100px;
-			}
+			// .ant-card-meta-detail {
+			//     display: flex;
+			//     flex-direction: column;
+			//     justify-content: space-between;
+			//     height: 100px;
+			// }
 		}
 	}
 
 	@media (max-width: 375px) {
 		.CMListCard {
 			margin: 10px 0;
+		}
+	}
+
+	@media (max-width: 376px) {
+		.listContainer {
+			.ant-spin-container > div {
+				text-align: center;
+			}
 		}
 	}
 }
