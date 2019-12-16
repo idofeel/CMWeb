@@ -7,19 +7,27 @@
 
     .header {
         padding-left: 250px;
-        padding-right: 100px;
+        padding-right: 184px;
         position: relative;
         text-align: left;
         overflow: hidden;
+         @media (max-width: 768px) {
+           padding:0;
+        }
     }
 
     .download {
         position: absolute;
         right: 10px;
-        top: 10px;
+        top: 0px;
         cursor: pointer;
         z-index: 1;
-
+        @media (max-width: 768px) {
+            display: none;
+        }
+        >button{
+            margin-left: 10px;
+        }
         a {
             position: absolute;
             width: 100%;
@@ -28,8 +36,12 @@
             top: 0;
         }
     }
+   
 }
 
+.downicon{
+    margin-right: 10px;
+}
 .logo {
     width: 151px;
     height: 54px;
@@ -62,6 +74,7 @@
         right: 0;
         left: 0;
         padding: 0 50px;
+        padding-right: 184px;
 
         .ant-btn {
             font-size: 26px;
@@ -72,12 +85,13 @@
             margin: 13px;
             display: none;
         }
-
-        .bodyContainer {
-            padding: "0 50px";
-            margin-top: 20;
-            text-align: "center";
-        }
+       
+    }
+     .bodyContainer {
+        // padding: 0 50px;
+        // margin-top: 20px;
+        text-align: center;
+        position: relative;
     }
 
     .HomeDrawer {
@@ -90,9 +104,15 @@
         }
     }
 
+    .searchBar{
+        padding: 20px 0;
+        background: #fff;
+    }
+
     @media (max-width: 768px) {
         .logoBox {
             text-align: center;
+            padding:0 40px;
 
             .ant-btn {
                 display: block;

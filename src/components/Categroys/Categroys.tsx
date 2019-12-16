@@ -6,7 +6,7 @@ import { withRouter } from "dva/router"
 import { connect } from "dva"
 import { IEVersion } from "../../utils/Browser"
 import "./index.d.ts"
-import { replaceState } from "../../utils"
+import { replaceState, joinUrlEncoded } from "../../utils"
 
 const IE = IEVersion()
 const { TabPane } = Tabs
@@ -55,7 +55,8 @@ class Categroys extends Component<Props | any, State> {
 		)
 	}
 	setMenusData(menusid: string) {
-		const { menus, dispatch } = this.props
+		const { menus, dispatch, location, history } = this.props
+
 		// const { menus } = state
 		let selectDatas = menus.filter((item: any) => item.id === menusid)
 		let selectData = selectDatas.length ? selectDatas[0] : menus[0]
@@ -65,14 +66,20 @@ class Categroys extends Component<Props | any, State> {
 			secondaryMenus: selectData.sub,
 			secondaryKey: id,
 		}
-
+		const isHome = location.pathname === '/home'
 		this.lastCateId = id
+
+		if (!isHome) return history.push(joinUrlEncoded('/home', {
+			m: payload.selectKey,
+			s: id
+		}))
+
 
 		dispatch({
 			type: "HomeStore/save",
 			payload,
 			callback: (payload: any) => {
-				replaceState(this.props.location.search, payload)
+				replaceState(location.search, payload)
 			},
 		})
 
@@ -105,14 +112,14 @@ class Categroys extends Component<Props | any, State> {
  * @class SecondaryCates 二级分类
  * @extends {Component<any, State>}
  */
-@connect(({ HomeStore }: any) => HomeStore)
+@connect(({ HomeStore, searchStore }: any) => ({ ...HomeStore, searchStore }))
 class SecondaryCates extends Component<any, State> {
 	currentKey: any = null
 	render() {
 		const { secondaryMenus, secondaryKey, dispatch, id } = this.props
 		if (!secondaryMenus.length) return null
 		return (
-			<Affix offsetTop={0}>
+			<Affix offsetTop={this.props.searchStore.searchBarShow ? 80 : 0}>
 				<Tabs
 					activeKey={secondaryKey}
 					tabBarStyle={{ background: "#fff" }}

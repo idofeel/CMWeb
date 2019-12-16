@@ -41,22 +41,29 @@ export default {
 					const { id: sid } = secondDatas[0] || selectData.sub[0]
 					id = sid
 				}
-
-				yield put({
-					type: "CMList/getData",
-					payload: {
-						id,
-						start: 0,
-					},
-				})
-				yield put({
-					type: "save",
-					payload: {
+				if (payload.loadSecondaryCate) {
+					yield put({
+						type: "CMList/getData",
+						payload: {
+							id,
+							start: 0,
+						},
+					})
+					payload = {
 						menus: res.data,
 						selectKey: selectData.id,
 						secondaryMenus: selectData.sub || [],
 						secondaryKey: id,
-					},
+
+					}
+				} else {
+					payload = {
+						menus: res.data,
+					}
+				}
+				yield put({
+					type: "save",
+					payload,
 					callback,
 				})
 			}

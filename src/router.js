@@ -13,11 +13,16 @@ const RoutersConfig = [
 	{
 		path: "/",
 		component: () => import("./pages/indexPage"),
-		model: [import("./models/menus"), import("./models/CMList")],
+		model: [import("./models/menus"), import("./models/CMList"),import("./models/searchModel")],
 		routes: [
 			{
 				path: "/home",
 				component: () => import("./pages/home/home"),
+				model: [],
+			},
+			{
+				path: "/search",
+				component: () => import("./pages/search/searchPage"),
 				model: [],
 			},
 		],

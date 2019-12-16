@@ -1,7 +1,7 @@
 /** @format */
 
 import React, { Component } from "react"
-import { Layout, Row, Col, Drawer, Button } from "antd"
+import { Layout, Row, Col, Drawer, Button, Dropdown, Icon, Menu, Input, Affix } from "antd"
 import { Switch } from "dva/router"
 import SubRoutes, { NoMatchRoute, RedirectRoute } from "../utils/SubRoutes"
 import Categroys, { SecondaryCate } from "../components/Categroys/Categroys"
@@ -10,25 +10,68 @@ import styles from "./IndexPage.less"
 import "../@types"
 
 import { queryString, joinUrlEncoded, replaceState } from "../utils"
+import SearchBar from "../components/SearchBar"
 
 const { Header, Content, Footer } = Layout
+const { Search } = Input;
 
 @connect()
 class IndexPage extends Component<RoutesProps, State> {
+	container: HTMLElement
 	state = {
 		drawerShow: false,
-	}
+		downloadMenus: [
+			{
+				icon: 'windows',
+				download: 'http://39.98.156.22/softcenter/CMWebSetup.zip',
+				title: 'windows 下载'
+			},
+			{
+				icon: 'apple',
+				download: 'http://39.98.156.22/softcenter/CMReader.ipa',
+				title: 'IOS 下载'
+			},
+			{
+				icon: 'android',
+				download: 'http://39.98.156.22/softcenter/CMReader.apk',
+				title: 'Android 下载'
+			}
+		],
 
+	}
 	render() {
 		const { routes, app } = this.props
-		const { drawerShow } = this.state
+		const { drawerShow, downloadMenus } = this.state
 		return (
 			<Layout className={styles.homePage}>
 				<Header className={styles.header}>
-					<Button type='primary' icon="download" size={"large"} className={styles.download}>
-						{/* <a href="http://fm.aijk.xyz/softcenter/CMWebSetup.exe" /> */}
-						<a href="./../../public/CMWebSetup.zip" download />
-					</Button>
+					<div className={styles.download}>
+						<Button type="primary" icon="search" onClick={() => {
+							this.props.dispatch({
+								type: 'searchStore/toggleSearchBar'
+							})
+						}} />·
+						<Dropdown overlay={() => (
+							<Menu>
+								{downloadMenus.map((item, index) =>
+									<Menu.Item key={index}>
+										<a href={item.download} download >
+											<Button type='primary' className={styles.downicon} icon={item.icon} size={"small"} title={item.title} />
+											{/* <a href={item.download} download >
+										<Icon type={item.icon} />
+										{item.title}
+									</a> */}
+											{item.title}
+										</a>
+									</Menu.Item>
+								)}
+							</Menu>
+						)}>
+							<Button type="primary">
+								<Icon type="download" />下载列表
+							</Button>
+						</Dropdown>
+					</div>
 					<Col xs={24} md={24} className='logoBox'>
 						<Button
 							type='primary'
@@ -69,6 +112,7 @@ class IndexPage extends Component<RoutesProps, State> {
 					<Categroys mode='inline' />
 				</Drawer>
 				<Content className='bodyContainer'>
+					<SearchBar />
 					<SecondaryCate />
 					<Switch>
 						{routes.map((route, i) => (
@@ -82,33 +126,30 @@ class IndexPage extends Component<RoutesProps, State> {
                     </div> */}
 				</Content>
 				{/* <Footer style={{ textAlign: "center" }}></Footer> */}
-			</Layout>
+			</Layout >
 		)
 	}
+	handleButtonClick() {
+
+	}
+
 	componentDidMount() {
-		const { search } = this.props.location
+		const { search, pathname } = this.props.location
 		const parmas = queryString(search)
 		const { dispatch } = this.props;
+		const isHome = pathname === '/home'
 		// 获取设置菜单
 		dispatch({
 			type: "HomeStore/getMenus",
 			payload: {
 				selectKey: parmas.m,
 				second: parmas.s,
+				loadSecondaryCate: isHome
 			},
 			callback: (payload: any) => {
-				replaceState(search, payload)
+				isHome && replaceState(search, payload)
 			},
 		})
-		console.log(this.props)
-
-		// dispatch({
-		// 	type: "CMList/getData",
-		// 	payload: {
-		// 		id: this.secondaryKey,
-		// 		start: 0,
-		// 	},
-		// })
 
 		window.addEventListener("resize", this.resize.bind(this))
 	}

@@ -12,6 +12,7 @@ interface RoutesProps extends RoutersConfig {
 	global: ucenter
 	location: any
 	dispatch: any
+	history:any
 	app: any
 }
 

@@ -9,7 +9,6 @@ import InfiniteScroll from 'react-infinite-scroller';
 import ReactBarrel from "../../components/react-barrel/react-barrel"
 import "./list.less"
 
-const { Meta } = Card
 interface Props {
 	list?: List[]
 	loading?: boolean
@@ -17,6 +16,7 @@ interface Props {
 }
 interface State { }
 const { Title, Text } = Typography
+const { Meta } = Card
 
 @connect(({ CMList }: any) => CMList)
 class CMListPage extends Component<any | Props, State> {
@@ -78,8 +78,10 @@ class CMListPage extends Component<any | Props, State> {
 	}
 
 	goCMReader(item: List) {
-		const origin = location.href.split("#")
-		const href = joinUrlEncoded(origin[0] + "#/view", {
+		console.log(item);
+
+		const origin = 'http://39.98.156.22/web/cmweb.html'
+		const href = joinUrlEncoded(origin, {
 			pid: item.pid,
 			title: item.name,
 		})
