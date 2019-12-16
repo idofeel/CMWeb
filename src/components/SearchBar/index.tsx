@@ -5,7 +5,8 @@ import { withRouter } from 'dva/router';
 
 import './searchBar.less'
 
-export interface IAppProps {
+export interface IAppProps extends RoutersConfig {
+    searchStore: any
 }
 
 export interface IAppState {
@@ -52,8 +53,6 @@ class SearchBar extends React.Component<IAppProps, IAppState> {
                 searchText: value
             }
         })
-        console.log(this.props);
-
         if (location.pathanme !== '/search') {
             dispatch({
                 type: "HomeStore/save",
@@ -69,4 +68,4 @@ class SearchBar extends React.Component<IAppProps, IAppState> {
 
     }
 }
-export default withRouter(SearchBar)
+export default SearchBar

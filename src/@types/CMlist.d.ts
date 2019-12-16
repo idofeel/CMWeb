@@ -1,14 +1,21 @@
 /** @format */
 
-interface CMList {
-	list: List[]
+declare module '*.less';
+
+interface CMListProps {
+	list: ListItem[]
+	loading: boolean
+	empty: boolean | string
+	loadEnd: boolean
 }
 
-interface List {
+interface ListItem {
 	img: string
 	filesize: string
 	name: string
 	pid: string
 	gid: string
 	memo: string | null
+	width?: number
+	height?: number
 }

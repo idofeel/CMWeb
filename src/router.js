@@ -6,11 +6,6 @@ import SubRoutes from "./utils/SubRoutes"
 
 const RoutersConfig = [
 	{
-		path: "/view",
-		component: () => import("./pages/CMReader"),
-		model: [],
-	},
-	{
 		path: "/",
 		component: () => import("./pages/indexPage"),
 		model: [import("./models/menus"), import("./models/CMList"),import("./models/searchModel")],

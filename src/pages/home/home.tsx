@@ -3,22 +3,49 @@
 import React, { Component } from "react"
 import _fetch from "dva/fetch"
 import style from "./home.less"
-import CMList from "../CMReader/list"
-interface Props {}
-interface State {}
+import CMList from "../../components/CMList/CMList"
+import { connect } from "dva"
+interface Props extends CMListProps {
+	id: string
+	start: number
+	dispatch: any
+}
+interface State { }
 
+@connect(({ CMList }: any) => CMList)
 export default class index extends Component<Props, State> {
 	state = {
 		value: "",
 	}
 
 	render() {
+		const { list, loading, empty, loadEnd } = this.props
+
 		return (
 			<div className={style.a}>
-				<CMList />
+				<CMList
+					loadMore={() => {
+						this.loadMore();
+					}}
+					list={list}
+					loading={loading}
+					empty={empty}
+					loadEnd={loadEnd}
+				/>
 			</div>
 		)
 	}
 
-	async componentDidMount() {}
+	loadMore() {
+		const { id, start, dispatch } = this.props;
+		dispatch({
+			type: 'CMList/getData',
+			payload: {
+				id,
+				start,
+				loadNext: true
+			}
+		})
+		// alert('loadmore')
+	}
 }

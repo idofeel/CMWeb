@@ -9,11 +9,11 @@ import { connect } from "dva"
 import styles from "./IndexPage.less"
 import "../@types"
 
-import { queryString, joinUrlEncoded, replaceState } from "../utils"
+
+import { queryString, replaceState } from "../utils"
 import SearchBar from "../components/SearchBar"
 
-const { Header, Content, Footer } = Layout
-const { Search } = Input;
+const { Header, Content } = Layout
 
 @connect()
 class IndexPage extends Component<RoutesProps, State> {
@@ -138,6 +138,7 @@ class IndexPage extends Component<RoutesProps, State> {
 		const parmas = queryString(search)
 		const { dispatch } = this.props;
 		const isHome = pathname === '/home'
+
 		// 获取设置菜单
 		dispatch({
 			type: "HomeStore/getMenus",
@@ -150,6 +151,15 @@ class IndexPage extends Component<RoutesProps, State> {
 				isHome && replaceState(search, payload)
 			},
 		})
+		// 搜索页直接现实SearchBar
+		if (pathname === '/search') {
+			dispatch({
+				type: 'searchStore/save',
+				payload: {
+					searchBarShow: true
+				}
+			})
+		}
 
 		window.addEventListener("resize", this.resize.bind(this))
 	}

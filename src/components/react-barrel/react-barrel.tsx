@@ -102,7 +102,6 @@ class ReactBarrel extends Component<Props, State>{
      * 窗口重置事件，重新初始化渲染
      */
     resize() {
-        console.log('reszie')
         const width = this.getAutoWidth();
         if (this.totalWidth === width) return;
         this.totalWidth = this.props.width || width; // 重置高度
@@ -226,7 +225,7 @@ class ReactBarrel extends Component<Props, State>{
 
     getAutoWidth() {
         const dom: any = this.BarrelContainer.current;
-        console.log(dom)
+        console.log(dom);
         const style: any = window.getComputedStyle(dom),
             { paddingLeft = 0, paddingRight = 0 } = style || {},
             width: number =

@@ -5,6 +5,9 @@ interface RoutersConfig {
 	component: PromiseLike<any>
 	model: any[]
 	routes: RoutersConfig[]
+	location: any,
+	history: any,
+	dispatch: any
 }
 
 interface RoutesProps extends RoutersConfig {
