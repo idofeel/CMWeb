@@ -225,7 +225,7 @@ class ReactBarrel extends Component<Props, State>{
 
     getAutoWidth() {
         const dom: any = this.BarrelContainer.current;
-        console.log(dom);
+        if (!dom) return;
         const style: any = window.getComputedStyle(dom),
             { paddingLeft = 0, paddingRight = 0 } = style || {},
             width: number =

@@ -13,13 +13,14 @@ import "../@types"
 import { queryString, replaceState } from "../utils"
 import SearchBar from "../components/SearchBar"
 
-const { Header, Content } = Layout
+const { Header, Content, Footer } = Layout
 
 @connect()
 class IndexPage extends Component<RoutesProps, State> {
 	container: HTMLElement
 	state = {
 		drawerShow: false,
+		contentHeight: window.innerHeight - 104,
 		downloadMenus: [
 			{
 				icon: 'windows',
@@ -44,7 +45,7 @@ class IndexPage extends Component<RoutesProps, State> {
 		const { drawerShow, downloadMenus } = this.state
 		return (
 			<Layout className={styles.homePage}>
-				<Header className={styles.header}>
+				<Header className={styles.header} >
 					<div className={styles.download}>
 						<Button type="primary" icon="search" onClick={() => {
 							this.props.dispatch({
@@ -111,7 +112,7 @@ class IndexPage extends Component<RoutesProps, State> {
 				>
 					<Categroys mode='inline' />
 				</Drawer>
-				<Content className='bodyContainer'>
+				<Content className='bodyContainer' style={{ minHeight: this.state.contentHeight }}>
 					<SearchBar />
 					<SecondaryCate />
 					<Switch>
@@ -125,7 +126,9 @@ class IndexPage extends Component<RoutesProps, State> {
                     Content
                     </div> */}
 				</Content>
-				{/* <Footer style={{ textAlign: "center" }}></Footer> */}
+				<Footer style={{ fontSize: '12px', textAlign: "center", background: '#001529', color: '#e4e4e4', height: 40, padding: 0, lineHeight: '40px' }}>
+					版权所有 &nbsp; &nbsp; 北京圜晖科技有限公司 &nbsp; &nbsp; 京ICP备19039689号-2
+				</Footer>
 			</Layout >
 		)
 	}
@@ -161,6 +164,8 @@ class IndexPage extends Component<RoutesProps, State> {
 			})
 		}
 
+
+
 		window.addEventListener("resize", this.resize.bind(this))
 	}
 
@@ -172,6 +177,9 @@ class IndexPage extends Component<RoutesProps, State> {
 
 	resize() {
 		const { drawerShow } = this.state
+		this.setState({
+			contentHeight: window.innerHeight - 104
+		})
 		if (drawerShow) {
 			this.setState({
 				drawerShow: false,
