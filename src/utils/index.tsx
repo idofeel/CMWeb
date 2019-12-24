@@ -18,7 +18,7 @@ const parseUrl = (url: string) => {
 	if (!url || url == null) return {}
 	let queryArr = decodeURIComponent(url).split("&"),
 		result: any = {}
-	queryArr.forEach(function(item) {
+	queryArr.forEach(function (item) {
 		result[item.split("=")[0]] = item.split("=")[1]
 	})
 	return result
@@ -55,7 +55,9 @@ const replaceState = (urlSearch: string, payload: pageParams) => {
 	window.history.replaceState({}, "0", joinUrlEncoded(param[0], parmas))
 }
 
-const domain = "http://fm.aijk.xyz"
+// const domain = "http://fm.aijk.xyz"
+const domain = "http://cle.aijk.xyz"
+
 
 /**
  *
@@ -81,6 +83,7 @@ const get = (url: string, data: object = {}, showmsg?: string) => {
  * @param {Object} data
  */
 const post = (url: string, data: object = {}, showmsg?: string) => {
+	if (url.indexOf(domain) === -1) url = domain + url
 	return request(
 		url,
 		{
@@ -92,5 +95,5 @@ const post = (url: string, data: object = {}, showmsg?: string) => {
 	)
 }
 
-export { joinUrlEncoded, parseUrl, urlEncoded, queryString, get, post, replaceState }
+export { joinUrlEncoded, parseUrl, urlEncoded, queryString, get, post, replaceState, domain }
 export default request

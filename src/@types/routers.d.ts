@@ -12,14 +12,17 @@ interface RoutersConfig {
 
 interface RoutesProps extends RoutersConfig {
 	routes: RoutersConfig[]
-	global: ucenter
+	global: globalProps
 	location: any
 	dispatch: any
-	history:any
+	history: any
 	app: any
 }
 
 // 用户中心
-interface ucenter {
+interface globalProps {
 	uname: string
+	forceUpdata: boolean
+	register: boolean
+	login: boolean
 }

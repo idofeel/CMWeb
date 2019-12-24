@@ -1,12 +1,11 @@
 import * as React from 'react';
 import { Affix, Row, Col, Input } from 'antd';
 import { connect } from 'dva';
-import { withRouter } from 'dva/router';
 
 import './searchBar.less'
 
 export interface IAppProps extends RoutersConfig {
-    searchStore: any
+    searchStore?: any
 }
 
 export interface IAppState {

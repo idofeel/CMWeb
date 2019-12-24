@@ -8,7 +8,7 @@ const RoutersConfig = [
 	{
 		path: "/",
 		component: () => import("./pages/indexPage"),
-		model: [import("./models/menus"), import("./models/CMList"),import("./models/searchModel")],
+		model: [import("./models/menus"), import("./models/CMList"), import("./models/searchModel")],
 		routes: [
 			{
 				path: "/home",
@@ -18,6 +18,16 @@ const RoutersConfig = [
 			{
 				path: "/search",
 				component: () => import("./pages/search/searchPage"),
+				model: [],
+			},
+			{
+				path: "/upload",
+				component: () => import("./pages/upload/uploadPage"),
+				model: [],
+			},
+			{
+				path: "/register",
+				component: () => import("./pages/ucenter/register"),
 				model: [],
 			},
 		],

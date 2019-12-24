@@ -6,7 +6,7 @@ import { withRouter } from "dva/router"
 import { connect } from "dva"
 import { IEVersion } from "../../utils/Browser"
 import "./index.d.ts"
-import { replaceState, joinUrlEncoded } from "../../utils"
+import { replaceState, joinUrlEncoded, queryString } from "../../utils"
 
 const IE = IEVersion()
 const { TabPane } = Tabs
@@ -53,6 +53,26 @@ class Categroys extends Component<Props | any, State> {
 				})}
 			</Menu>
 		)
+	}
+	componentDidMount() {
+		const { location, menus, forceUpdata } = this.props
+		const { search, pathname } = location
+		const parmas = queryString(search)
+		const { dispatch } = this.props;
+		const isHome = pathname === '/home'
+		if (!forceUpdata && menus.length) return;
+		// 获取设置菜单
+		dispatch({
+			type: "HomeStore/getMenus",
+			payload: {
+				selectKey: parmas.m,
+				second: parmas.s,
+				loadSecondaryCate: isHome
+			},
+			callback: (payload: any) => {
+				isHome && replaceState(search, payload)
+			},
+		})
 	}
 	setMenusData(menusid: string) {
 		const { menus, dispatch, location, history } = this.props

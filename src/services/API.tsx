@@ -15,5 +15,17 @@ export default {
         les: '/?r=cle&d=les', // {pid}
         // cle 文件信息
         cle: '/?r=cle&d=file' // {pid,devid}
+    },
+    auth: {
+        // 注册
+        register: '/?r=user&d=register&o=submit', // {username,password,password2,email,register_mode,seccode,authority_code,orgid}
+        login: '/?r=user&d=register&o=submit',
+        isUname: '/?r=user&d=register&o=isusername',
+        imgcode: '/?r=user&d=register&o=getseccode',
+        isseccode: '/?r=user&d=register&o=isseccode',
+        islogin: '/?r=user&d=islogin',
+        qqLogin: '/?r=qcloginstep1',
+        qqLogin2: '/?r=user&d=login&m=qq',
+        logout: '/?r=user&d=logout',
     }
 }

@@ -2,7 +2,10 @@ export default {
   namespace: "global",
 
   state: {
-    uname: "dofeel"
+    uname: "dofeel",
+    login: true,
+    register: false,
+    forceUpdata: true // 强制更新数据
   },
 
   subscriptions: {
