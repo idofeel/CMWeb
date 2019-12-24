@@ -33,7 +33,7 @@ export default class CMList extends React.Component<ICMListProps, ICMListState> 
         return (
             <div className='listContainer'>
                 <InfiniteScroll
-                    initialLoad={false}
+                    initialLoad={true}
                     pageStart={0}
                     loadMore={() => this.props.loadMore()}
                     hasMore={true}
