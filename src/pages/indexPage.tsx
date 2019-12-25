@@ -5,6 +5,7 @@ import { Layout, Row, Col, Drawer, Button, Dropdown, Icon, Menu, Input, Affix, M
 import { Switch } from "dva/router"
 import { connect } from "dva"
 import SubRoutes, { NoMatchRoute, RedirectRoute } from "../utils/SubRoutes"
+import { domain } from "../utils"
 import Categroys, { SecondaryCate } from "../components/Categroys/Categroys"
 import styles from "./IndexPage.less"
 import "../@types"
@@ -15,27 +16,28 @@ import SearchBar from "../components/SearchBar"
 import Login from "./ucenter/auth/login"
 import Register from "./ucenter/register"
 
-const { Header, Content } = Layout
+const { Header, Content, Footer } = Layout
 
 @connect()
 class IndexPage extends Component<RoutesProps, State> {
 	container: HTMLElement
 	state = {
 		drawerShow: false,
+		contentHeight: window.innerHeight - 104,
 		downloadMenus: [
 			{
 				icon: 'windows',
-				download: 'http://39.98.156.22/softcenter/CMWebSetup.zip',
+				download: domain + '/softcenter/CMWebSetup.zip',
 				title: 'windows 下载'
 			},
 			{
 				icon: 'apple',
-				download: 'http://39.98.156.22/softcenter/CMReader.ipa',
+				download: domain + '/softcenter/CMReader.ipa',
 				title: 'IOS 下载'
 			},
 			{
 				icon: 'android',
-				download: 'http://39.98.156.22/softcenter/CMReader.apk',
+				download: domain + '/softcenter/CMReader.apk',
 				title: 'Android 下载'
 			}
 		],
@@ -179,6 +181,8 @@ class IndexPage extends Component<RoutesProps, State> {
 			})
 		}
 
+
+
 		window.addEventListener("resize", this.resize.bind(this))
 	}
 
@@ -190,6 +194,9 @@ class IndexPage extends Component<RoutesProps, State> {
 
 	resize() {
 		const { drawerShow } = this.state
+		this.setState({
+			contentHeight: window.innerHeight - 104
+		})
 		if (drawerShow) {
 			this.setState({
 				drawerShow: false,

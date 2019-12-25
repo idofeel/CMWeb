@@ -2,7 +2,7 @@ import * as React from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import ReactBarrel from '../react-barrel/react-barrel';
 import { Spin, Card, Divider, Empty, Typography } from 'antd';
-import { joinUrlEncoded } from '../../utils';
+import { joinUrlEncoded, domain } from '../../utils';
 
 import './CMList.less'
 
@@ -33,7 +33,7 @@ export default class CMList extends React.Component<ICMListProps, ICMListState> 
         return (
             <div className='listContainer'>
                 <InfiniteScroll
-                    initialLoad={false}
+                    initialLoad={true}
                     pageStart={0}
                     loadMore={() => this.props.loadMore()}
                     hasMore={true}
@@ -82,7 +82,7 @@ export default class CMList extends React.Component<ICMListProps, ICMListState> 
     }
 
     goCMReader(item: ListItem) {
-        const origin = 'http://39.98.156.22/web/cmweb.html'
+        const origin = domain + '/web/cmweb.html'
         const href = joinUrlEncoded(origin, {
             pid: item.pid,
             title: item.name,

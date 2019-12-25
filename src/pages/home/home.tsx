@@ -38,6 +38,7 @@ export default class index extends Component<Props, State> {
 
 	loadMore() {
 		const { id, start, dispatch } = this.props;
+		if (!id) return
 		dispatch({
 			type: 'CMList/getData',
 			payload: {
