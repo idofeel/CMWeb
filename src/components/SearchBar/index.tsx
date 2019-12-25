@@ -68,4 +68,4 @@ class SearchBar extends React.Component<IAppProps, IAppState> {
 
     }
 }
-export default SearchBar
+export default withRouter(SearchBar)

@@ -4,6 +4,7 @@ import React, { Component } from "react"
 import { Layout, Row, Col, Drawer, Button, Dropdown, Icon, Menu, Input, Affix } from "antd"
 import { Switch } from "dva/router"
 import SubRoutes, { NoMatchRoute, RedirectRoute } from "../utils/SubRoutes"
+import { domain } from "../utils"
 import Categroys, { SecondaryCate } from "../components/Categroys/Categroys"
 import { connect } from "dva"
 import styles from "./IndexPage.less"
@@ -23,17 +24,17 @@ class IndexPage extends Component<RoutesProps, State> {
 		downloadMenus: [
 			{
 				icon: 'windows',
-				download: 'http://39.98.156.22/softcenter/CMWebSetup.zip',
+				download: domain + '/softcenter/CMWebSetup.zip',
 				title: 'windows 下载'
 			},
 			{
 				icon: 'apple',
-				download: 'http://39.98.156.22/softcenter/CMReader.ipa',
+				download: domain + '/softcenter/CMReader.ipa',
 				title: 'IOS 下载'
 			},
 			{
 				icon: 'android',
-				download: 'http://39.98.156.22/softcenter/CMReader.apk',
+				download: domain + '/softcenter/CMReader.apk',
 				title: 'Android 下载'
 			}
 		],
