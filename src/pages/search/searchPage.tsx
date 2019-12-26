@@ -42,7 +42,7 @@ export default class SearchPage extends React.Component<ISearchPageProps, ISearc
     }
 
     loadMore() {
-        if (this.props.start < 0 || this.props.searching) return;
+        if (this.props.start < 0 || this.props.searching || !this.props.searchText) return;
         this.props.dispatch({
             type: 'searchStore/search',
             payload: {

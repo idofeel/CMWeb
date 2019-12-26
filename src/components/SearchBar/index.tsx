@@ -3,6 +3,7 @@ import { Affix, Row, Col, Input } from 'antd';
 import { connect } from 'dva';
 
 import './searchBar.less'
+import { withRouter } from 'dva/router';
 
 export interface IAppProps extends RoutersConfig {
     searchStore?: any

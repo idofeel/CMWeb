@@ -11,7 +11,14 @@ interface State {
 }
 @connect()
 class Login extends Component<Props, State> {
-    state = {}
+    state = {
+        logining: false
+    }
+
+    //  用户名验证
+    async validatorUser(rule: any, val: any, callback: any) {
+        callback(!rule.pattern.test(val) ? undefined : '请输入2-32位字符，不能包含特殊字符');
+    }
 
     render() {
         const { getFieldDecorator } = this.props.form;
@@ -23,9 +30,9 @@ class Login extends Component<Props, State> {
                             { required: true, message: '请输入您的用户名' },
                             {
                                 pattern: user_name,
-                                validator: this.validatorForm,
-                                message:
-                                    '请输入正确的邮箱格式,如: 375163888@qq.com',
+                                validator: this.validatorUser,
+                                // message:
+                                // '请输入正确的邮箱格式,如: 375163888@qq.com',
                             },
                         ],
                     })(
@@ -57,9 +64,9 @@ class Login extends Component<Props, State> {
                     )}
                 </Form.Item>
                 <Form.Item>
-                    {getFieldDecorator('remember', {
+                    {getFieldDecorator('period', {
                         valuePropName: 'checked',
-                        initialValue: true,
+                        initialValue: false,
                     })(<Checkbox>记住我</Checkbox>)}
                     <a className="login-form-forgot" href="">
                         忘记密码
@@ -70,6 +77,7 @@ class Login extends Component<Props, State> {
                         onClick={(e) => {
                             this.onSubmit(e);
                         }}
+                        loading={this.state.logining}
                         className="login-form-button">
                         登录
 					</Button>
@@ -77,8 +85,8 @@ class Login extends Component<Props, State> {
                         this.props.dispatch({
                             type: 'global/save',
                             payload: {
-                                login: false,
-                                register: true
+                                loginModal: false,
+                                registerModal: true
                             }
                         })
                     }}>现在注册！</a>
@@ -91,32 +99,19 @@ class Login extends Component<Props, State> {
         // console.log(this)
         this.props.form.validateFields((err, values) => {
             if (err) return;
-            const { username, password } = values;
-            const res = { username: '375163888@qq.com', password: '123456' };
-            let login = [res];
-            if (res) {
-                // 匹配账号密码
-                login = login.filter(
-                    (user) =>
-                        user.password === password &&
-                        user.username === username,
-                );
-            }
+            values.period = values.period ? 1 : 0
+            this.setState({
+                logining: true
+            })
+            this.props.dispatch({
+                type: 'global/login',
+                payload: values
+            }).then(() => {
+                this.setState({
+                    logining: false
+                })
+            })
 
-            if (login && login.length > 0) {
-                // 存储登录信息
-                this.props
-                    .dispatch({
-                        type: 'global/setUserInfo',
-                        payload: login[0],
-                    })
-                    .then(() => {
-                        this.props.history.push('/');
-                    });
-            } else {
-                Message.error('账号或密码错误');
-            }
-            // console.log(login);
         });
     }
 

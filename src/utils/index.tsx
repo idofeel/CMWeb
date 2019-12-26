@@ -74,6 +74,10 @@ const get = (url: string, data: object = {}, showmsg?: string) => {
 		{
 			method: "GET",
 			mode: "cors",
+			credentials: 'include'
+			// headers: {
+			// 	'content-type': 'application/json'
+			// }
 		},
 		showmsg,
 	)
@@ -85,11 +89,13 @@ const get = (url: string, data: object = {}, showmsg?: string) => {
  */
 const post = (url: string, data: object = {}, showmsg?: string) => {
 	if (url.indexOf(domain) === -1) url = domain + url
+	console.log(JSON.stringify(data))
 	return request(
 		url,
 		{
 			method: "POST",
 			mode: "cors",
+			credentials: 'include',
 			body: JSON.stringify(data),
 		},
 		showmsg,

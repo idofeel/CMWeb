@@ -17,7 +17,7 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
     public render() {
         return (
             <div>
-
+                Input
             </div>
         );
     }

@@ -19,7 +19,7 @@ export default {
     auth: {
         // 注册
         register: '/?r=user&d=register&o=submit', // {username,password,password2,email,register_mode,seccode,authority_code,orgid}
-        login: '/?r=user&d=register&o=submit',
+        login: '/?r=user&d=login&m=name',
         isUname: '/?r=user&d=register&o=isusername',
         imgcode: '/?r=user&d=register&o=getseccode',
         isseccode: '/?r=user&d=register&o=isseccode',

@@ -27,7 +27,7 @@ export default {
 		*getMenus({ payload, callback }: any, { call, put }: any) {
 			const res = yield call(async () => await get(Api.main.menu))
 			let { selectKey = -1, second = 0 } = payload
-			if (res.success) {
+			if (res.success && res.data.length) {
 				// 过滤选中key的数据
 				const selectDatas = res.data.filter((item: any) => item.id === selectKey)
 				// 获取选中的数据/ 没获取到取第一条数据

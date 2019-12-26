@@ -1,7 +1,7 @@
 /** @format */
 
 import React, { Component } from "react"
-import { Layout, Row, Col, Drawer, Button, Dropdown, Icon, Menu, Input, Affix, Modal } from "antd"
+import { Layout, Row, Col, Drawer, Button, Dropdown, Menu, Modal, Avatar, Icon, Popover } from "antd"
 import { Switch } from "dva/router"
 import { connect } from "dva"
 import SubRoutes, { NoMatchRoute, RedirectRoute } from "../utils/SubRoutes"
@@ -17,6 +17,7 @@ import Login from "./ucenter/auth/login"
 import Register from "./ucenter/register"
 
 const { Header, Content, Footer } = Layout
+
 
 @connect()
 class IndexPage extends Component<RoutesProps, State> {
@@ -41,10 +42,69 @@ class IndexPage extends Component<RoutesProps, State> {
 				title: 'Android 下载'
 			}
 		],
+		UserMenus: [
+			{
+				id: 'login',
+				name: '账号登录',
+				icon: 'login',
+				onClick: () => {
+					console.log(this);
+
+					this.userModalConfig({
+						registerModal: false,
+						loginModal: true
+					})
+				}
+			},
+			{
+				id: 'register',
+				name: '新用户注册',
+				icon: 'user-add',
+				onClick: () => {
+					this.userModalConfig({
+						registerModal: true,
+						loginModal: false
+					})
+				}
+			},
+		],
+		userLoginMenus: [
+			{
+				id: 'userSet',
+				name: '私有资源',
+				icon: 'profile',
+				onClick: () => {
+
+				}
+			},
+			{
+				id: 'userSet',
+				name: '账户设置',
+				icon: 'setting',
+				onClick: () => {
+
+				}
+			},
+			{
+				id: 'logout',
+				name: '退出登录',
+				icon: 'logout',
+				onClick: () => {
+					this.props.dispatch({
+						type: 'global/logout',
+					})
+				}
+			},
+		]
 
 	}
 	render() {
-		const { routes, app } = this.props
+		const { routes, app, global } = this.props
+		const avatarAttr = {
+			icon: global.uname ? '' : 'user',
+			src: global.avatar,
+			style: { backgroundColor: "#1890ff", marginLeft: 10 }
+		}
 		const { drawerShow, downloadMenus } = this.state
 		return (
 			<>
@@ -74,14 +134,19 @@ class IndexPage extends Component<RoutesProps, State> {
 							)}>
 								<Button type="primary" icon="download">下载列表</Button>
 							</Dropdown>
-							<Button type="primary" icon="login" onClick={() => {
-								this.props.dispatch({
-									type: 'global/save',
-									payload: {
-										register: true
-									}
-								})
-							}}>登陆</Button>
+							{/* <Dropdown overlay={this.renderMenus()}> */}
+							<Popover content={this.renderMenus()} placement="bottomRight" >
+								<Avatar size="large" {...avatarAttr} onClick={() => {
+									!this.props.global.islogin && this.props.dispatch({
+										type: 'global/save',
+										payload: {
+											loginModal: true,
+											registerModal: false
+										}
+									})
+								}}>{global.uname}</Avatar>
+							</Popover>
+							{/* </Dropdown> */}
 						</div>
 						<Col xs={24} md={24} className='logoBox'>
 							<Button
@@ -120,7 +185,7 @@ class IndexPage extends Component<RoutesProps, State> {
 						visible={drawerShow}
 						maskClosable={true}
 					>
-						<Categroys mode='inline' forceUpdata={this.props.global.forceUpdata} />
+						<Categroys mode='inline' forceUpdata={global.forceUpdata} />
 					</Drawer>
 					<Content className='bodyContainer'>
 						<SearchBar />
@@ -139,38 +204,54 @@ class IndexPage extends Component<RoutesProps, State> {
 					{/* <Footer style={{ textAlign: "center" }}></Footer> */}
 				</Layout >
 				<Modal
-					title="注册/登陆"
+					title={global.registerModal ? '账号注册' : '登录'}
 					centered
-					visible={this.props.global.register || this.props.global.login}
-					onOk={() => this.handleShowModal()}
-					onCancel={() => this.handleShowModal()}
+					visible={global.loginModal || global.registerModal}
+					onOk={() => this.userModalConfig()}
+					onCancel={() => this.userModalConfig()}
 					footer={null}
 				>
-					{this.props.global.login && <Login />}
-					{this.props.global.register && <Register />}
+					{global.loginModal && <Login />}
+					{global.registerModal && <Register />}
 
 				</Modal>
 			</>
 		)
 	}
+
+	renderMenus() {
+		const menus = this.props.global.islogin ? this.state.userLoginMenus : this.state.UserMenus
+		return (
+			<Menu>
+				{menus.map((item, index) => (
+					<Menu.Item key={index} >
+						<Button type="link" icon={item.icon} onClick={item.onClick}>
+							{item.name}
+						</Button>
+					</Menu.Item>
+				))}
+			</Menu>
+		);
+	}
 	handleButtonClick() {
 
 	}
-
-	handleShowModal() {
+	userModalConfig(payload = { registerModal: false, loginModal: false }) {
 		this.props.dispatch({
 			type: 'global/save',
-			payload: {
-				register: false,
-				login: false
-			}
+			payload
 		})
 	}
-
 	componentDidMount() {
 		const { pathname } = this.props.location
 		// const parmas = queryString(search)
-		const { dispatch } = this.props;
+		const { dispatch, global } = this.props;
+		if (!global.checkLogin) {
+			dispatch({
+				type: 'global/isLogin',
+
+			})
+		}
 		// 搜索页直接现实SearchBar
 		if (pathname === '/search') {
 			dispatch({

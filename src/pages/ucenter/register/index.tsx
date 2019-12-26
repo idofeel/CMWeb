@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Icon, Button, Form, Input, Tooltip, Cascader, AutoComplete, Row, Col, Checkbox } from 'antd'
+import { Icon, Button, Form, Input, Tooltip, Cascader, AutoComplete, Row, Col, Checkbox, message } from 'antd'
 import { connect } from 'dva';
 import {
     email_reg,
@@ -12,6 +12,7 @@ import API from '../../../services/API';
 
 interface Props {
     form?: any
+    dispatch?: any
 }
 interface State {
 
@@ -68,8 +69,8 @@ class Register extends Component<Props, State> {
                         this.props.dispatch({
                             type: 'global/save',
                             payload: {
-                                login: true,
-                                register: false
+                                loginModal: true,
+                                registerModal: false
                             }
                         })
                     }}>已有账号，去登录</a>
@@ -131,7 +132,7 @@ class Register extends Component<Props, State> {
                             />,
                         )}
                     </Form.Item>
-                    <Form.Item label="验证码" >
+                    <Form.Item label="验证码" extra="点击图片可更换验证码">
                         <Row gutter={8}>
                             <Col span={12}>
                                 {getFieldDecorator('seccode', {
@@ -187,6 +188,12 @@ class Register extends Component<Props, State> {
     };
 
     handleSubmit = (e: any) => {
+        // message.success('注册成功')
+        console.log(this.props);
+
+        // this.props.dispatch({
+        //     type: 'global/isLogin',
+        // })
         e.preventDefault();
 
         this.props.form.validateFieldsAndScroll(async (err: any, values: any) => {
@@ -194,12 +201,21 @@ class Register extends Component<Props, State> {
                 this.setState({
                     registerLoading: true
                 })
-                await post(API.auth.register, values)
+                const res = await post(API.auth.register, values)
+                if (res.success) {
+                    this.props.dispatch({
+                        type: 'global/saveUserInfo',
+                        payload: res.data
+                    })
+                    message.success('恭喜您，注册成功')
+                } else {
+                    message.error(res.faildesc)
+                }
 
                 this.setState({
-                    registerLoading: false
+                    registerLoading: false,
+                    // imgCode: joinUrlEncoded(domain + API.auth.imgcode, { rand: Math.random() })
                 })
-                console.log('Received values of form: ', values);
             }
         });
     };
@@ -208,4 +224,7 @@ class Register extends Component<Props, State> {
 
     }
 }
-export default Form.create({ name: 'register' })(Register);
+
+const RegisterForm = Form.create({ name: 'register' })(Register)
+
+export default RegisterForm;
