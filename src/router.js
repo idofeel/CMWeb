@@ -8,7 +8,7 @@ const RoutersConfig = [
 	{
 		path: "/",
 		component: () => import("./pages/indexPage"),
-		model: [import("./models/menus"), import("./models/CMList"), import("./models/searchModel")],
+		model: [import("./models/menus"), import("./models/CMList"), import("./models/searchModel"), import("./models/Ucenter")],
 		routes: [
 			{
 				path: "/home",

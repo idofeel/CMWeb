@@ -89,4 +89,10 @@ export default class CMList extends React.Component<ICMListProps, ICMListState> 
         })
         window.open(href, "_blank")
     }
+    componentWillUnmount() {
+        // 卸载异步操作设置状态
+        this.setState = (state, callback) => {
+            return;
+        }
+    }
 }

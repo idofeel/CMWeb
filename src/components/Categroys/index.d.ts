@@ -10,10 +10,10 @@ interface Props {
   dispatch: any;
   mode: MenuMode;
 }
-interface State {}
+interface State { }
 interface Menus {
   id: string;
   name: string;
   ispower: boolean;
-  sub: Menus[];
+  sub: Menus[] | string;
 }

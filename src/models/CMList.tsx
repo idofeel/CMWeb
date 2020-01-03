@@ -81,7 +81,6 @@ export default {
 			}
 			let { list } = state;
 			if (payload.loadNext) payload.list = list.concat(payload.list)
-			console.log(payload)
 			return { ...state, ...payload }
 		},
 	},

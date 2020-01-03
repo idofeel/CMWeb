@@ -81,7 +81,7 @@ class Login extends Component<Props, State> {
                         className="login-form-button">
                         登录
 					</Button>
-                    <a href="javascript:;" onClick={() => {
+                    <Button type="link" onClick={() => {
                         this.props.dispatch({
                             type: 'global/save',
                             payload: {
@@ -89,7 +89,9 @@ class Login extends Component<Props, State> {
                                 registerModal: true
                             }
                         })
-                    }}>现在注册！</a>
+                    }}>
+                        现在注册！
+                    </Button>
                 </Form.Item>
             </Form>
         );
@@ -113,6 +115,10 @@ class Login extends Component<Props, State> {
             })
 
         });
+    }
+
+    componentWillUnmount() {
+        this.setState = () => { return };
     }
 
 }

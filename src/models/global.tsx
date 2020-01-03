@@ -36,6 +36,10 @@ export default {
 					payload: res.data
 				});
 
+				yield put({
+					type: "ucenter/saveUserInfo",
+					payload: res.data
+				});
 				message.success('登录成功')
 			} else {
 				message.warn(res.faildesc || '登录失败')
@@ -54,6 +58,10 @@ export default {
 					checkLogin: true,
 					islogin: true,
 				}
+				yield put({
+					type: "save",
+					payload
+				});
 				// message.success('已登录')
 			} else {
 				payload = {
@@ -68,10 +76,7 @@ export default {
 				// message.warn('未登录')
 			}
 
-			yield put({
-				type: "save",
-				payload
-			});
+			// if (!payload.initCheck) 
 		},
 		*logout({ payload }: any, { call, put }: any) {
 			const res = yield call(async () => await post(API.auth.logout));

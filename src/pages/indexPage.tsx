@@ -24,7 +24,6 @@ class IndexPage extends Component<RoutesProps, State> {
 	container: HTMLElement
 	state = {
 		drawerShow: false,
-		contentHeight: window.innerHeight - 104,
 		downloadMenus: [
 			{
 				icon: 'windows',
@@ -48,11 +47,12 @@ class IndexPage extends Component<RoutesProps, State> {
 				name: '账号登录',
 				icon: 'login',
 				onClick: () => {
-					console.log(this);
-
-					this.userModalConfig({
-						registerModal: false,
-						loginModal: true
+					this.props.dispatch({
+						type: 'ucenter/save',
+						payload: {
+							registerModal: false,
+							loginModal: true
+						}
 					})
 				}
 			},
@@ -61,9 +61,12 @@ class IndexPage extends Component<RoutesProps, State> {
 				name: '新用户注册',
 				icon: 'user-add',
 				onClick: () => {
-					this.userModalConfig({
-						registerModal: true,
-						loginModal: false
+					this.props.dispatch({
+						type: 'ucenter/save',
+						payload: {
+							registerModal: true,
+							loginModal: false
+						}
 					})
 				}
 			},
@@ -138,7 +141,7 @@ class IndexPage extends Component<RoutesProps, State> {
 							<Popover content={this.renderMenus()} placement="bottomRight" >
 								<Avatar size="large" {...avatarAttr} onClick={() => {
 									!this.props.global.islogin && this.props.dispatch({
-										type: 'global/save',
+										type: 'ucenter/save',
 										payload: {
 											loginModal: true,
 											registerModal: false
@@ -187,7 +190,8 @@ class IndexPage extends Component<RoutesProps, State> {
 					>
 						<Categroys mode='inline' forceUpdata={global.forceUpdata} />
 					</Drawer>
-					<Content className='bodyContainer'>
+					<Content className='bodyContainer' >
+
 						<SearchBar />
 						<SecondaryCate />
 						<Switch>
@@ -201,20 +205,12 @@ class IndexPage extends Component<RoutesProps, State> {
                     Content
                     </div> */}
 					</Content>
-					{/* <Footer style={{ textAlign: "center" }}></Footer> */}
-				</Layout >
-				<Modal
-					title={global.registerModal ? '账号注册' : '登录'}
-					centered
-					visible={global.loginModal || global.registerModal}
-					onOk={() => this.userModalConfig()}
-					onCancel={() => this.userModalConfig()}
-					footer={null}
-				>
-					{global.loginModal && <Login />}
-					{global.registerModal && <Register />}
 
-				</Modal>
+				</Layout >
+				<Footer className="homeFooter" >
+					版权所有 &nbsp; &nbsp; 北京圜晖科技有限公司 &nbsp; &nbsp; 京ICP备19039689号-2
+				</Footer>
+				<UcenterModal />
 			</>
 		)
 	}
@@ -236,12 +232,7 @@ class IndexPage extends Component<RoutesProps, State> {
 	handleButtonClick() {
 
 	}
-	userModalConfig(payload = { registerModal: false, loginModal: false }) {
-		this.props.dispatch({
-			type: 'global/save',
-			payload
-		})
-	}
+
 	componentDidMount() {
 		const { pathname } = this.props.location
 		// const parmas = queryString(search)
@@ -249,7 +240,6 @@ class IndexPage extends Component<RoutesProps, State> {
 		if (!global.checkLogin) {
 			dispatch({
 				type: 'global/isLogin',
-
 			})
 		}
 		// 搜索页直接现实SearchBar
@@ -275,9 +265,6 @@ class IndexPage extends Component<RoutesProps, State> {
 
 	resize() {
 		const { drawerShow } = this.state
-		this.setState({
-			contentHeight: window.innerHeight - 104
-		})
 		if (drawerShow) {
 			this.setState({
 				drawerShow: false,
@@ -286,8 +273,47 @@ class IndexPage extends Component<RoutesProps, State> {
 	}
 
 	componentWillUnmount() {
+		// 卸载异步操作设置状态
+		this.setState = (state, callback) => {
+			return;
+		}
 		window.removeEventListener("resize", this.resize.bind(this))
 	}
 }
 
+
+@connect(({ ucenter }: any) => ucenter)
+class UcenterModal extends Component<any, any>{
+	render() {
+		const { registerModal, loginModal } = this.props
+		console.log(registerModal, loginModal);
+
+		return <Modal
+			title={registerModal ? '账号注册' : '登录'}
+			centered
+			visible={loginModal || registerModal}
+			onOk={() => this.userModalConfig()}
+			onCancel={() => this.userModalConfig()}
+			footer={null}
+		>
+			{loginModal && <Login />}
+			{registerModal && <Register />}
+
+		</Modal>
+	}
+
+
+	userModalConfig(payload = { registerModal: false, loginModal: false }) {
+		this.props.dispatch({
+			type: 'ucenter/save',
+			payload
+		})
+	}
+}
+
+
+
+
 export default IndexPage
+
+

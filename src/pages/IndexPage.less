@@ -4,7 +4,9 @@
     flex-direction: column !important;
     flex: column;
     text-align: center;
-
+    position: relative;
+    min-height: 100%;
+    padding-bottom: 64px;
     .header {
         padding-left: 250px;
         padding-right: 184px;
@@ -92,6 +94,7 @@
         // margin-top: 20px;
         text-align: center;
         position: relative;
+        min-height: 100%;
     }
 
     .HomeDrawer {
@@ -107,6 +110,19 @@
     .searchBar{
         padding: 20px 0;
         background: #fff;
+    }
+
+    .homeFooter{
+        font-size: 12px; 
+        text-align: center;
+        background: #001529;
+        color: #e4e4e4;
+        height: 40px;
+        padding: 0; 
+        line-height: 40px;
+        position: absolute;
+        width: 100%;
+        bottom: 0;
     }
 
     @media (max-width: 768px) {

@@ -65,7 +65,7 @@ class Register extends Component<Props, State> {
                 密码
                 验证码 */}
                 <Col offset={1}>
-                    <a href="javascript:;" onClick={() => {
+                    <Button type="link" onClick={() => {
                         this.props.dispatch({
                             type: 'global/save',
                             payload: {
@@ -73,7 +73,7 @@ class Register extends Component<Props, State> {
                                 registerModal: false
                             }
                         })
-                    }}>已有账号，去登录</a>
+                    }}>已有账号，去登录</Button>
                 </Col>
                 <Form {...formItemLayout} onSubmit={this.handleSubmit}>
                     <Form.Item label="用户名">
