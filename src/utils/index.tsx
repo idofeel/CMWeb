@@ -102,5 +102,22 @@ const post = (url: string, data: object = {}, showmsg?: string) => {
 	)
 }
 
-export { joinUrlEncoded, parseUrl, urlEncoded, queryString, get, post, replaceState, domain }
+const postForm = (url: string, formdata: FormData, showmsg?: string) => {
+	if (url.indexOf(domain) === -1) url = domain + url
+	return request(
+		url,
+		{
+			method: "POST",
+			mode: "cors",
+			credentials: 'include',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded'
+			},
+			body: formdata
+		},
+		showmsg,
+	)
+}
+
+export { joinUrlEncoded, parseUrl, urlEncoded, queryString, get, post, postForm, replaceState, domain }
 export default request

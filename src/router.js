@@ -16,6 +16,11 @@ const RoutersConfig = [
 				model: [],
 			},
 			{
+				path: "/private",
+				component: () => import("./pages/private/PrivateSource"),
+				model: [],
+			},
+			{
 				path: "/search",
 				component: () => import("./pages/search/searchPage"),
 				model: [],
@@ -30,6 +35,7 @@ const RoutersConfig = [
 				component: () => import("./pages/ucenter/register"),
 				model: [],
 			},
+
 		],
 	},
 ]

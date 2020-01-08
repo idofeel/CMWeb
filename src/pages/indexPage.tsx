@@ -77,7 +77,7 @@ class IndexPage extends Component<RoutesProps, State> {
 				name: '私有资源',
 				icon: 'profile',
 				onClick: () => {
-
+					this.props.history.push('/private')
 				}
 			},
 			{
@@ -208,7 +208,7 @@ class IndexPage extends Component<RoutesProps, State> {
 
 				</Layout >
 				<Footer className="homeFooter" >
-					版权所有 &nbsp; &nbsp; 北京圜晖科技有限公司 &nbsp; &nbsp; 京ICP备19039689号-2
+					版权所有 &nbsp; &nbsp; <a href="https://featuremaker.com/">北京圜晖科技有限公司</a> &nbsp; &nbsp; 京ICP备19039689号-2
 				</Footer>
 				<UcenterModal />
 			</>

@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { Upload, Icon, Button, message } from 'antd';
 import SparkMD5 from 'spark-md5'
+import { get, post, postForm } from '../../utils';
+import API from '../../services/API';
 export interface ICLEUploadProps {
 }
 
@@ -58,7 +60,7 @@ export default class CLEUpload extends React.Component<ICLEUploadProps, ICLEUplo
     chunkUpload(file: any) {
         // 兼容性的处理
         let blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice,
-            chunkSize = 1024 * 1024 * 2,                             // 切片每次5M
+            chunkSize = 1024 * 1024 * 2,    // 切片每次2M
             chunks = Math.ceil(file.size / chunkSize),
             currentChunk = 0, // 当前上传的chunk
             spark = new SparkMD5.ArrayBuffer(),
@@ -67,7 +69,8 @@ export default class CLEUpload extends React.Component<ICLEUploadProps, ICLEUplo
             totalFileReader = new FileReader()  // 用于计算出总文件的fileMd5
 
         let params: any = { chunks: [], file: {} },   // 用于上传所有分片的md5信息
-            arrayBufferData = []              // 用于存储每个chunk的arrayBuffer对象,用于分片上传使用
+            arrayBufferData = [],              // 用于存储每个chunk的arrayBuffer对象,用于分片上传使用
+            self = this
         params.file.fileName = file.name
         params.file.fileSize = file.size
 
@@ -122,6 +125,8 @@ export default class CLEUpload extends React.Component<ICLEUploadProps, ICLEUplo
                 // })
                 console.log(params, arrayBufferData);
 
+                self.startUpload(params, arrayBufferData)
+
 
             }
         }
@@ -145,6 +150,17 @@ export default class CLEUpload extends React.Component<ICLEUploadProps, ICLEUplo
         //     fileList: [file],
         //     file: file
         // })
+
+    }
+
+    async startUpload(params: any, arrayBufferData: any) {
+        // post(API.source.private, params)
+        let formData = new FormData(),
+            blob = new Blob([arrayBufferData[0].currentBuffer], { type: 'application/octet-stream' });
+        formData.append('chunk', blob)
+        console.log(formData);
+        postForm(API.source.private, formData)
+
 
     }
 

@@ -3,6 +3,8 @@ import { connect } from 'dva';
 import { Form, Input, Icon, Checkbox, Button } from 'antd';
 import { email_reg, user_name } from '../../../utils/Regexp';
 import './login.less'
+import API from '../../../services/API';
+import { domain } from '../../../utils';
 interface Props {
 
 }
@@ -43,7 +45,7 @@ class Login extends Component<Props, State> {
                                     style={{ color: 'rgba(0,0,0,.25)' }}
                                 />
                             }
-                            placeholder="请输入您的手机号/邮箱"
+                            placeholder="请输入您的用户名"
                         />,
                     )}
                 </Form.Item>
@@ -68,9 +70,9 @@ class Login extends Component<Props, State> {
                         valuePropName: 'checked',
                         initialValue: false,
                     })(<Checkbox>记住我</Checkbox>)}
-                    <a className="login-form-forgot" href="">
+                    {/* <a className="login-form-forgot" href="">
                         忘记密码
-					</a>
+					</a> */}
                     <Button
                         type="primary"
                         htmlType="submit"
@@ -83,7 +85,7 @@ class Login extends Component<Props, State> {
 					</Button>
                     <Button type="link" onClick={() => {
                         this.props.dispatch({
-                            type: 'global/save',
+                            type: 'ucenter/save',
                             payload: {
                                 loginModal: false,
                                 registerModal: true
@@ -92,8 +94,12 @@ class Login extends Component<Props, State> {
                     }}>
                         现在注册！
                     </Button>
+                    <a href={domain + API.auth.qqLogin}>
+                        <Button icon="qq" type="link">
+                        </Button>
+                    </a>
                 </Form.Item>
-            </Form>
+            </Form >
         );
     }
 

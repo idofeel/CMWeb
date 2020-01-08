@@ -67,7 +67,7 @@ class Register extends Component<Props, State> {
                 <Col offset={1}>
                     <Button type="link" onClick={() => {
                         this.props.dispatch({
-                            type: 'global/save',
+                            type: 'ucenter/save',
                             payload: {
                                 loginModal: true,
                                 registerModal: false

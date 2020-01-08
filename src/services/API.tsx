@@ -26,7 +26,7 @@ export default {
         imgcode: '/?r=user&d=register&o=getseccode',
         isseccode: '/?r=user&d=register&o=isseccode',
         islogin: '/?r=user&d=islogin',
-        qqLogin: '/?r=qcloginstep1',
+        qqLogin: '/?r=user&d=qcloginstep1',
         qqLogin2: '/?r=user&d=login&m=qq',
         logout: '/?r=user&d=logout',
     },
