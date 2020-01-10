@@ -6,6 +6,9 @@
 # production
 /dist
 
+/src
+
+
 # misc
 .DS_Store
 npm-debug.log*

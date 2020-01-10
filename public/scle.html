@@ -1,0 +1,130 @@
+<!-- @format -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta http-equiv="X-UA-Compatible" content="IE=11" />
+	<link rel="icon" href="https://nwzimg.wezhan.cn/sitefiles10167/10167896/22.png" />
+	<!--[if IE 9]>
+			<script src="./history.js"></script>
+		<![endif]-->
+	<title>Scle</title>
+	<link rel="stylesheet" href="index.css" />
+
+</head>
+
+<body>
+	<canvas id="glcanvas" width="800" height="600"></canvas>
+
+	<!-- <a href="./CMWebSetup.zip" download>12312312</a> -->
+	<div id="root"></div>
+</body>
+
+</html>
+
+<script type="text/javascript" src="../src/assets/js/SCLELoader/ADFBaseDef.js"></script>
+<script type="text/javascript" src="../src/assets/js/SCLELoader/ADFGeomDef.js"></script>
+<script type="text/javascript" src="../src/assets/js/SCLELoader/ADFSceneDef.js"></script>
+<script type="text/javascript" src="../src/assets/js/SCLELoader/ADFCleParser.js"></script>
+<script type="text/javascript" src="../src/assets/js/SCLELoader/ADFMath.js"></script>
+<script type="text/javascript" src="../src/assets/js/SCLELoader/ADFGlobal.js"></script>
+<script type="text/javascript" src="../src/assets/js/SCLELoader/ADFUSDK.js"></script>
+<script type="text/javascript" src="../src/assets/js/SCLERender/glmatrix.js"></script>
+<script type="text/javascript" src="../src/assets/js/SCLERender/GLSL.js"></script>
+<script type="text/javascript" src="../src/assets/js/SCLERender/Global.js"></script>
+<script type="text/javascript" src="../src/assets/js/SCLERender/SceneToGLData.js"></script>
+<script type="text/javascript" src="../src/assets/js/SCLERender/Camera.js"></script>
+<script type="text/javascript" src="../src/assets/js/SCLERender/GLProgram.js"></script>
+<script type="text/javascript" src="../src/assets/js/SCLERender/GLRunTime.js"></script>
+<script type="text/javascript" src="../src/assets/js/SCLERender/EventAction.js"></script>
+<script src="scle.js"></script>
+
+<script type="text/javascript" language="javascript">
+	console.log('page');
+
+	// cle流式下载对象
+	var g_sclehttp = new XMLHttpRequest();
+	// 当前下载的长度，Uint32     
+	var g_loaded_pos = 0;
+	var NetTimeTimeID;
+
+	// 通过网络获取二进制数据
+	getByRequest = function (url) {
+		// g_sclehttp = new XMLHttpRequest();
+
+		// 为事件添加事件监听，这些事件在使用 XMLHttpRequest 执行数据传输时被发出。
+		g_sclehttp.addEventListener("progress", updateProgress, false);
+		g_sclehttp.addEventListener("load", transferComplete, false);
+		g_sclehttp.addEventListener("error", transferFailed, false);
+		g_sclehttp.addEventListener("abort", transferCanceled, false);
+
+		g_sclehttp.open("GET", url, true);                                  // true 表示异步，false表示同步
+		g_sclehttp.responseType = "arraybuffer";                            // XMLHttpRequest Level 2 规范中新加入了 responseType 属性 ，使得发送和接收二进制数据变得更加容易 
+		g_sclehttp.overrideMimeType("text/plain; charset=x-user-defined");  // XMLHttpRequest 一般用来发送和接收文本数据，overrideMimeType方法强制XMLHttpRequest发送二进制数据
+		g_sclehttp.onreadystatechange = ReadcleStreamChange;
+		g_sclehttp.send();
+	}
+
+	updateProgress = function (evt) {
+
+		// progress 事件的 lengthComputable 属性存在时，可以计算数据已经传输的比例(loaded 已传输大小，total 总大小）
+		if (evt.lengthComputable) {
+			//  var percentComplete = evt.loaded / evt.total;
+			console.log(evt.loaded / evt.total);
+
+			g_nCleBufferlength = evt.total;
+			g_loaded_pos = evt.loaded;
+		}
+		else {
+		}
+	}
+
+	transferComplete = function (evt) {
+		// alert("The transfer is complete.");
+	}
+
+	transferFailed = function (evt) {
+		// alert("下载文件失败！");
+	}
+
+	transferCanceled = function (evt) {
+		// alert("下载已取消！");
+	}
+
+	// 解析数据
+	function StarLoadNetCLEFile() {
+		// 去掉定时器的方法
+		window.clearTimeout(NetTimeTimeID);
+
+		// 解析cle文件
+		var bResult = ParseCleStream()
+		if (bResult) {
+			// alert("An error occurred while transferring the file.");
+		}
+
+		// 释放内存
+		g_sclehttp.response = null;
+		g_arrayCleBuffer = null;
+		g_sclehttp = null;
+
+		// 绘制三维模型
+		startRender();
+	}
+
+	ReadcleStreamChange = function () {
+		if (g_sclehttp.readyState === 4 && g_sclehttp.status === 200) { // 4 = "loaded" // 200 = OK
+			g_arrayCleBuffer = g_sclehttp.response;
+
+			// 循环执行，每隔0.1秒钟执行一次
+			NetTimeTimeID = window.setInterval(StarLoadNetCLEFile, 100);
+		}
+	}
+
+	// 下载网络SCLE模型
+	getByRequest('../src/assets/1.scle');
+	g_strResbaseUrl = "../src/assets/1/";
+
+</script>

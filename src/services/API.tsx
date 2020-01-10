@@ -40,6 +40,7 @@ export default {
         addCate: '/admin.php?r=category&d=set&o=add', //  {catename,parentid}
         transCate: '/admin.php?r=category&d=set&o=graft', // {cateid, destid} // {迁移的分类id,迁移到其下的分类id}
         refushCate: '/admin.php?r=category&d=set&o=countson'
-    }
+    },
+    serverinfo: '/?r=common&d=serverinfo'
 
 }
