@@ -41,6 +41,14 @@ export default {
         transCate: '/admin.php?r=category&d=set&o=graft', // {cateid, destid} // {迁移的分类id,迁移到其下的分类id}
         refushCate: '/admin.php?r=category&d=set&o=countson'
     },
-    serverinfo: '/?r=common&d=serverinfo'
+    serverinfo: '/?r=common&d=serverinfo',
+    upload: {
+        undone: '/?r=cle&d=importprivate&o=getting',
+        start: '/?r=cle&d=importprivate&o=setone', // {pid,name}
+        cleFile: '/?r=cle&d=importprivate&o=setfileinfo', //{infoid}
+        cleChunk: '/?r=cle&d=importprivate&o=uploadchunk',
+        cover: '/r=cle&d=importprivate&o=cover',
+
+    }
 
 }

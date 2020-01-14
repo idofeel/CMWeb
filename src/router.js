@@ -27,7 +27,7 @@ const RoutersConfig = [
 			},
 			{
 				path: "/upload",
-				component: () => import("./pages/upload/uploadPage"),
+				component: () => import("./pages/private/PrivateUploadPage"),
 				model: [],
 			},
 			{

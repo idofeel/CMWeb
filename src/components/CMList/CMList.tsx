@@ -1,13 +1,14 @@
 import * as React from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import ReactBarrel from '../react-barrel/react-barrel';
-import { Spin, Card, Divider, Empty, Typography } from 'antd';
+import { Spin, Card, Divider, Empty, Typography, Icon } from 'antd';
 import { joinUrlEncoded, domain } from '../../utils';
 
 import './CMList.less'
 
 export interface ICMListProps extends CMListProps {
-    loadMore: () => void
+    loadMore: () => void,
+    actions?: React.ReactNode[]
 }
 
 
@@ -29,7 +30,7 @@ export default class CMList extends React.Component<ICMListProps, ICMListState> 
 
 
     public render() {
-        const { list, loading, empty, loadEnd } = this.props
+        const { list, loading, empty, loadEnd, actions } = this.props
         return (
             <div className='listContainer'>
                 <InfiniteScroll
@@ -60,6 +61,7 @@ export default class CMList extends React.Component<ICMListProps, ICMListState> 
                                         onClick={() => {
                                             this.goCMReader(item)
                                         }}
+                                        actions={actions}
                                     >
                                         <Meta
                                             title={

@@ -4,6 +4,7 @@ import SparkMD5 from 'spark-md5'
 import { get, post, postForm } from '../../utils';
 import API from '../../services/API';
 export interface ICLEUploadProps {
+    startUpload?: (params: any, arrayBufferData: any) => void
 }
 
 export interface ICLEUploadState {
@@ -40,7 +41,9 @@ export default class CLEUpload extends React.Component<ICLEUploadProps, ICLEUplo
         return (
             <div style={{ textAlign: 'left' }}>
                 <Upload {...uploadProps}>
-                    <Button icon="upload">
+                    <Button icon="upload" onClick={() => {
+                        return
+                    }}>
                         点击上传
                     </Button>
                 </Upload>
@@ -124,7 +127,7 @@ export default class CLEUpload extends React.Component<ICLEUploadProps, ICLEUplo
                 //     preUploadPercent: 100
                 // })
                 console.log(params, arrayBufferData);
-
+                message.info('开始上传')
                 self.startUpload(params, arrayBufferData)
 
 
@@ -154,13 +157,16 @@ export default class CLEUpload extends React.Component<ICLEUploadProps, ICLEUplo
     }
 
     async startUpload(params: any, arrayBufferData: any) {
-        // post(API.source.private, params)
-        let formData = new FormData(),
-            blob = new Blob([arrayBufferData[0].currentBuffer], { type: 'application/octet-stream' });
-        formData.append('chunk', blob)
-        console.log(formData);
-        postForm(API.source.private, formData)
-
+        this.props.startUpload(params, arrayBufferData)
+        // const res2 = await get(API.upload.start, { pid: '', name: '测试' })
+        // const res = await post(API.upload.cleFile, params)
+        // console.log(res);
+        // // post(API.source.private, params)
+        // let formData = new FormData(),
+        //     blob = new Blob([arrayBufferData[0].currentBuffer], { type: 'application/octet-stream' });
+        // formData.append('chunk', blob)
+        // console.log(formData);
+        // postForm(API.source.private, formData)
 
     }
 

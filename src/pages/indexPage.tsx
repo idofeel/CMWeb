@@ -9,9 +9,6 @@ import { domain } from "../utils"
 import Categroys, { SecondaryCate } from "../components/Categroys/Categroys"
 import styles from "./IndexPage.less"
 import "../@types"
-
-
-import { queryString, replaceState } from "../utils"
 import SearchBar from "../components/SearchBar"
 import Login from "./ucenter/auth/login"
 import Register from "./ucenter/register"
@@ -165,7 +162,7 @@ class IndexPage extends Component<RoutesProps, State> {
 							/>
 							<img
 								className={styles.logo}
-								src='https://nwzimg.wezhan.cn/contents/sitefiles2033/10167896/images/10181979.png'
+								src={require('../assets/images/CMReaderWebLogo.png')}
 							/>
 
 						</Col>
