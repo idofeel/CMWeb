@@ -5,46 +5,55 @@
 
 <head>
 	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<!-- <meta name="viewport" content="width=device-width, initial-scale=1" /> -->
 	<meta http-equiv="X-UA-Compatible" content="IE=11" />
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
 	<link rel="icon" href="https://nwzimg.wezhan.cn/sitefiles10167/10167896/22.png" />
 	<!--[if IE 9]>
 			<script src="./history.js"></script>
 		<![endif]-->
 	<title>Scle</title>
-	<link rel="stylesheet" href="index.css" />
-
+	<link rel="stylesheet" href="scle.css" />
+	<style>
+		#glcanvas {
+			position: fixed;
+			bottom: 0;
+			width: 100%;
+			height: 100%;
+		}
+	</style>
 </head>
 
 <body>
-	<canvas id="glcanvas" width="800" height="600"></canvas>
-
-	<!-- <a href="./CMWebSetup.zip" download>12312312</a> -->
+	<canvas id="glcanvas"></canvas>
 	<div id="root"></div>
 </body>
 
 </html>
 
-<script type="text/javascript" src="../src/assets/js/SCLELoader/ADFBaseDef.js"></script>
-<script type="text/javascript" src="../src/assets/js/SCLELoader/ADFGeomDef.js"></script>
-<script type="text/javascript" src="../src/assets/js/SCLELoader/ADFSceneDef.js"></script>
-<script type="text/javascript" src="../src/assets/js/SCLELoader/ADFCleParser.js"></script>
-<script type="text/javascript" src="../src/assets/js/SCLELoader/ADFMath.js"></script>
-<script type="text/javascript" src="../src/assets/js/SCLELoader/ADFGlobal.js"></script>
-<script type="text/javascript" src="../src/assets/js/SCLELoader/ADFUSDK.js"></script>
-<script type="text/javascript" src="../src/assets/js/SCLERender/glmatrix.js"></script>
-<script type="text/javascript" src="../src/assets/js/SCLERender/GLSL.js"></script>
-<script type="text/javascript" src="../src/assets/js/SCLERender/Global.js"></script>
-<script type="text/javascript" src="../src/assets/js/SCLERender/SceneToGLData.js"></script>
-<script type="text/javascript" src="../src/assets/js/SCLERender/Camera.js"></script>
-<script type="text/javascript" src="../src/assets/js/SCLERender/GLProgram.js"></script>
-<script type="text/javascript" src="../src/assets/js/SCLERender/GLRunTime.js"></script>
-<script type="text/javascript" src="../src/assets/js/SCLERender/EventAction.js"></script>
-<script src="scle.js"></script>
+
+<!-- http://www.featuremaker1.xyz/rs_scle/ -->
+<!-- ../src/2assets/ -->
+
+<script type="text/javascript" src="./js/SCLELoader/ADFBaseDef.js"></script>
+<script type="text/javascript" src="./js/SCLELoader/ADFGeomDef.js"></script>
+<script type="text/javascript" src="./js/SCLELoader/ADFSceneDef.js"></script>
+<script type="text/javascript" src="./js/SCLELoader/ADFCleParser.js"></script>
+<script type="text/javascript" src="./js/SCLELoader/ADFMath.js"></script>
+<script type="text/javascript" src="./js/SCLELoader/ADFGlobal.js"></script>
+<script type="text/javascript" src="./js/SCLELoader/ADFUSDK.js"></script>
+<script type="text/javascript" src="./js/SCLERender/glmatrix.js"></script>
+<script type="text/javascript" src="./js/SCLERender/GLSL.js"></script>
+<script type="text/javascript" src="./js/SCLERender/Global.js"></script>
+<script type="text/javascript" src="./js/SCLERender/SceneToGLData.js"></script>
+<script type="text/javascript" src="./js/SCLERender/Camera.js"></script>
+<script type="text/javascript" src="./js/SCLERender/GLProgram.js"></script>
+<script type="text/javascript" src="./js/SCLERender/GLRunTime.js"></script>
+<!-- <script type="text/javascript" src="./js/SCLERender/GLProgram.js"></script> -->
+<script type="text/javascript" src="./js/SCLERender/EventAction.js"></script>
 
 <script type="text/javascript" language="javascript">
-	console.log('page');
-
 	// cle流式下载对象
 	var g_sclehttp = new XMLHttpRequest();
 	// 当前下载的长度，Uint32     
@@ -56,7 +65,7 @@
 		// g_sclehttp = new XMLHttpRequest();
 
 		// 为事件添加事件监听，这些事件在使用 XMLHttpRequest 执行数据传输时被发出。
-		g_sclehttp.addEventListener("progress", updateProgress, false);
+		g_sclehttp.addEventListener("progress", updateProgress || function () { }, false);
 		g_sclehttp.addEventListener("load", transferComplete, false);
 		g_sclehttp.addEventListener("error", transferFailed, false);
 		g_sclehttp.addEventListener("abort", transferCanceled, false);
@@ -73,8 +82,6 @@
 		// progress 事件的 lengthComputable 属性存在时，可以计算数据已经传输的比例(loaded 已传输大小，total 总大小）
 		if (evt.lengthComputable) {
 			//  var percentComplete = evt.loaded / evt.total;
-			console.log(evt.loaded / evt.total);
-
 			g_nCleBufferlength = evt.total;
 			g_loaded_pos = evt.loaded;
 		}
@@ -117,14 +124,27 @@
 	ReadcleStreamChange = function () {
 		if (g_sclehttp.readyState === 4 && g_sclehttp.status === 200) { // 4 = "loaded" // 200 = OK
 			g_arrayCleBuffer = g_sclehttp.response;
-
 			// 循环执行，每隔0.1秒钟执行一次
 			NetTimeTimeID = window.setInterval(StarLoadNetCLEFile, 100);
 		}
 	}
 
-	// 下载网络SCLE模型
-	getByRequest('../src/assets/1.scle');
-	g_strResbaseUrl = "../src/assets/1/";
+	var scrollFunc = function (e) {
+		e = e || window.event;
+		if (e.wheelDelta && event.ctrlKey) {//IE/Opera/Chrome
+			event.returnValue = false;
+		} else if (e.detail) {//Firefox
+			event.returnValue = false;
+		}
+	}
 
+
+	/*注册事件*/
+	if (document.addEventListener) {
+		document.addEventListener('DOMMouseScroll', scrollFunc, false);
+	}//W3C
+	window.onmousewheel = document.onmousewheel = scrollFunc;//IE/Opera/Chrome/Safari
+	g_strResbaseUrl = "./1/";
 </script>
+
+<script src="scle.js"></script>
