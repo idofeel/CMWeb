@@ -11,7 +11,7 @@ export interface ICMReaderPageState {
     title: string
 }
 
-let { CMWeb = {} }: any = window
+// let { CMWeb = {} }: any = window
 export default class CMReaderPage extends React.Component<ICMReaderPageProps, ICMReaderPageState> {
     constructor(props: ICMReaderPageProps) {
         super(props);
@@ -33,10 +33,10 @@ export default class CMReaderPage extends React.Component<ICMReaderPageProps, IC
 
     componentDidMount() {
         window.addEventListener('beforeunload', this.beforeunload);
-        // window.onload = () => {
-        //     this.InitCLE();
-        //     this.InitPage()
-        // }
+        setTimeout(() => {
+            this.InitCLE();
+            this.InitPage()
+        })
     }
     async InitPage() {
         const { pid, title = '三维模型' } = queryString(location.href)
@@ -47,6 +47,8 @@ export default class CMReaderPage extends React.Component<ICMReaderPageProps, IC
 
         const [file, server] = await Promise.all([req1, req2])
         if (file.success && server.success) {
+            console.log(CMWeb);
+
             const devid = CMWeb.GetDeviceData && CMWeb.GetDeviceData();
             const filesize = file.data.filesize,
                 cleFile = file.data.cle,

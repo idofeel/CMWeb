@@ -73,6 +73,7 @@ function GLProgram() {
     this.animMatrix = mat4.create();
     this.modelMatrix = mat4.create();
     this.modelCenter = new Point3(0, 0, 0);
+    this.arrPickIndexs = new Array();
 
     /**
      * 渲染前初始化数据
@@ -409,7 +410,7 @@ function GLProgram() {
         this.isPicked = true;
         if (indexs.length == 1) {
             this.GL_PICKSTATUS = 1;
-            return indexs[i];
+            return indexs[0];
         } else {
             this.GL_PICKSTATUS = 2;
             return -1;
@@ -473,14 +474,14 @@ function GLProgram() {
         return this.GL_PICKSTATUS;
     }
     this.getPickedIndex = function() {
+        this.arrPickIndexs.splice(0, this.arrPickIndexs.length);
         if (this.GL_PICKSTATUS == 1 || this.GL_PICKSTATUS == 2) {
-            let indexs = new Array();
             for (let i=0; i<this.arrPickObjectIndexs.length; i++) {
                 if (this.arrPickObjectIndexs[i]) {
-                    indexs.push(i);
+                    this.arrPickIndexs.push(i);
                 }
             }
-            return indexs;
+            return this.arrPickIndexs;
         } else {
             return null;
         }

@@ -23,6 +23,11 @@ var isShiftDown = false;
 // 鼠标交互
 var isKeyTap = false;
 var objectIndex = -1;
+// 用户拾取零件的返回参数定义
+var pickObjectIndexs = null;        // 选中的零件索引，没选中为null
+var pickObjectVisible = false;      // 选中的零件的显隐性，单选表示显隐性，多选无效
+var pickObjectTransparent = 0.0;    // 选中的零件的透明度参数，单选表示透明度，多选无效
+var pickObjectMaterial = null;      // 选中的零件的材质数据，暂时无定义
 // 零件移动
 var isMove = false;
 // 当前动画帧
@@ -197,12 +202,13 @@ function addMouseListener(canvas) {
                 if (isKeyTap) {
                     if (!isShiftDown) {
                         objectIndex = glRunTime.pick(lastX, lastY, true, false);
-                        if (objectIndex == -1) {
-                            pickNull();
-                        }
+                        pickObjectVisible = glRunTime.getObjectVisible(objectIndex);
+                        pickObjectTransparent = glRunTime.getObjectTransparent(objectIndex);
                     } else {
                         objectIndex = glRunTime.pick(lastX, lastY, true, true);
                     }
+                    pickObjectIndexs = glRunTime.getPickObjectIndexs();
+                    setPickObjectParameters();
                 }
                 break;
             case 1:
@@ -436,16 +442,20 @@ function setBackground(selectIndex) {
 
 // 空格：视角聚焦到选中零件，模型整体围绕所选零件旋转
 function setFocusOnModel() {
-    if (glRunTime.getPickStatus() == 1) {
         // 只有在单选的状态下才执行聚焦功能
-        glRunTime.setFocusOnObject(objectIndex);
-    }
+        glRunTime.setFocusOnObject();
 }
 
 // 模型树节点选择
 // 如果indexs == null或者indexs.length==0，清空当前选择
 function pickModelByIndex(indexs) {
     objectIndex = glRunTime.pickModelByIndexs(indexs);
+    pickObjectIndexs = glRunTime.getPickObjectIndexs();
+    if (indexs.length == 1) {
+        pickObjectVisible = glRunTime.getObjectVisible(indexs[0]);
+        pickObjectTransparent = glRunTime.getObjectTransparent(indexs[0]);
+    }
+    setPickObjectParameters();
 }
 
 // 模型树节点隐藏
@@ -464,4 +474,10 @@ function canvasOnResize() {
 // 返回值：0 表示没选中， 1 表示单选中， 2 表示多选中
 function getPickStatus() {
     return glRunTime.getPickStatus();
+}
+
+// 获取选中的零件的数据，包括：所选零件索引、显隐性、透明度等
+// 更新界面
+function setPickObjectParameters() {
+    // console.log(pickObjectIndexs.length + ", " + pickObjectVisible + ", " + pickObjectTransparent);
 }

@@ -413,11 +413,47 @@ function getModelBox(objectSet, partSet) {
     return m_ModelBox;
 }
 
+/**
+ * 计算多个零件的多个包围盒
+ */
+function getPublicModelBox(objectSet, partSet, indexs, objectMatrixs) {
+    let m_ModelBox = new GL_Box();
+    // 先求得最大最小顶点
+    let min_x = Infinity, min_y = Infinity, min_z = Infinity;
+    let max_x = -Infinity, max_y = -Infinity, max_z = -Infinity;
+    for (let i=0; i<indexs.length; i++) {
+        let uCurPartIndex = objectSet._arrObjectSet[indexs[i]]._uPartIndex;
+        partSet._arrPartSet[uCurPartIndex]._arrPartLODData[0]._boxset._ObjectBox.MinVertex(ObjectMin);
+        CalTranslatePoint(ObjectMin.x, ObjectMin.y, ObjectMin.z, objectMatrixs[indexs[i]], RealMinPoint3);
+        ObjectMin.x = RealMinPoint3.x; ObjectMin.y = RealMinPoint3.y; ObjectMin.z = RealMinPoint3.z;
+        partSet._arrPartSet[uCurPartIndex]._arrPartLODData[0]._boxset._ObjectBox.MaxVertex(ObjectMax);
+        CalTranslatePoint(ObjectMax.x, ObjectMax.y, ObjectMax.z, objectMatrixs[indexs[i]], RealMinPoint3);
+        ObjectMax.x = RealMinPoint3.x; ObjectMax.y = RealMinPoint3.y; ObjectMax.z = RealMinPoint3.z;
+
+        if (ObjectMin.x < min_x) {min_x = ObjectMin.x;}
+        if (ObjectMin.y < min_y) {min_y = ObjectMin.y;}
+        if (ObjectMin.z < min_z) {min_z = ObjectMin.z;}
+        if (ObjectMax.x > max_x) {max_x = ObjectMax.x;}
+        if (ObjectMax.y > max_y) {max_y = ObjectMax.y;}
+        if (ObjectMax.z > max_z) {max_z = ObjectMax.z;}
+    }
+    // 根据最大最小点设置模型包围盒
+    m_ModelBox._Vertex[0].x = min_x, m_ModelBox._Vertex[0].y = min_y, m_ModelBox._Vertex[0].z = min_z;
+    m_ModelBox._Vertex[1].x = min_x, m_ModelBox._Vertex[1].y = max_y, m_ModelBox._Vertex[1].z = min_z;
+    m_ModelBox._Vertex[2].x = min_x, m_ModelBox._Vertex[2].y = min_y, m_ModelBox._Vertex[2].z = max_z;
+    m_ModelBox._Vertex[3].x = min_x, m_ModelBox._Vertex[3].y = max_y, m_ModelBox._Vertex[3].z = max_z;
+    m_ModelBox._Vertex[4].x = max_x, m_ModelBox._Vertex[4].y = min_y, m_ModelBox._Vertex[4].z = min_z;
+    m_ModelBox._Vertex[5].x = max_x, m_ModelBox._Vertex[5].y = max_y, m_ModelBox._Vertex[5].z = min_z;
+    m_ModelBox._Vertex[6].x = max_x, m_ModelBox._Vertex[6].y = min_y, m_ModelBox._Vertex[6].z = max_z;
+    m_ModelBox._Vertex[7].x = max_x, m_ModelBox._Vertex[7].y = max_y, m_ModelBox._Vertex[7].z = max_z;
+    return m_ModelBox;
+}
+
 function getModelBoxLength(modelBox) {
     let fLen = -Infinity;
-    let max_x_len = modelBox._Vertex[7].x - modelBox._Vertex[0].x;
-    let max_y_len = modelBox._Vertex[7].y - modelBox._Vertex[0].y;
-    let max_z_len = modelBox._Vertex[7].z - modelBox._Vertex[0].z;
+    let max_x_len = Math.abs(modelBox._Vertex[7].x - modelBox._Vertex[0].x);
+    let max_y_len = Math.abs(modelBox._Vertex[7].y - modelBox._Vertex[0].y);
+    let max_z_len = Math.abs(modelBox._Vertex[7].z - modelBox._Vertex[0].z);
     if (max_x_len > fLen) {fLen = max_x_len;}
     if (max_y_len > fLen) {fLen = max_y_len;}
     if (max_z_len > fLen) {fLen = max_z_len;}
@@ -438,9 +474,9 @@ function getModelBoxCenter(modelBox, center) {
  * 计算模型最长边
  */
 function getModelBoxLength(modelBox) {
-    let max_x_len = modelBox._Vertex[7].x - modelBox._Vertex[0].x;
-    let max_y_len = modelBox._Vertex[7].y - modelBox._Vertex[0].y;
-    let max_z_len = modelBox._Vertex[7].z - modelBox._Vertex[0].z;
+    let max_x_len = Math.abs(modelBox._Vertex[7].x - modelBox._Vertex[0].x);
+    let max_y_len = Math.abs(modelBox._Vertex[7].y - modelBox._Vertex[0].y);
+    let max_z_len = Math.abs(modelBox._Vertex[7].z - modelBox._Vertex[0].z);
     let fLen = -Infinity;
     if (max_x_len > fLen) {fLen = max_x_len;}
     if (max_y_len > fLen) {fLen = max_y_len;}

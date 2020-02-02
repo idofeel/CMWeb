@@ -249,29 +249,25 @@ function GLRunTime() {
     }
 
     /**
+     * 获取选中的零件的索引值
+     */
+    this.getPickObjectIndexs = function() {
+        return this.glprogram.getPickedIndex();
+    }
+
+    /**
      * 将当前摄像机推进到当前单选中的零件上
      */
-    this.setFocusOnObject = function(objectIndex) {
-        if (objectIndex < 0 || objectIndex > g_GLData.GLObjectSet._arrObjectSet.length)
+    this.setFocusOnObject = function() {
+        if (this.glprogram.getPickStatus() == 0)
             return;
-        // 获取当前零件的矩阵数据
-        let curModelMatrix = this.glprogram.getObjectModelMatrix(objectIndex);
-        // 获取当前零件的包围盒数据
-        let curPartIndex = g_GLData.GLObjectSet._arrObjectSet[objectIndex]._uPartIndex;
-        let curModelBox = g_GLData.GLPartSet._arrPartSet[curPartIndex]._arrPartLODData[0]._boxset._ObjectBox;
-        // 计算当前零件的精确位置，并根据位置计算摄像机
+        let indexs = this.glprogram.getPickedIndex();
+        let curModelBox = getPublicModelBox(g_GLData.GLObjectSet, g_GLData.GLPartSet, indexs, this.glprogram.m_arrObjectMatrix);
         getModelBoxCenter(curModelBox, this.curModelCenter);
-        CalTranslatePoint(this.curModelCenter.x, this.curModelCenter.y, this.curModelCenter.z,
-                          curModelMatrix, this.curModelCenter);
         // 第一步：将模型整体中心移动到当前零件中心
         this.glprogram.moveModelCenter(this.curModelCenter);
         // 第二步：推进摄像机到一定位置
         let distance = 1.5 * getModelBoxLength(curModelBox);
-        // if (this.cameraMoveX!=0 || this.cameraMoveY!=0) {
-        //     this.camera.slide(-this.cameraMoveX, -this.cameraMoveY, 0);
-        //     this.cameraMoveX = 0;
-        //     this.cameraMoveY = 0;
-        // }
         this.camera.slide(0.0, 0.0, distance - this.camera.getDist());
     }
 

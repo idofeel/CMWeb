@@ -49,33 +49,32 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 		super(props);
 
 		this.state = {
-			percent: 0,
-			xdeg: -5,
-			ydeg: 10,
-			zdeg: 0,
-			treeData: {
+			loading: true, // 加载中
+			percent: 0, // 加载中的进度
+			treeData: { // 模型树数据
 				child: []
 			},
-			loading: true,
-			AnimationPlay: false,
-			AnimatePercent: 0,
-			AnimateStop: true,
-			ModelTreeVisible: true,
-			ModelParamsVisible: true,
-			paramsData: [],
-			treeNodeCheckedKeys: [],
-			treeNodeSelectKeys: [],
+			AnimationPlay: false, // 播放动画
+			AnimatePercent: 0, // 动画百分比进度
+			AnimateStop: true, // 停止动画
+			ModelTreeVisible: true,// 模型树弹层
+			ModelParamsVisible: true, // 模型参数弹层
+			paramsData: [], // 模型参数
+			treeNodeCheckedKeys: [],  // 显示隐藏复选框
+			treeNodeSelectKeys: [], // 选中的key
+			expandedKeys: [], //展开的key
 			multipleSelcet: false, // 是否允许多选
-			isVisible: true,
+			isVisible: true, // 是否可见
 			alphaRange: 1,
-			background: {
+			background: { // 调色板
 				r: 255,
 				g: 0,
 				b: 0,
 				a: 1
-			}
+			},
 		}
 		window.updateProgress = this.updateProgress
+		window.setPickObjectParameters = this.pickObjectParameters
 		window.getCurFrame = (CurFrame) => this.getCurFrame(CurFrame)
 		window.pickNull = this.pickNull
 		this.totalFrames = 0
@@ -83,7 +82,7 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 	hideSelect = false
 	keyCode = 0
 	public render() {
-		const { xdeg, ydeg, zdeg, loading, treeData, AnimationPlay, ModelTreeVisible, ModelParamsVisible, treeNodeCheckedKeys, multipleSelcet, treeNodeSelectKeys, paramsData, AnimatePercent, background, isVisible, alphaRange, AnimateStop } = this.state
+		const { loading, treeData, AnimationPlay, ModelTreeVisible, ModelParamsVisible, treeNodeCheckedKeys, multipleSelcet, treeNodeSelectKeys, paramsData, AnimatePercent, background, isVisible, alphaRange, AnimateStop, expandedKeys } = this.state
 
 		return (
 			<div className="scleContainer">
@@ -145,6 +144,7 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 							}}
 						>
 							<Button className="showTreeModal" icon="menu-fold" onClick={() => {
+								this.hideSelect = true
 								this.setState({
 									ModelTreeVisible: !this.state.ModelTreeVisible
 								})
@@ -152,37 +152,42 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 
 							<Tree
 								checkable
-								autoExpandParent
+								checkStrictly
 								checkedKeys={treeNodeCheckedKeys}
-								// selectedKeys={treeNodeSelectKeys}
+								// defaultSelectedKeys={treeNodeSelectKeys}
+								selectedKeys={treeNodeSelectKeys}
+								expandedKeys={expandedKeys}
 								onClick={(e) => {
 									return false
 								}}
-								onExpand={() => {
-									this.hideSelect = true
-								}}
-								onSelect={(selectedKeys, e) => {
+								onExpand={(e) => {
+									console.log('onExpand', e);
 
 									this.hideSelect = true
-									console.log(e.node.props.dataRef);
 									this.setState({
-										paramsData: e.node.props.dataRef.params,
-										treeNodeSelectKeys: [e.node.props.dataRef.key + '']
+										expandedKeys: e
 									})
-
-
-
-									this.tempMutilpSelect = this.findleafIndexs(e.node.props.dataRef)
-
-									pickModelByIndex(this.tempMutilpSelect)
 								}}
+								// onSelect={(selectedKeys, e) => {
+
+								// 	// this.hideSelect = true
+								// 	// console.log(e.node.props.dataRef);
+								// 	// this.setState({
+								// 	// 	paramsData: e.node.props.dataRef.params,
+								// 	// 	treeNodeSelectKeys: [e.node.props.dataRef.key + '']
+								// 	// })
+
+
+
+								// 	// this.tempMutilpSelect = this.findleafIndexs(e.node.props.dataRef)
+
+								// 	// pickModelByIndex(this.tempMutilpSelect)
+								// }}
 								onCheck={(treeNodeCheckedKeys, e) => {
 									this.setState({
 										treeNodeCheckedKeys
 									})
-
 									setModelVisible(this.findleafIndexs(e.node.props.dataRef), e.checked)
-
 								}}
 							// onExpand={this.onExpand}
 							// expandedKeys={this.state.expandedKeys}
@@ -202,9 +207,12 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 		);
 	}
 
-	pickNull = () => {
-		console.log('未选择零件');
-	}
+	// pickNull = () => {
+	// 	console.log('未选择零件');
+	// 	this.setState({
+	// 		treeNodeSelectKeys: []
+	// 	})
+	// }
 
 	AnimateHandleChange = (value) => {
 		this.setState({
@@ -227,12 +235,8 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 				</Tooltip>
 				<Tooltip title="隐藏">
 					<Button type="link" icon={isVisible ? 'eye-invisible' : 'eye'} style={btnStyle} onClick={() => {
-						this.isPickNull(() => {
-							this.setState({
-								isVisible: !isVisible
-							})
-							setVisible(!isVisible)
-						})
+						this.setVisible()
+
 					}}></Button>
 				</Tooltip>
 				<Popover
@@ -376,13 +380,53 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 					</TreeNode>
 				);
 			}
-			return <TreeNode checkable={true} key={item.key} title={item.title} {...item} />;
+			return <TreeNode checkable={true} key={item.key} title={item.title} {...item} dataRef={item} />;
 		})
 	}
-	tempMutilpSelect: any = []
+
+	setTreeVisible(data: any, keys: any, visible: boolean, visibleKeys: any = []) {
+		for (let i = 0; i < data.length; i++) {
+			if (keys.indexOf(data[i].objIndex) > -1) {
+				visibleKeys.push(data[i].key + '')
+			}
+			if (data[i].child.length) {
+				this.setTreeVisible(data[i].child, keys, visible, visibleKeys)
+			}
+		}
+		return visibleKeys
+	}
+
+	setVisible() {
+		this.isPickNull(() => {
+			console.log(pickObjectIndexs);
+			const isVisible = !this.state.isVisible
+
+			setVisible(isVisible)
+
+			let { treeNodeCheckedKeys } = this.state;
+			const visibleKeys = this.setTreeVisible(this.state.treeData, pickObjectIndexs, isVisible)
+
+			treeNodeCheckedKeys = isVisible ? treeNodeCheckedKeys.concat(visibleKeys) : treeNodeCheckedKeys.filter(item => visibleKeys.indexOf(item) < 0)
+
+			this.setState({
+				isVisible: isVisible,
+				treeNodeCheckedKeys,
+			})
+		})
+	}
+	tempMutilpSelect: any = [] // 临时多选
 	renderTitle(item: any) {
 		const key = item.key + '';
 		return <span style={{ background: (this.state.treeNodeSelectKeys.indexOf(key) > -1 ? '#e6f7ff' : 'transparent') }}
+			onClick={() => {
+				this.hideSelect = true
+				this.tempMutilpSelect = this.findleafIndexs(item)
+				this.setState({
+					treeNodeSelectKeys: [key],
+				})
+				console.log(this.tempMutilpSelect);
+				pickModelByIndex(this.tempMutilpSelect)
+			}}
 			onMouseDown={() => {
 				if (this.keyCode === 17) {
 					let { treeNodeSelectKeys }: any = this.state
@@ -426,8 +470,8 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 	// }
 	componentDidMount() {
 		// // 下载网络SCLE模型
-		getByRequest('./1.scle')
-		// getByRequest('../../src/assets/1.scle')
+		// getByRequest('./1.scle')
+		getByRequest('../../src/assets/1.scle')
 		canvasOnResize()
 
 		window.addEventListener("keydown", this.keydown)
@@ -469,6 +513,25 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 		return false
 	}
 
+	pickObjectParameters = () => {
+		console.log(pickObjectIndexs, pickObjectVisible, pickObjectTransparent);
+		if (!pickObjectIndexs || !pickObjectIndexs.length) {
+			this.setState({
+				treeNodeSelectKeys: [],
+				isVisible: !!pickObjectVisible,
+				alphaRange: pickObjectTransparent
+			});
+			return
+		}
+		const { expandedKeys, treeNodeSelectKeys } = this.getExpandedAndSelctKeys(this.state.treeData, pickObjectIndexs)
+		this.setState({
+			expandedKeys,
+			treeNodeSelectKeys,
+			isVisible: !!pickObjectVisible,
+			alphaRange: pickObjectTransparent
+		})
+
+	}
 
 	getCurFrame(CurFrame) {
 		const nAnimatePercent = CurFrame / this.totalFrames * 100
@@ -502,6 +565,7 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 
 	loadTree() {
 		const treeData = [this.getTreeNodeData(window.g_GLData.GLModelTreeNode)]
+		console.log('loadTree', treeData);
 
 		this.totalFrames = getTotalFrames()
 		this.setState({
@@ -511,36 +575,98 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 		// 清除全局变量
 		this.keys = null
 
+		// let findParentKeys = this.findParentKeys(treeData, [48, 47, 4891])
+		// let expandedKeys: any = [];
+		// let treeNodeSelectKeys: string = [];
+		// findParentKeys.map(item => {
+		// 	const { parentKeys } = item
+		// 	treeNodeSelectKeys.push(parentKeys[parentKeys.length - 1])
+
+		// 	expandedKeys = expandedKeys.concat(item.parentKeys)
+		// })
+
+
+		// expandedKeys = new Set(expandedKeys)
+		// expandedKeys = Array.from(expandedKeys)
+		// console.log(treeNodeSelectKeys);
+
+		let { expandedKeys } = this.getExpandedAndSelctKeys(treeData, [-1])
 		this.setState({
 			ModelParamsVisible: false,
 			ModelTreeVisible: false,
+			expandedKeys,
+			// treeNodeSelectKeys
 		})
+		console.log(expandedKeys)
 		// window.g_GLData.GLModelTreeNode.Clear()
 	}
+	/**
+	 * 
+	 * @param data 
+	 * @param leafIndexs  叶子的index []
+	 */
+	getExpandedAndSelctKeys(data: any, leafIndexs: any) {
+		let findParentKeys = this.findParentKeys(data, leafIndexs),
+			expandedKeys: any = [],
+			treeNodeSelectKeys: any = [];
+
+		findParentKeys.map((item: any) => {
+			const { parentKeys } = item
+			treeNodeSelectKeys.push(parentKeys[parentKeys.length - 1])
+			expandedKeys = expandedKeys.concat(item.parentKeys)
+		})
+
+		// 去重展开的key
+		expandedKeys = new Set(expandedKeys)
+		expandedKeys = Array.from(expandedKeys)
+
+		return {
+			expandedKeys, treeNodeSelectKeys
+		}
+	}
 	key = 1000000
-	keys: any[] = []
-	processTreeData(treeData: any): any {
+	keys: any[] = [] //显示的的keys
+	processTreeData(treeData: any, parentKeys: any): any {
 		// console.log(treeData);
 		if (!treeData || !treeData.length) return []
-		return treeData.map((item: any) => this.getTreeNodeData(item))
+		return treeData.map((item: any) => this.getTreeNodeData(item, parentKeys))
 	}
 
-	getTreeNodeData(item: any) {
+	getTreeNodeData(item: any, parentKeys: any = []) {
 		this.key += 1
+		parentKeys = parentKeys.concat(this.key + '')
 		if (item._bVisible) this.keys.push(`${this.key}`)
 		return {
 			key: this.key,
+			parentKeys,
 			nodeid: item._uTreeNodeID,
 			treeid: item._uJSTreeID,
 			title: item._strName,
 			params: this.getTreeNodeParams(item._arrNodeParameters),
 			objIndex: item._uObjectIndex,
 			originVisible: item._bVisibleOriginal,
-			visibel: item._bVisible,
+			visible: item._bVisible,
 			TriangleCount: item._uObjectTriangleCount,
-			child: this.processTreeData(item._arrSubNode)
+			child: this.processTreeData(item._arrSubNode, parentKeys)
 		}
 	}
+
+
+	findParentKeys(data: any, objIndexs: any, key: any = []): any {
+		if (!objIndexs.length) return key
+		for (let i = 0; i < data.length; i++) {
+			const node = data[i];
+			const index = objIndexs.indexOf(node.objIndex)
+			if (index > -1) {
+				key.push(node);
+				objIndexs.filter((item: any) => item !== node.objIndex)
+			} else if (node.child && node.child.length) {
+				this.findParentKeys(node.child, objIndexs, key)
+			}
+		}
+		return key
+	}
+
 
 	getTreeNodeParams(arrParmas: any) {
 		return arrParmas.map((item: any) => ({ name: item._strName, value: item._strValue }))

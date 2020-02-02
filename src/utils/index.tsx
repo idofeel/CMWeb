@@ -56,9 +56,10 @@ const replaceState = (urlSearch: string, payload: pageParams) => {
 }
 
 // const domain = "http://fm.aijk.xyz"
-const domain = "http://cle.aijk.xyz"
+// const domain = "http://cle.aijk.xyz"
+// const domain = "/"
 
-// const domain = "http://www.featuremaker.xyz"
+const domain = "http://www.featuremaker.xyz"
 
 /**
  *
