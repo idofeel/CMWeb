@@ -56,10 +56,10 @@ const replaceState = (urlSearch: string, payload: pageParams) => {
 }
 
 // const domain = "http://fm.aijk.xyz"
-// const domain = "http://cle.aijk.xyz"
+const domain = "http://cle.aijk.xyz"
 // const domain = "/"
 
-const domain = "http://www.featuremaker.xyz"
+// const domain = "http://www.featuremaker.xyz"
 
 /**
  *
@@ -111,11 +111,13 @@ const postForm = (url: string, formdata: FormData, showmsg?: string) => {
 			method: "POST",
 			mode: "cors",
 			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded'
-			},
-			body: formdata
+			// headers: {
+			// 	'Content-Type': 'application/x-www-form-urlencoded'
+			// },
+			body: formdata,
+
 		},
+
 		showmsg,
 	)
 }

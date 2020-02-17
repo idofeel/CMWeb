@@ -1,8 +1,11 @@
 import * as React from 'react';
-import { Progress, Spin, message, Icon, Button, Drawer, Tree, Popover, Radio, Table, Slider, Tooltip } from 'antd';
+import { Progress, Spin, message, Icon, Button, Drawer, Tree, Popover, Radio, Table, Slider, Tooltip, notification, Alert } from 'antd';
 import { SketchPicker, ChromePicker } from 'react-color';
 import './scle.less'
 import { DOMAttributes } from 'react';
+import { queryString, get } from '../../utils';
+import { IEVersion, IsPhone } from '../../utils/Browser';
+import API from '../../services/API';
 export interface ISCLEProps {
 }
 
@@ -64,8 +67,9 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 			treeNodeSelectKeys: [], // 选中的key
 			expandedKeys: [], //展开的key
 			multipleSelcet: false, // 是否允许多选
-			isVisible: true, // 是否可见
-			alphaRange: 1,
+			isVisible: true, // 模型是否可见
+			Tips: false, // 
+			alphaRange: 1, // 透明度调节条
 			background: { // 调色板
 				r: 255,
 				g: 0,
@@ -74,6 +78,7 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 			},
 		}
 		window.updateProgress = this.updateProgress
+		window.transferFailed = this.transferFailed
 		window.setPickObjectParameters = this.pickObjectParameters
 		window.getCurFrame = (CurFrame) => this.getCurFrame(CurFrame)
 		window.pickNull = this.pickNull
@@ -81,28 +86,50 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 	}
 	hideSelect = false
 	keyCode = 0
+	cleDownload: any = null
 	public render() {
-		const { loading, treeData, AnimationPlay, ModelTreeVisible, ModelParamsVisible, treeNodeCheckedKeys, multipleSelcet, treeNodeSelectKeys, paramsData, AnimatePercent, background, isVisible, alphaRange, AnimateStop, expandedKeys } = this.state
+		const { Tips, loading, treeData, AnimationPlay, ModelTreeVisible, ModelParamsVisible, treeNodeCheckedKeys, multipleSelcet, treeNodeSelectKeys, paramsData, AnimatePercent, background, isVisible, alphaRange, AnimateStop, expandedKeys } = this.state
 
 		return (
 			<div className="scleContainer">
+				<a href="/softcenter/CMWebSetup.zip" ref={ref => this.cleDownload = ref} download target="_blank"></a>
+				{Tips && <Alert message="文件过大，请在IE/360兼容模式/qq兼容模式中，下载并安装CMWeb控件，浏览该文件！" banner style={{ zIndex: 3 }} />}
 				{loading ? <div className="pageloading">
 					<div className="loadingBox">
 						<img src={require('../../assets/images/downloadAppIcon.png')} alt="" />
-						<Progress
+						{!Tips && <Progress
 							strokeColor={{
 								'0%': '#108ee9',
 								'100%': '#87d068',
 							}}
 							percent={this.state.percent}
 							status="active"
-						/>
-						<p>模型加载中...</p>
+						/>}
+						<p>{Tips ? '模型加载失败' : '模型加载中...'}</p>
 					</div>
 				</div> :
 					<>
+						<h3 className="pageHeader">
+							<span>{document.title}</span>
+							<Button type="link" onClick={() => {
+								const args = {
+									message: '安全控件下载',
+									description:
+										'在IE/360/qq浏览器中，支持G级模型的快速浏览，点击下载安装！',
+									duration: 0,
+									onClick: () => {
+										// const oa = document.createElement('a');
+										// oa.href = "/softcenter/CMWebSetup.zip"
+										// oa.setAttribute('target', '_blank');
+										// oa.setAttribute('download', '');
+										// document.body.appendChild(oa);
+										this.cleDownload.click()
+									}
+								};
+								notification.open(args);
+							}}>安全控件下载</Button>
+						</h3>
 						<div className="toolsContainer">
-
 							<div className="tools_btn">
 								{this.renderTools()}
 
@@ -266,14 +293,16 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 				</Popover>
 				<Popover
 					content={
-						<Slider vertical step={0.1} min={0} max={1} value={alphaRange} style={{ height: 100 }} onChange={(value) => {
-							this.isPickNull(() => {
-								this.setState({
-									alphaRange: value
-								});
-								setTransparent(value)
-							})
-						}} />
+						<div className="alphaSlider">
+							<Slider vertical step={0.1} min={0} max={1} value={alphaRange} style={{ height: 120 }} onChange={(value) => {
+								this.isPickNull(() => {
+									this.setState({
+										alphaRange: value
+									});
+									setTransparent(value)
+								})
+							}} />
+						</div>
 					}
 					trigger="click"
 				>
@@ -311,10 +340,18 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 				<Popover
 					style={{ background: 'none' }}
 					content={
-						<div>
-							{viewDirections.map(item => <DivBox key={item.value} {...item} onClick={() => setView(item.value)} />)}
-						</div>
-
+						!IEVersion() ?
+							<div>
+								{viewDirections.map(item => <DivBox key={item.value} {...item} onTouchEnd={() => setView(item.value)} onClick={() => setView(item.value)} />)}
+							</div>
+							:
+							<Radio.Group defaultValue={0} buttonStyle="solid" onChange={(item) => {
+								setView(item.target.value)
+							}}>
+								{
+									viewDirections.map(item => <Radio.Button value={item.value}>{item.title}</Radio.Button>)
+								}
+							</Radio.Group>
 					}
 					trigger="click"
 				>
@@ -425,7 +462,7 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 					treeNodeSelectKeys: [key],
 				})
 				console.log(this.tempMutilpSelect);
-				pickModelByIndex(this.tempMutilpSelect)
+				pickModelByIndex(this.tempMutilpSelect, IsPhone())
 			}}
 			onMouseDown={() => {
 				if (this.keyCode === 17) {
@@ -458,7 +495,7 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 					// this.tempMutilpSelect = treeNodeSelectKeys.indexOf(key) > -1 ? this.tempMutilpSelect.filter(item => leafKeys.indexOf(item) > -1) : this.tempMutilpSelect.concat(this.findleafIndexs(item))
 					// // this.tempMutilpSelect = this.tempMutilpSelect.concat(this.findleafIndexs(item))
 					console.log('多选', this.tempMutilpSelect);
-					pickModelByIndex(this.tempMutilpSelect)
+					pickModelByIndex(this.tempMutilpSelect, IsPhone())
 				}
 			}}>
 			{item.title}
@@ -468,12 +505,30 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 	// 	console.log('componentDidMount');
 
 	// }
-	componentDidMount() {
-		// // 下载网络SCLE模型
-		// getByRequest('./1.scle')
-		getByRequest('../../src/assets/1.scle')
-		canvasOnResize()
+	async componentDidMount() {
+		window.isPhone = IsPhone()
+		const { pid, title } = queryString(location.href)
+		document.title = title || '三维模型'
+		console.log(pid, title);
+		// getByRequest('../../src/assets/1.scle')
 
+		let files;
+		try {
+			files = await get(API.fileInfo.cle, { pid })
+		} catch (error) {
+			console.log(error);
+		}
+
+		if (files.success) {
+			let { cle } = files.data;
+			window.g_strResbaseUrl = cle.replace(/(.cle)$/, '/');
+			getByRequest(cle.replace(/(.cle)$/, '.scle'))
+			canvasOnResize()
+			console.log('openCle', window.g_strResbaseUrl, cle.replace(/(.cle)$/, '.scle'));
+		} else {
+			message.error(files.faildesc)
+		}
+		// // 下载网络SCLE模型
 		window.addEventListener("keydown", this.keydown)
 		window.addEventListener("keyup", this.keyup)
 		document.addEventListener('contextmenu', this.disableContextmenu);
@@ -535,9 +590,10 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 
 	getCurFrame(CurFrame) {
 		const nAnimatePercent = CurFrame / this.totalFrames * 100
+		console.log(nAnimatePercent);
 		this.setState({
 			AnimatePercent: nAnimatePercent,
-			// AnimationPlay: !(nAnimatePercent === 100)
+			AnimationPlay: !(nAnimatePercent > 100)
 		})
 	}
 	updateProgress = async (evt: any) => {
@@ -680,7 +736,10 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 	}
 
 	transferFailed = (evt: any) => {
-		message.error("下载文件失败！");
+		// message.error("下载文件失败！");
+		this.setState({
+			Tips: true
+		})
 	}
 
 	transferCanceled = (evt: any) => {
@@ -740,7 +799,7 @@ class DivBox extends React.Component<any, DivBoxProps>{
 	render() {
 		const { up, down, left, right, forward, back } = this.props
 
-		return <Tooltip title={this.props.title}>
+		return <Tooltip title={this.props.title} placement="left">
 			<div className="box" {...this.props}>
 				<div className="up" style={up}></div>
 				<div className="down" style={down}></div>

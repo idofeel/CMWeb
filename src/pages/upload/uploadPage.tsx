@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { Input, Upload, Icon, message, Form, TreeSelect, Tree, Button, Menu, Steps, Col, Tag, Result } from 'antd';
-import './uploadPage.less'
 import CLEUpload from './CLEUpload';
 import { connect } from 'dva';
 import Search from 'antd/lib/input/Search';
 import { get } from '../../utils';
 import API from '../../services/API';
 
+import './uploadPage.less'
 const { TreeNode } = Tree;
 const { Step } = Steps;
 export interface IUploadPageProps {

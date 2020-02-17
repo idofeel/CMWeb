@@ -18,9 +18,10 @@
 	<style>
 		#glcanvas {
 			position: fixed;
-			bottom: 0;
+			bottom: 40px;
 			width: 100%;
 			height: 100%;
+			padding-bottom: 40px;
 		}
 	</style>
 </head>
@@ -35,6 +36,24 @@
 
 <!-- http://www.featuremaker1.xyz/rs_scle/ -->
 <!-- ../src/2assets/ -->
+
+<!--
+<script type="text/javascript" src="./js/SCLELoader/ADFBaseDef.js"></script>
+<script type="text/javascript" src="./js/SCLELoader/ADFGeomDef.js"></script>
+<script type="text/javascript" src="./js/SCLELoader/ADFSceneDef.js"></script>
+<script type="text/javascript" src="./js/SCLELoader/ADFCleParser.js"></script>
+<script type="text/javascript" src="./js/SCLELoader/ADFMath.js"></script>
+<script type="text/javascript" src="./js/SCLELoader/ADFGlobal.js"></script>
+<script type="text/javascript" src="./js/SCLELoader/ADFUSDK.js"></script>
+<script type="text/javascript" src="./js/SCLERender/glmatrix.js"></script>
+<script type="text/javascript" src="./js/SCLERender/GLSL.js"></script>
+<script type="text/javascript" src="./js/SCLERender/Global.js"></script>
+<script type="text/javascript" src="./js/SCLERender/SceneToGLData.js"></script>
+<script type="text/javascript" src="./js/SCLERender/Camera.js"></script>
+<script type="text/javascript" src="./js/SCLERender/GLProgram.js"></script>
+<script type="text/javascript" src="./js/SCLERender/GLRunTime.js"></script>
+<script type="text/javascript" src="./js/SCLERender/EventAction.js"></script>
+-->
 
 <script type="text/javascript" src="./js_min/SCLELoader/ADFBaseDef.js"></script>
 <script type="text/javascript" src="./js_min/SCLELoader/ADFGeomDef.js"></script>
@@ -64,7 +83,7 @@
 		// g_sclehttp = new XMLHttpRequest();
 
 		// 为事件添加事件监听，这些事件在使用 XMLHttpRequest 执行数据传输时被发出。
-		g_sclehttp.addEventListener("progress", updateProgress || function () { }, false);
+		g_sclehttp.addEventListener("progress", updateProgress, false);
 		g_sclehttp.addEventListener("load", transferComplete, false);
 		g_sclehttp.addEventListener("error", transferFailed, false);
 		g_sclehttp.addEventListener("abort", transferCanceled, false);
@@ -143,7 +162,6 @@
 		document.addEventListener('DOMMouseScroll', scrollFunc, false);
 	}//W3C
 	window.onmousewheel = document.onmousewheel = scrollFunc;//IE/Opera/Chrome/Safari
-	g_strResbaseUrl = "./1/";
 </script>
 
 <script src="scle.js"></script>

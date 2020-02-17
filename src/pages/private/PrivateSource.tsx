@@ -1,7 +1,7 @@
 import * as React from 'react';
 import API from '../../services/API';
 import request, { get } from '../../utils';
-import { Tabs, Button, Icon } from 'antd';
+import { Tabs, Button, Icon, Alert } from 'antd';
 import CMList from '../../components/CMList/CMList';
 
 export interface IPrivateSourceProps {
@@ -34,7 +34,7 @@ export default class PrivateSource extends React.Component<IPrivateSourceProps, 
                     <TabPane tab="资源修改" key="2"></TabPane>
                 </Tabs>
                 <div>
-                    <Button>新增资源</Button>
+                    <Button onClick={() => this.props.history.push('/upload')}>新增资源</Button>
                     <CMList
                         loadMore={() => {
                             this.loadMore();

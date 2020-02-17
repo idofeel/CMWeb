@@ -3,6 +3,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import ReactBarrel from '../react-barrel/react-barrel';
 import { Spin, Card, Divider, Empty, Typography, Icon } from 'antd';
 import { joinUrlEncoded, domain } from '../../utils';
+import Image from '../Image';
 
 import './CMList.less'
 
@@ -53,7 +54,8 @@ export default class CMList extends React.Component<ICMListProps, ICMListState> 
                                         key={index}
                                         hoverable
                                         loading={false}
-                                        cover={<img src={item.img} style={{ height: item.height, width: item.width }} />}
+                                        // cover={<img src={require('../../assets/images/default.jpg')} bsrc={item.img} style={{ height: item.height, width: item.width }} />}
+                                        cover={<Image source={item.img} style={{ height: item.height, width: item.width }} />}
                                         style={{
                                             marginRight: item.margin,
                                             marginBottom: 15,

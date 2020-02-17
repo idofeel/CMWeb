@@ -53,6 +53,26 @@ function IEVersion(): number | boolean {
 
 }
 
+function IsPC() {
+    var userAgentInfo = navigator.userAgent;
+    var Agents = new Array("Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod");
+    var flag = true;
+    for (var v = 0; v < Agents.length; v++) {
+        if (userAgentInfo.indexOf(Agents[v]) > 0) { flag = false; break; }
+    }
+    return flag;
+}
+
+function IsPhone() {
+    return /(iPhone|iPad|iPod|iOS|Android|ipad)/i.test(navigator.userAgent)
+    // if (/(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent) || /(Android)/i.test(navigator.userAgent) || /(ipad)/i.test(navigator.userAgent)) {
+    //     //alert(navigator.userAgent);  
+    //     return true
+    // } else {
+    //     return false
+    // };
+
+}
 
 // // 判断IE浏览器版本
 // function IEVersion() {
@@ -84,6 +104,6 @@ function IEVersion(): number | boolean {
 //     }
 // }
 
-export { IEVersion }
+export { IEVersion, IsPC, IsPhone }
 
 export default Browser

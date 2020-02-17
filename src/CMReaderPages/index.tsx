@@ -24,19 +24,26 @@ export default class CMReaderPage extends React.Component<ICMReaderPageProps, IC
     public render() {
         return (
             <div className="CMReader_View">
-                <Switch />
+                <Switch onChange={this.toggleTools} />
                 <h3>{this.state.title}</h3>
-                <Button type="link" icon="close" />
+                <Button type="link" icon="close" onClick={() => {
+                    window.close();
+                }} />
             </div>
         );
     }
 
+    toggleTools = (checked: boolean) => {
+        checked ? this.ShowUI() : this.HideUI()
+    }
+
     componentDidMount() {
         window.addEventListener('beforeunload', this.beforeunload);
-        setTimeout(() => {
-            this.InitCLE();
-            this.InitPage()
-        })
+        window.onload = () => {
+            setTimeout(() => {
+                this.InitCLE();
+            })
+        }
     }
     async InitPage() {
         const { pid, title = '三维模型' } = queryString(location.href)
@@ -46,10 +53,10 @@ export default class CMReaderPage extends React.Component<ICMReaderPageProps, IC
             req2 = get(API.serverinfo)
 
         const [file, server] = await Promise.all([req1, req2])
+        console.log(file, server);
         if (file.success && server.success) {
-            console.log(CMWeb);
 
-            const devid = CMWeb.GetDeviceData && CMWeb.GetDeviceData();
+            const devid = CMWeb.GetDeviceData();
             const filesize = file.data.filesize,
                 cleFile = file.data.cle,
                 contentid = file.data.id,
@@ -63,7 +70,8 @@ export default class CMReaderPage extends React.Component<ICMReaderPageProps, IC
             console.log('title:' + title);
             console.log('filesize:' + filesize);
             console.log(CMWeb.GetDeviceData, window, CMWeb.OpenDRMFile);
-            CMWeb.OpenDRMFile && CMWeb.OpenDRMFile(cleFile, lesFile, serverid, contentid, title, filesize);
+            CMWeb.OpenDRMFile(cleFile, lesFile, serverid, contentid, title, filesize);
+            console.log('CMWeb.OpenDRMFile:' + filesize);
 
         }
     }
@@ -71,6 +79,7 @@ export default class CMReaderPage extends React.Component<ICMReaderPageProps, IC
         // 检测浏览器  
         if (this.isBrowser() != 'IE') {
             message.error('请在IE或兼容IE浏览器下使用！');
+            location.href = location.href.replace(/cmweb.html/, 'scle.html')
             return;
         }
 
@@ -102,6 +111,9 @@ export default class CMReaderPage extends React.Component<ICMReaderPageProps, IC
             return;
         }
 
+        setTimeout(() => {
+            this.InitPage()
+        })
         // 获取硬件信息
         // var deviceInfo = CMWeb.GetDeviceData();
         // message.error(deviceInfo);
@@ -199,7 +211,5 @@ export default class CMReaderPage extends React.Component<ICMReaderPageProps, IC
 
     componentWillUnmount() {
         window.removeEventListener('beforeunload', this.beforeunload);
-
-
     }
 }

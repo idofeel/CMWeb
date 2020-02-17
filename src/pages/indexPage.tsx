@@ -82,7 +82,7 @@ class IndexPage extends Component<RoutesProps, State> {
 				name: '账户设置',
 				icon: 'setting',
 				onClick: () => {
-
+					this.props.history.push('/profile')
 				}
 			},
 			{
@@ -162,9 +162,12 @@ class IndexPage extends Component<RoutesProps, State> {
 							/>
 							<img
 								className={styles.logo}
-								src={require('../assets/images/CMReaderWebLogo.png')}
+								src={require('../assets/images/featureMaker.png')}
 							/>
-
+							<img
+								className={styles.logo2}
+								src={require('../assets/images/cmreader.png')}
+							/>
 						</Col>
 						<Row>
 							<Col md={24} xs={0}>
