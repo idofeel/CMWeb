@@ -1,0 +1,277 @@
+:global{
+    @btnColor:#505050;
+    @alphaBg: rgba(255,255,255,0.6);
+    #glcanvas{
+        // visibility: hidden;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 40px;
+        left: 0;
+        z-index: 1;
+        padding-bottom: 40px;
+    }
+
+    .pageHeader{
+        text-align: center;
+        position: absolute;
+        top: 0;
+        z-index: 3;
+        height: 40px;
+        line-height: 40px;
+        width: 100%;
+
+        .ant-btn-link{
+            float: right;
+            line-height: 40px;
+        }
+    }
+
+    .pageloading{
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0;
+        background: #edf8ff;
+        left: 0;
+        z-index: 2;
+        text-align: center;
+       
+        >.loadingBox{
+            max-width: 320px;
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%); 
+            >img{
+                width: 100%;
+            }
+            >p{
+                margin-top: 10px;
+                color: rgba(0, 0, 0, 0.65);
+                font-weight: 500;
+                font-size: 16px;
+            }
+        }
+    }
+    .toolsContainer{
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        background: #fff;
+        z-index: 1;
+        .tools_btn{
+            position: fixed;
+            bottom: 10px;
+            min-width: 320px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+            background: @alphaBg;
+            padding: 10px 20px;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+            border-radius: 10px;
+
+            .ant-btn-link{
+                font-size: 24px;
+                margin: 0 5px;
+                .anticon{
+                    vertical-align: unset;
+                }
+            }
+
+            .icon-wrapper {
+                position: relative;
+                padding: 0px 35px;
+                .progressSlider{
+                    height: 10px;
+                    margin: 10px;
+                }
+            }
+
+            .icon-wrapper .ant-btn {
+                position: absolute;
+                top: -100%;
+            }
+
+            .icon-wrapper .ant-btn:first-child {
+                left: 0;
+            }
+
+            .icon-wrapper .ant-btn:last-child {
+                right: 0;
+            }
+        }
+    }
+    .ant-slider:hover{
+        .ant-slider-rail{
+            background: @btnColor;
+        }
+    }
+    .ant-slider-rail{
+        background: @btnColor;
+    }
+
+    // 模型树抽屉
+    .modelTreeDrawer{
+        user-select: none;
+        .ant-drawer-content{
+            overflow: visible;
+            background: @alphaBg;
+            .ant-drawer-header{
+                background: transparent;
+            }
+        }
+
+        .showTreeModal{
+            position: absolute;
+            right: 0px;
+            transform: translateX(100%);
+            border-left: none;
+            border-top-left-radius: unset;
+            border-bottom-left-radius: unset;
+            background: @alphaBg;
+        }
+
+        
+        .ant-tree-node-content-wrapper{
+            padding: 0 !important;
+            background-color: transparent !important;
+            .ant-tree-title{
+                span{
+                    background: transparent;
+                    height: 24px;
+                    padding:3px 5px;
+                    line-height: 1.5;
+                }
+            }
+        }
+    }
+    .modelTreeParamsDrawer{
+         .ant-drawer-content{
+            background: @alphaBg;
+            overflow: visible;
+        }
+
+        .ant-drawer-body{
+            padding: 0;
+        }
+          .showTreeParamsModal{
+            position: absolute;
+            top: 40px;
+            left: 0px;
+            transform: translateX(-100%);
+            border-right: none;
+            border-top-right-radius: unset;
+            border-bottom-right-radius: unset;
+            background: @alphaBg;
+            
+        }
+
+        .ant-table-thead{
+            th {
+                background: transparent;
+                text-align: center;
+            }
+        }
+        .ant-table-placeholder{
+            background: transparent;
+        }
+    }
+
+  
+    .ant-popover-inner{
+        background: none;
+    }
+    .ant-popover-inner-content{
+        padding: 0;
+    }
+    .alphaSlider{
+        padding: 10px 0;
+        padding-bottom: 15px;
+    }
+
+    @boxwh:30px;
+    .box {
+        // display: inline-block;
+        margin: 10px 0;
+        width: @boxwh;
+        height:@boxwh;
+        cursor: pointer;
+        // border: 1px dashed #fff;
+        // position: relative;
+        transform-style: preserve-3d;
+        border-radius: 50%;
+        transform: rotateX(-12deg) rotateY(-12deg);
+        transition: transform .2s ease;
+        // animation: gun 8s linear infinite;
+        // &::after{
+        //     content: '';
+        //     position: absolute;
+        //     left: 0;
+        //     top: 0;
+        //     width: 100%;
+        //     height: 100%;
+        //     border: 1px dashed #fff;
+        //     border-radius: 50%;
+        //     transform: rotateX(90deg) rotateY(0deg);
+        // }
+        //     &::before{
+        //     content: '';
+        //     position: absolute;
+        //     left: 0;
+        //     top: 0;
+        //     width: 100%;
+        //     height: 100%;
+        //     border: 1px dashed #fff;
+        //     border-radius: 50%;
+        //     transform: rotateX(0deg) rotateY(90deg);
+        // }
+    }
+
+		.box>div {
+			width: 100%;
+			height: 100%;
+			position: absolute;
+			text-align: center;
+			line-height: 100px;
+			// font-size: 60px;
+            color: green;
+            border:1px solid @btnColor;
+		}
+
+		.left {
+			// background-color: rgba(255, 0, 0, 0.7);
+			// background-color: rgba(255, 0, 0, 0.7);
+			/*变换中心*/
+			transform-origin: left;
+			/*变换*/
+			transform: rotateY(90deg) translateX(-@boxwh/2);
+		}
+
+		.right {
+			// background-color: rgba(0, 0, 255, 0.7);
+			transform-origin: right;
+			transform: rotateY(90deg) translateX(@boxwh/2);
+		}
+
+		.forward {
+			// background-color: rgba(0, 255, 255, 0.7);
+			transform: translateZ(@boxwh/2);
+		}
+
+		.back {
+			// background-color: rgba(255, 255, 0, 0.7);
+			transform: translateZ(-@boxwh/2);
+		}
+
+		.up {
+			// background-color: rgba(99, 66, 33, 0.7);
+			transform: rotateX(90deg) translateZ(@boxwh/2);
+		}
+
+		.down {
+			// background-color: rgba(255, 0, 255, 0.7);
+			transform: rotateX(-90deg) translateZ(@boxwh/2);
+        }
+}
