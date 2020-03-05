@@ -40,6 +40,11 @@ const RoutersConfig = [
 				component: () => import("./pages/ucenter/profile/ProfilePage"),
 				model: [],
 			},
+			{
+				path: "/uploadimg",
+				component: () => import("./components/UploadImg"),
+				model: [],
+			},
 
 		],
 	},

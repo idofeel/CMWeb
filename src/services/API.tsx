@@ -32,13 +32,11 @@ export default {
     },
     profile: {
         getAvatar: '/?r=center&d=getavatar',
-        updateAvatar: '/?r=center&d=updateavatar',
         setPassword: '/?r=center&d=setpassword',
-        setNickname: '/?r=center&d=profile&o=setnick',
-        setRealName: '/?r=center&d=profile&o=setrealname',
         getAll: '/?r=center&d=exprofile&o=getall',
         setone: '/?r=center&d=exprofile&o=setone',
         getBase: '/?r=center&d=profile&o=getbase',
+        getExt: '/?r=center&d=extprofile&o=getext', // 扩展信息
     },
     publish: {
         // 主分类 （所有的分类信息）
@@ -60,6 +58,12 @@ export default {
         cover: '/?r=cle&d=importprivate&o=cover',
         changeName: '/?r=cle&d=importprivate&o=resetname', //{infoid,name}
         import: '/?r=cle&d=importprivate&o=import'
+    },
+    modify: {
+        UpAvatar: '/?r=center&d=upavatar', // {file}
+        nikeName: '/?r=center&d=profile&o=setnick', // {nick}
+        realName: '/?r=center&d=profile&o=setrealname', // {realname}
+        extprofile: '/?r=center&d=extprofile&o=setone', // {cid,v}
     }
 
 }

@@ -3,10 +3,15 @@
 # dependencies
 /node_modules
 
+# /public/js_min
+/public/Resource
+
 # production
 /dist
-
-/src
+/src/assets/*.scle
+/src/assets/*.html
+/src/assets/*.css
+/src/assets/TestFile
 
 
 # misc

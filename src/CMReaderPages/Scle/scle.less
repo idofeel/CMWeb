@@ -6,23 +6,25 @@
         width: 100%;
         height: 100%;
         position: fixed;
-        top: 40px;
+        top: 0;
         left: 0;
         z-index: 1;
-        padding-bottom: 40px;
+        // padding-bottom: 40px;
     }
 
     .pageHeader{
         text-align: center;
-        position: absolute;
+        position: fixed;
         top: 0;
         z-index: 3;
         height: 40px;
         line-height: 40px;
         width: 100%;
-
+        background: @alphaBg;
         .ant-btn-link{
-            float: right;
+            position: absolute;
+            top: 0;
+            right: 0;
             line-height: 40px;
         }
     }
@@ -83,22 +85,26 @@
             .icon-wrapper {
                 position: relative;
                 padding: 0px 35px;
+                height: 32px;
                 .progressSlider{
                     height: 10px;
-                    margin: 10px;
+                    margin: 0 10px;
+                    padding-top: 14px;
                 }
             }
 
             .icon-wrapper .ant-btn {
                 position: absolute;
-                top: -100%;
+                // top: -100%;
             }
 
             .icon-wrapper .ant-btn:first-child {
+                top: 0;
                 left: 0;
             }
 
             .icon-wrapper .ant-btn:last-child {
+                top: 0;
                 right: 0;
             }
         }

@@ -83,7 +83,7 @@ let EPSILON=0.001;let ZERO=1e-6;let DZERO=1e-6;let DEPSILON=1e-3;let ADF_PI=3.14
 	dEpsilon=1e-3;if((dSrcDot-dTgtDot)<dEpsilon&&(dSrcDot-dTgtDot)>(-1)*dEpsilon)
 	bResult=true;else
 	bResult=false;if(bResult)
-	{g_vVec4.Copy(g_vVec1);g_vVec1.Mul(dSrcDot);g_vVec5.sub(g_vVec2,g_vVec4);g_vVec6.sub(g_vVec3,g_vVec4);ADFVec3Normalize(g_vVec5);ADFVec3Normalize(g_vVec6);var dRotDot=ADFVec3Dot(g_vVec5,g_vVec6);var dRotValue=ADFCalcArcCos(dRotDot);ADFVec3Cross(g_vVec7,g_vVec5,g_vVec6);if(!IsVecSameDir(g_vVec7,vAxis))
+	{g_vVec4.Copy(g_vVec1);g_vVec1.Mul(dSrcDot);g_vVec5.Sub(g_vVec2,g_vVec4);g_vVec6.Sub(g_vVec3,g_vVec4);ADFVec3Normalize(g_vVec5);ADFVec3Normalize(g_vVec6);var dRotDot=ADFVec3Dot(g_vVec5,g_vVec6);var dRotValue=ADFCalcArcCos(dRotDot);ADFVec3Cross(g_vVec7,g_vVec5,g_vVec6);if(!IsVecSameDir(g_vVec7,vAxis))
 	dRotValue=(-1)*dRotValue;arrRotValue[0]=dRotValue;}
 	return bResult;}
 	function ProjectPtToPlane(vPlanePt,vPlaneDir,vSrcPt,vPrjPt){g_vVec1.Copy(vPlaneDir);ADFVec3Normalize(g_vVec1);var dFactor=-1*ADFVec3Dot(vPlanePt,g_vVec1);var dDis=ADFVec3Dot(vSrcPt,g_vVec1)+dFactor;g_vVec2.Copy(g_vVec1);g_vVec2.Mul(dDis);vPrjPt.Sub(vSrcPt,g_vVec2);}

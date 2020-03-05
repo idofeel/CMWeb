@@ -3,7 +3,6 @@ import API from '../../services/API';
 import request, { get } from '../../utils';
 import { Tabs, Button, Icon, Alert } from 'antd';
 import CMList from '../../components/CMList/CMList';
-
 export interface IPrivateSourceProps {
 }
 

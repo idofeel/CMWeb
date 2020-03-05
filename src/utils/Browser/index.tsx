@@ -64,7 +64,8 @@ function IsPC() {
 }
 
 function IsPhone() {
-    return /(iPhone|iPad|iPod|iOS|Android|ipad)/i.test(navigator.userAgent)
+
+    return /(iPhone|iPad|iPod|iOS|Android|ipad)/i.test(navigator.userAgent) || (/(Macintosh)/i.test(navigator.userAgent) && 'ontouchend' in document)
     // if (/(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent) || /(Android)/i.test(navigator.userAgent) || /(ipad)/i.test(navigator.userAgent)) {
     //     //alert(navigator.userAgent);  
     //     return true

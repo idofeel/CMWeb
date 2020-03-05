@@ -13,7 +13,7 @@ export default {
 		orgname: '',
 		rolename: '',
 		forceUpdata: true, // 强制更新数据
-		checkLogin: false,
+		checkLogin: null,
 		islogin: false,
 	},
 
@@ -58,10 +58,7 @@ export default {
 					checkLogin: true,
 					islogin: true,
 				}
-				yield put({
-					type: "save",
-					payload
-				});
+
 				// message.success('已登录')
 			} else {
 				payload = {
@@ -75,6 +72,11 @@ export default {
 				}
 				// message.warn('未登录')
 			}
+
+			yield put({
+				type: "save",
+				payload
+			});
 
 			// if (!payload.initCheck) 
 		},

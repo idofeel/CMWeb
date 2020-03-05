@@ -76,9 +76,11 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 				b: 0,
 				a: 1
 			},
+			// downloadInfo: '在IE/360/qq浏览器中，支持G级模型的快速浏览，点击下载安装!'
 		}
 		window.updateProgress = this.updateProgress
 		window.transferFailed = this.transferFailed
+		window.setAnmiIcon = this.setAnmiIcon
 		window.setPickObjectParameters = this.pickObjectParameters
 		window.getCurFrame = (CurFrame) => this.getCurFrame(CurFrame)
 		window.pickNull = this.pickNull
@@ -105,29 +107,20 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 							percent={this.state.percent}
 							status="active"
 						/>}
-						<p>{Tips ? '模型加载失败' : '模型加载中...'}</p>
+						<p>{Tips ? '模型下载失败' : '模型下载中...'}</p>
 					</div>
 				</div> :
 					<>
 						<h3 className="pageHeader">
 							<span>{document.title}</span>
-							<Button type="link" onClick={() => {
+							{!IsPhone() && <Button type="link" onClick={() => {
 								const args = {
 									message: '安全控件下载',
-									description:
-										'在IE/360/qq浏览器中，支持G级模型的快速浏览，点击下载安装！',
+									description: <span>在IE/360/qq浏览器中，支持G级模型的快速浏览。<Button type="link" onClick={() => this.cleDownload.click()}>点击下载安装!</Button></span>,
 									duration: 0,
-									onClick: () => {
-										// const oa = document.createElement('a');
-										// oa.href = "/softcenter/CMWebSetup.zip"
-										// oa.setAttribute('target', '_blank');
-										// oa.setAttribute('download', '');
-										// document.body.appendChild(oa);
-										this.cleDownload.click()
-									}
 								};
 								notification.open(args);
-							}}>安全控件下载</Button>
+							}}>安全控件下载</Button>}
 						</h3>
 						<div className="toolsContainer">
 							<div className="tools_btn">
@@ -188,7 +181,7 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 									return false
 								}}
 								onExpand={(e) => {
-									console.log('onExpand', e);
+									// console.log('onExpand', e);
 
 									this.hideSelect = true
 									this.setState({
@@ -270,7 +263,7 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 					content={
 						<ChromePicker
 							onChange={(e) => {
-								console.log(e);
+								// console.log(e);
 
 								this.isPickNull(() => {
 									const { r, g, b, a } = e.rgb
@@ -460,8 +453,9 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 				this.tempMutilpSelect = this.findleafIndexs(item)
 				this.setState({
 					treeNodeSelectKeys: [key],
+					paramsData: item.params
 				})
-				console.log(this.tempMutilpSelect);
+				// console.log(this.tempMutilpSelect);
 				pickModelByIndex(this.tempMutilpSelect, IsPhone())
 			}}
 			onMouseDown={() => {
@@ -471,7 +465,7 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 					// 已选择，取消选择 && 未选择添加选择
 					// treeNodeSelectKeys = treeNodeSelectKeys.indexOf(key) > -1 ? treeNodeSelectKeys.filter(item => item !== key) : treeNodeSelectKeys.concat(key);
 					const leafKeys = this.findleafIndexs(item);
-					console.log(treeNodeSelectKeys);
+					// console.log(treeNodeSelectKeys);
 
 					if (treeNodeSelectKeys.indexOf(key) > -1) {
 
@@ -479,7 +473,7 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 						treeNodeSelectKeys = treeNodeSelectKeys.filter((item: any) => item !== key);
 						// 临时多选
 						this.tempMutilpSelect = this.tempMutilpSelect.filter((item: any) => leafKeys.indexOf(item) === -1)
-						console.log('取消', this.tempMutilpSelect);
+						// console.log('取消', this.tempMutilpSelect);
 
 					} else {
 						treeNodeSelectKeys.push(key)
@@ -489,12 +483,13 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 					this.hideSelect = true
 					this.setState({
 						treeNodeSelectKeys,
+						paramsData: []
 					})
 
 					// // if
 					// this.tempMutilpSelect = treeNodeSelectKeys.indexOf(key) > -1 ? this.tempMutilpSelect.filter(item => leafKeys.indexOf(item) > -1) : this.tempMutilpSelect.concat(this.findleafIndexs(item))
 					// // this.tempMutilpSelect = this.tempMutilpSelect.concat(this.findleafIndexs(item))
-					console.log('多选', this.tempMutilpSelect);
+					// console.log('多选', this.tempMutilpSelect);
 					pickModelByIndex(this.tempMutilpSelect, IsPhone())
 				}
 			}}>
@@ -509,8 +504,10 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 		window.isPhone = IsPhone()
 		const { pid, title } = queryString(location.href)
 		document.title = title || '三维模型'
-		console.log(pid, title);
+		// console.log(pid, title);
+		// getByRequest('http://www.featuremaker.xyz/rs/141/3ae039d37c1c23894743376be1d6/1143.scle')
 		// getByRequest('../../src/assets/1.scle')
+		// getByRequest('../../src/assets/1f2f.scle')
 
 		let files;
 		try {
@@ -524,7 +521,7 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 			window.g_strResbaseUrl = cle.replace(/(.cle)$/, '/');
 			getByRequest(cle.replace(/(.cle)$/, '.scle'))
 			canvasOnResize()
-			console.log('openCle', window.g_strResbaseUrl, cle.replace(/(.cle)$/, '.scle'));
+			// console.log('openCle', window.g_strResbaseUrl, cle.replace(/(.cle)$/, '.scle'));
 		} else {
 			message.error(files.faildesc)
 		}
@@ -569,7 +566,7 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 	}
 
 	pickObjectParameters = () => {
-		console.log(pickObjectIndexs, pickObjectVisible, pickObjectTransparent);
+		// console.log(pickObjectIndexs, pickObjectVisible, pickObjectTransparent);
 		if (!pickObjectIndexs || !pickObjectIndexs.length) {
 			this.setState({
 				treeNodeSelectKeys: [],
@@ -578,10 +575,11 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 			});
 			return
 		}
-		const { expandedKeys, treeNodeSelectKeys } = this.getExpandedAndSelctKeys(this.state.treeData, pickObjectIndexs)
+		const { expandedKeys, treeNodeSelectKeys, item } = this.getExpandedAndSelctKeys(this.state.treeData, pickObjectIndexs)
 		this.setState({
 			expandedKeys,
 			treeNodeSelectKeys,
+			paramsData: item.length === 1 ? item[0].params : []
 			isVisible: !!pickObjectVisible,
 			alphaRange: pickObjectTransparent
 		})
@@ -590,25 +588,31 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 
 	getCurFrame(CurFrame) {
 		const nAnimatePercent = CurFrame / this.totalFrames * 100
-		console.log(nAnimatePercent);
+		// console.log(nAnimatePercent);
 		this.setState({
 			AnimatePercent: nAnimatePercent,
-			AnimationPlay: !(nAnimatePercent > 100)
+			// AnimationPlay: !(nAnimatePercent > 100)
 		})
 	}
 	updateProgress = async (evt: any) => {
+		// console.log(evt);
 
 		// progress 事件的 lengthComputable 属性存在时，可以计算数据已经传输的比例(loaded 已传输大小，total 总大小）
 		if (evt.lengthComputable) {
 			this.setState({
 				percent: parseInt(evt.loaded / evt.total * 100)
 			})
-			if (evt.loaded / evt.total === 1) {
+			if (evt.loaded / evt.total === 1 && evt.target.status < 300) {
 				await this.sleep(500)
 				this.setState({
 					loading: false
 				})
 				this.loadTree()
+			}
+			if (evt.target.status === 404) {
+				this.setState({
+					Tips: true
+				})
 			}
 			g_nCleBufferlength = evt.total;
 			g_loaded_pos = evt.loaded;
@@ -677,7 +681,7 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 		expandedKeys = Array.from(expandedKeys)
 
 		return {
-			expandedKeys, treeNodeSelectKeys
+			expandedKeys, treeNodeSelectKeys, item: findParentKeys,
 		}
 	}
 	key = 1000000
@@ -706,7 +710,6 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 			child: this.processTreeData(item._arrSubNode, parentKeys)
 		}
 	}
-
 
 	findParentKeys(data: any, objIndexs: any, key: any = []): any {
 		if (!objIndexs.length) return key
@@ -739,6 +742,12 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 		// message.error("下载文件失败！");
 		this.setState({
 			Tips: true
+		})
+	}
+	setAnmiIcon = (isPause: boolean) => {
+		console.log('isPause', isPause ? '暂停' : '播放');
+		this.setState({
+			AnimationPlay: !isPause
 		})
 	}
 

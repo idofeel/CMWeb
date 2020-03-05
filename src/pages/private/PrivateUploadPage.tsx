@@ -4,6 +4,8 @@ import './PrivateUploadPage.less'
 import { get, post, postForm } from '../../utils';
 import API from '../../services/API';
 import CLEUpload from '../upload/CLEUpload';
+import ImgUpload from '../../components/ImgUpload/ImgUpload';
+import { connect } from 'dva';
 
 
 export interface IPrivateUploadPageProps {
@@ -13,6 +15,8 @@ export interface IPrivateUploadPageState {
     current: number // 当前步骤
     modify: boolean,
     uploadInfo: uploadInfoProps
+    cropperVisible: boolean;
+    coverloading: boolean;
 }
 
 interface uploadInfoProps {
@@ -44,6 +48,7 @@ const steps = [
     },
 ];
 
+@connect()
 export default class PrivateUploadPage extends React.Component<IPrivateUploadPageProps, IPrivateUploadPageState> {
     constructor(props: IPrivateUploadPageProps) {
         super(props);
@@ -58,12 +63,14 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
                 pid: '',
                 gid: '',
                 memo: {}
-            }
+            },
+            cropperVisible: false,
+            coverloading: false
         }
     }
 
     public render() {
-        const { imageUrl, current } = this.state;
+        const { imageUrl, current, cropperVisible } = this.state;
 
         return (
             <div className='PrivateUploadPage'>
@@ -94,22 +101,16 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
         );
     }
 
+    imgUpload: any = null
+
     renderContent(current: number) {
 
-        const { imageUrl, treeData, defaultChecked, selectKeys } = this.state;
+        const { treeData, defaultChecked, selectKeys } = this.state;
         const { name } = steps[current]
         const formItemLayout = {
             labelCol: { span: 4 },
             wrapperCol: { span: 12 },
         };
-        console.log(name);
-
-        const uploadButton = (
-            <div>
-                <Icon type={this.state.coverLoading ? 'loading' : 'plus'} />
-                <div className="ant-upload-text">封面上传</div>
-            </div>
-        );
         if (name === 'name') {
 
             return <>
@@ -126,18 +127,7 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
                     {this.state.uploadInfo.name}
                 </Form.Item>
                 <Form.Item label="封面上传" {...formItemLayout} className="coverStyle">
-                    <Upload
-                        name="avatar"
-                        listType="picture-card"
-                        className="avatar-uploader"
-                        showUploadList={false}
-                        action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-                    // beforeUpload={this.coverBeforeUpload}
-                    // onChange={this.handleChange}
-                    >
-                        {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
-                    </Upload>
-                    <span>* 注：需上传240*135的图片</span>
+                    <ImgUpload ref={ref => this.imgUpload = ref} title="封面上传" imgw={240} imgh={135} cropperImg={this.UploadCover} />
                 </Form.Item>
                 <Form.Item label="CLE文件上传：" {...formItemLayout}>
                     <CLEUpload startUpload={this.uploadCle} ref={(ref => this.cleupload = ref)} />
@@ -158,11 +148,27 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
         }
 
     }
+    UploadCover = async (img: any) => {
+        const { infoid } = this.state.uploadInfo
+        let formData = new FormData();
+
+        formData.append('file', img)
+        formData.append('infoid', infoid)
+        const coverRes = await postForm(API.upload.cover, formData)
+
+        if (coverRes.success) {
+            message.success('封面上传成功')
+
+        } else {
+            message.error(coverRes.faildesc)
+            this.imgUpload.clear();
+        }
+        console.log(img);
+    }
 
     async next() {
         let { current } = this.state;
         const step = steps[current]
-        current += 1
         if (step.name === 'name') {
             console.log('stepstepstep', step.name);
             // this.uploadCle();
@@ -179,10 +185,9 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
         }
 
         // 
-
-        this.setState({
-            current
-        })
+        // this.setState({
+        //     current
+        // })
     }
 
     prev() {
@@ -212,12 +217,30 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
             })
         } else {
             // 没有,允许新增
-
+            // this.setState({
+            //     current: 0
+            // })
+            // message.error(undone.faildesc)
         }
     }
 
+    componentWillUnmount() {
+        this.setState = () => { return };
+    }
+
     async componentDidMount() {
-        console.log('componentDidMount');
+        console.log(this.props.global);
+
+        if (!this.props.global.islogin && this.props.global.checkLogin) {
+            this.props.dispatch({
+                type: 'ucenter/save',
+                payload: {
+                    loginModal: true,
+                    registerModal: false
+                }
+            })
+            return;
+        }
 
         this.hasUndone()
         // const undone = await this.getUndone()
@@ -242,10 +265,12 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
     async startTask() {
         const { name, pid, infoid } = this.state.uploadInfo
         console.log('createTask', infoid);
+        let res = null;
         // 开始任务
         if (pid || infoid) {
             // 修改名称
-            await get(API.upload.changeName, { infoid, name })
+            res = await get(API.upload.changeName, { infoid, name })
+
         } else {
             // 新增名称
             const readyUpload = await get(API.upload.start, { pid: pid === null ? '' : pid, name })
@@ -256,7 +281,22 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
                         infoid: readyUpload.data
                     }
                 })
+            } else {
+                res = readyUpload
             }
+        }
+
+        if (res.success) {
+            // 下一步
+            this.setState({
+                current: this.state.current + 1
+            })
+        } else {
+
+            this.setState({
+                current: 0
+            })
+            message.error(res.faildesc || '名称写入失败，请联系管理员！')
         }
 
     }
@@ -297,7 +337,7 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
         if (res.success) {
             const wholeid = res.data;
             this.uploadChunk(0, filesInfo, chunks, wholeid)
-            this.cleupload.changePercent(1)
+            this.cleupload.changePercent(0.1)
         } else {
             message.error(res.faildesc)
         }

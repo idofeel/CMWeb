@@ -15,6 +15,8 @@ export default {
         forceUpdata: true, // 强制更新数据
         checkLogin: false,
         islogin: false,
+        userInfo: [],
+        userExtInfo: []
     },
 
     subscriptions: {
@@ -68,6 +70,8 @@ export default {
                     // loginModal: true,
                     // registerModal: false,
                     checkLogin: true,
+                    islogin: false,
+
                 }
 
                 yield put({

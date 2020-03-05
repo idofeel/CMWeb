@@ -1,4 +1,4 @@
-function Point3(x,y,z){this.x=x;this.y=y;this.z=z;this.set=function(xx,yy,zz){this.x=xx;this.y=yy;this.z=zz;}}
+var g_matLocal=mat4.create();var g_matWorld=mat4.create();var g_matMultiply=mat4.create();function Point3(x,y,z){this.x=x;this.y=y;this.z=z;this.set=function(xx,yy,zz){this.x=xx;this.y=yy;this.z=zz;}}
 function Vector3(x,y,z){this.x=x;this.y=y;this.z=z;this.set=function(xx,yy,zz){this.x=xx;this.y=yy;this.z=zz;}
 this.flip=function(){this.x=-this.x;this.y=-this.y;this.z=-this.z;}
 this.normalize=function(){let base=Math.pow(this.x,2)+Math.pow(this.y,2)+Math.pow(this.z,2);this.x=this.x/Math.pow(base,0.5);this.y=this.y/Math.pow(base,0.5);this.z=this.z/Math.pow(base,0.5);}
@@ -39,8 +39,8 @@ this._arrSurfaceVertexNum.splice(0,this._arrSurfaceVertexNum.length);this._boxse
 function GL_PART(){this._arrPartLODData=new Array(1);this.Clear=function(){this._arrPartLODData.splice(0,this._arrPartLODData.length);}}
 function GL_PARTSET(){this._uLODLevel=0;this._arrPartSet=new Array();this.Clear=function(){this._arrPartSet.splice(0,this._arrPartSet.length);}}
 function GL_MATERIALSET(){this._arrMaterialSet=new Array();this.Clear=function(){this._arrMaterialSet.splice(0,this._arrMaterialSet.length);}}
-var matAdfOut=new ADF_BASEMATRIX();function GL_OBJECT(){this._uPartIndex=0;this._arrSurfaceMaterialIndex=new Array();this._nFillMode=ADFFILL_SOLID;this._nCullMode=ADFCULL_NONE;this._uObjectVertexNum=0;this._matLocal=new ADF_BASEMATRIX();this._matWorld=new ADF_BASEMATRIX();this._matObject=mat4.create();this._objectAnim=new ADF_OBJ_ANIM_SAVEDATA();this.Clear=function(){this._arrSurfaceMaterialIndex.splice(0,this._arrSurfaceMaterialIndex.length);this._objectAnim.Clear();}
-this.GetAnimMatrix=function(uFrame,matGlOut){ADFMatrixIdentity(matAdfOut);CalculateObjectWldMatrix(uFrame,this._objectAnim,this._matLocal,this._matWorld,matAdfOut);CalMat4(matAdfOut,matGlOut);}
+var matAdfOut=new ADF_BASEMATRIX();function GL_OBJECT(){this._uObjectID=0;this._uPartIndex=0;this._arrSurfaceMaterialIndex=new Array();this._nFillMode=ADFFILL_SOLID;this._nCullMode=ADFCULL_NONE;this._uObjectVertexNum=0;this._matLocal=new ADF_BASEMATRIX();this._matWorld=new ADF_BASEMATRIX();this._matObject=mat4.create();this._objectAnim=new ADF_OBJ_ANIM_SAVEDATA();this.Clear=function(){this._arrSurfaceMaterialIndex.splice(0,this._arrSurfaceMaterialIndex.length);this._objectAnim.Clear();}
+this.GetAnimMatrix=function(uFrame,matGlOut){ADFMatrixIdentity(matAdfOut);if(this._objectAnim._arrKeyFrameData.length==0){CalMat4(this._matLocal,g_matLocal);CalMat4(this._matWorld,g_matWorld);mat4.multiply(matGlOut,g_matWorld,g_matLocal);}else{CalculateObjectWldMatrix(uFrame,this._objectAnim,this._matLocal,this._matWorld,matAdfOut);CalMat4(matAdfOut,matGlOut);}}
 this.GetAnimTransparent=function(uFrame){return CalculateObjectNoTransparency(uFrame,this._objectAnim);}
 this.GetObjectMat=function(){this.GetAnimMatrix(0,this._matObject);}}
 function GL_OBJECTSET(){this._uFrameSize=0;this._arrObjectSet=new Array();this.Clear=function(){this._arrObjectSet.splice(0,this._arrObjectSet.length);}}
@@ -49,6 +49,37 @@ this.Copy=function(data){this._DefaultCamera.Copy(data._DefaultCamera);this._arr
 this.GetAnimCamera=function(uFrame,cameraOut){CalculateCameraDataByKeyFrame(uFrame,this._arrCameraAnimSaveData,cameraOut);return cameraOut;}}
 function GL_MODELTREENODE(){this._uTreeNodeID=-1;this._uJSTreeID=-1;this._strName="";this._arrNodeParameters=new Array();this._uObjectIndex=-1;this._bVisibleOriginal=true;this._bVisible=true;this._uObjectTriangleCount=-1;this._arrSubNode=new Array();this.Clear=function(){this._arrNodeParameters.splice(0,this._arrNodeParameters.length);this._arrSubNode.splice(0,this._arrSubNode.length);}}
 function GL_NODEPARAMETER(){this._strName="";this._strValue="";}
-const GL_ORIGINAL=0;const GL_USERDEFINE=1;const GL_USERPICKED=2;const GLTRANS_ALL=1;const GLTRANS_PART=2;const GLTRANS_NO=3;var oldVec=vec3.create();var newVec=vec3.create();function CalTranslatePoint(x,y,z,ObjectMat,newPoint){oldVec[0]=x,oldVec[1]=y,oldVec[2]=z;vec3.transformMat4(newVec,oldVec,ObjectMat);newPoint.x=newVec[0],newPoint.y=newVec[1],newPoint.z=newVec[2];}
+const GL_ORIGINAL=0;const GL_USERDEFINE=1;const GL_USERPICKED=2;const GLTRANS_ALL=1;const GLTRANS_PART=2;const GLTRANS_NO=3;const GL_SCENEUPTYPEX=0;const GL_SCENEUPTYPEY=1;const GL_SCENEUPTYPEZ=2;var oldVec=vec3.create();var newVec=vec3.create();function CalTranslatePoint(x,y,z,ObjectMat,newPoint){oldVec[0]=x,oldVec[1]=y,oldVec[2]=z;vec3.transformMat4(newVec,oldVec,ObjectMat);newPoint.x=newVec[0],newPoint.y=newVec[1],newPoint.z=newVec[2];}
 function CalMat4(matAdfOut,matGlOut){mat4.set(matGlOut,matAdfOut._11,matAdfOut._12,matAdfOut._13,matAdfOut._14,matAdfOut._21,matAdfOut._22,matAdfOut._23,matAdfOut._24,matAdfOut._31,matAdfOut._32,matAdfOut._33,matAdfOut._34,matAdfOut._41,matAdfOut._42,matAdfOut._43,matAdfOut._44);}
 function CalADFMat(matrix){let adfMat=new ADF_BASEMATRIX();adfMat._11=matrix[0],adfMat._12=matrix[1],adfMat._13=matrix[2],adfMat._14=matrix[3];adfMat._21=matrix[4],adfMat._22=matrix[5],adfMat._23=matrix[6],adfMat._24=matrix[7];adfMat._31=matrix[8],adfMat._32=matrix[9],adfMat._33=matrix[10],adfMat._34=matrix[11];adfMat._41=matrix[12],adfMat._42=matrix[13],adfMat._43=matrix[14],adfMat._44=matrix[15];return adfMat;}
+var djb2Code=function(id){return id%1000;}
+function HashMap(){var map=[];var keyValPair=function(key,value){this.key=key;this.value=value;}
+this.put=function(key,value){var position=djb2Code(key);if(map[position]==undefined){map[position]=new LinkedList();}
+map[position].append(new keyValPair(key,value));}
+this.get=function(key){var position=djb2Code(key);if(map[position]!=undefined){var current=map[position].getHead();while(current.next){if(current.element.key===key){return current.element.value;}
+current=current.next;}
+if(current.element.key===key){return current.element.value;}}
+return undefined;}
+this.remove=function(key){var position=djb2Code(key);if(map[position]!=undefined){var current=map[position].getHead();while(current.next){if(current.element.key===key){map[position].remove(current.element);if(map[position].isEmpty()){map[position]==undefined;}
+return true;}
+current=current.next;}
+if(current.element.key===key){map[position].remove(current.element);if(map[position].isEmpty()){map[position]==undefined;}
+return true;}}}
+this.isEmpty=function(){if(map.length==0){return true;}else{return false;}}}
+function LinkedList(){var Node=function(element){this.element=element;this.next=null;};var length=0;var head=null;this.append=function(element){var node=new Node(element);var current;if(head===null){head=node;}else{current=head;while(current.next){current=current.next;}
+current.next=node;}
+length++;}
+this.removeAt=function(position){if(position>-1&&position<length){var current=head;var index=0;var previous;if(position==0){head=current.next;}else{while(index++<position){previous=current;current=current.next;}
+previous.next=current.next;}
+length--;return current.element;}else{return null;}}
+this.insert=function(position,element){if(position>-1&&position<=length){var node=new Node(element);current=head;var index=0;var previous;if(position==0){node.next=current;head=node;}else{while(index++<position){previous=current;current=current.next;}
+previous.next=node;node.next=current;}
+length++;return true;}else{return false;}}
+this.toString=function(){var current=head;var string='';while(current){string+=','+current.element;current=current.next;}
+return string;}
+this.indexOf=function(element){var current=head;var index=-1;while(current){if(element===current.element){return index;}
+index++;current=current.next;}
+return-1;}
+this.getLength=function(){return length;}
+this.getHead=function(){return head;}
+this.isEmpty=function(){return length==0;}}

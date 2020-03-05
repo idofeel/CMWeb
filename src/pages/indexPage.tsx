@@ -100,9 +100,10 @@ class IndexPage extends Component<RoutesProps, State> {
 	}
 	render() {
 		const { routes, app, global } = this.props
+
 		const avatarAttr = {
 			icon: global.uname ? '' : 'user',
-			src: global.avatar,
+			src: `${domain}/${global.avatar}`,
 			style: { backgroundColor: "#1890ff", marginLeft: 10 }
 		}
 		const { drawerShow, downloadMenus } = this.state
