@@ -111,7 +111,7 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 					</div>
 				</div> :
 					<>
-						<h3 className="pageHeader">
+						{/* <h3 className="pageHeader">
 							<span>{document.title}</span>
 							{!IsPhone() && <Button type="link" onClick={() => {
 								const args = {
@@ -121,7 +121,7 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 								};
 								notification.open(args);
 							}}>安全控件下载</Button>}
-						</h3>
+						</h3> */}
 						<div className="toolsContainer">
 							<div className="tools_btn">
 								{this.renderTools()}
@@ -502,13 +502,17 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 	// }
 	async componentDidMount() {
 		window.isPhone = IsPhone()
-		const { pid, title } = queryString(location.href)
+		const { pid, title, link } = queryString(location.href)
 		document.title = title || '三维模型'
 		// console.log(pid, title);
 		// getByRequest('http://www.featuremaker.xyz/rs/141/3ae039d37c1c23894743376be1d6/1143.scle')
 		// getByRequest('../../src/assets/1.scle')
 		// getByRequest('../../src/assets/1f2f.scle')
 
+		if (link) {
+			this.openLink(link);
+			return
+		}
 		let files;
 		try {
 			files = await get(API.fileInfo.cle, { pid })
@@ -525,10 +529,18 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 		} else {
 			message.error(files.faildesc)
 		}
+
+
 		// // 下载网络SCLE模型
 		window.addEventListener("keydown", this.keydown)
 		window.addEventListener("keyup", this.keyup)
 		document.addEventListener('contextmenu', this.disableContextmenu);
+	}
+
+	openLink(link: string) {
+		window.g_strResbaseUrl = link.replace(/(.scle)$/, '/');
+		getByRequest(link)
+		canvasOnResize()
 	}
 
 	componentWillUnmount() {

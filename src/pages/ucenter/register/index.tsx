@@ -207,6 +207,11 @@ class Register extends Component<Props, State> {
                         type: 'global/saveUserInfo',
                         payload: res.data
                     })
+                    this.props.dispatch({
+                        type: 'ucenter/saveUserInfo',
+                        payload: res.data
+                    })
+
                     message.success('恭喜您，注册成功')
                 } else {
                     message.error(res.faildesc)

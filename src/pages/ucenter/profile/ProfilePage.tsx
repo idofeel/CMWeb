@@ -93,7 +93,7 @@ export default class ProfilePage extends React.Component<IProfilePageProps, IPro
             <span>{item[1]}:</span>
             <div className="userInfoItem">
                 {item[0] === 'avatar' ?
-                    <ImgUpload defaultImg={`${domain}/${item[2]}`} ref={ref => this.imgUpload = ref} title="封面上传" imgw={100} imgh={100} cropperImg={this.UploadAvatar} />
+                    <ImgUpload defaultImg={item[2].indexOf('http') > -1 ? item[2] : `${domain}/${item[2]}`} ref={ref => this.imgUpload = ref} title="头像上传" imgw={100} imgh={100} cropperImg={this.UploadAvatar} />
                     : <span>{item[2]}</span>}
                 {notModify ? null : <Icon type="right" onClick={() => this.showModifyModal(item)} />}
 
@@ -106,12 +106,13 @@ export default class ProfilePage extends React.Component<IProfilePageProps, IPro
         formData.append('file', img)
         const res = await postForm(API.modify.UpAvatar, formData);
         if (res.success) {
-            this.props.dispatch({
-                type: 'global/save',
-                payload: {
-                    avatar: res.data
-                }
-            })
+
+            // this.props.dispatch({
+            //     type: 'global/setAvatar',
+            //     payload: {
+            //         avatar: res.data
+            //     }
+            // })
         } else {
 
         }

@@ -80,21 +80,23 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
                 </Steps>
                 <div className="steps-content" >{this.renderContent(current)}</div>
                 <div className="steps-action">
-                    {current < steps.length - 1 && (
-                        <Button type="primary" onClick={() => this.next()}>
-                            下一步
-                        </Button>
-                    )}
-                    {current === steps.length - 1 && (
-                        <Button type="primary" onClick={() => message.success('Processing complete!')}>
-                            完成
-                         </Button>
-                    )}
                     {current > 0 && (
                         <Button style={{ marginLeft: 8 }} onClick={() => this.prev()}>
                             上一步
                         </Button>
                     )}
+
+                    {current === steps.length - 1 && (
+                        <Button type="primary" onClick={() => message.success('Processing complete!')}>
+                            完成
+                         </Button>
+                    )}
+                    {current < steps.length - 1 && (
+                        <Button type="primary" onClick={() => this.next()}>
+                            下一步
+                        </Button>
+                    )}
+
                 </div>
             </div>
         );

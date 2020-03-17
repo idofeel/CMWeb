@@ -10,7 +10,8 @@ export default {
         private: '/?r=cle&d=list&o=private', // {ids[],st}
         // 搜索
         search: '/?r=cle&d=name',  // {name}
-
+        base: '/?r=cle&d=base', // {pid}
+        delete: '/?r=cle&d=delprivate' // {pid}
     },
     fileInfo: {
         // les 文件信息
@@ -57,7 +58,9 @@ export default {
         cleChunk: '/?r=cle&d=importprivate&o=uploadchunk',
         cover: '/?r=cle&d=importprivate&o=cover',
         changeName: '/?r=cle&d=importprivate&o=resetname', //{infoid,name}
-        import: '/?r=cle&d=importprivate&o=import'
+        import: '/?r=cle&d=importprivate&o=import',
+        cancel: '/?r=cle&d=importprivate&o=cancel',
+        getInfo: '/?r=cle&d=importprivate&o=getinfo', //{infoid}
     },
     modify: {
         UpAvatar: '/?r=center&d=upavatar', // {file}

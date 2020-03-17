@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button, message, Switch, Row, Col } from 'antd';
+import { Button, message, Switch, Row, Col, Popover, List } from 'antd';
 import { get, domain, joinUrlEncoded, queryString } from '../utils';
 import API from '../services/API';
 import './index.less'
@@ -9,22 +9,100 @@ export interface ICMReaderPageProps {
 
 export interface ICMReaderPageState {
     title: string
+    visible: boolean
 }
 
+interface IcontrolTools {
+
+}
 // let { CMWeb = {} }: any = window
 export default class CMReaderPage extends React.Component<ICMReaderPageProps, ICMReaderPageState> {
     constructor(props: ICMReaderPageProps) {
         super(props);
 
         this.state = {
-            title: ''
+            title: '',
+            visible: true,
+
         }
     }
 
     public render() {
+        const controlTools = [
+            {
+                title: '导航栏', checked: false,
+                method: (checked: boolean) => {
+                    try {
+                        CMWeb.ShowNavigationPane(checked ? 1 : 0, 200); // 显示工具栏 
+                        checked && CMWeb.UpdateNavigationPaneItem("0;1;2;3") // 更新工具栏
+                    } catch (error) {
+
+                    }
+
+                }
+            },
+            {
+                title: '文字栏', checked: false,
+                method: (checked: boolean) => {
+                    try {
+                        CMWeb.ShowTextPane(checked ? 1 : 0, 50)
+                    } catch (error) {
+
+                    }
+                }
+            },
+            {
+                title: '控制栏', checked: false,
+                method: (checked: boolean) => {
+                    try {
+                        CMWeb.ShowControlPane(checked ? 1 : 0, 40)
+                    } catch (error) {
+
+                    }
+                }
+            },
+            {
+                title: '工具栏', checked: false,
+                method: (checked: boolean) => {
+                    try {
+                        CMWeb.ShowToolbar(checked ? 1 : 0)
+                    } catch (error) {
+
+                    }
+                }
+            },
+            {
+                title: '属性栏', checked: false,
+                method: (checked: boolean) => {
+                    try {
+                        CMWeb.ShowPropertyPane(checked ? 1 : 0, 200);
+                        checked && CMWeb.UpdatePropertyPaneItem("0;1;2;3")
+                    } catch (error) {
+                    }
+                }
+            },
+        ]
         return (
             <div className="CMReader_View">
-                <Switch onChange={this.toggleTools} />
+                {/* <Switch onChange={this.toggleTools} /> */}
+                <Popover
+                    className="CMReader_Popover"
+                    placement="bottomLeft"
+                    content={
+                        <List
+                            itemLayout="vertical"
+                            dataSource={controlTools}
+                            renderItem={(item: any, index: number) => {
+                                return <List.Item extra={<Switch onChange={item.method} />}>{item.title}</List.Item>
+                            }}
+                        ></List>}
+                    title="视图控制"
+                    trigger="click"
+                    // visible={this.state.visible}
+                    onVisibleChange={this.handleVisibleChange}
+                >
+                    <Button icon="setting" type="primary"></Button>
+                </Popover>
                 <h3>{this.state.title}</h3>
                 <Button type="link" icon="close" onClick={() => {
                     window.close();
@@ -53,7 +131,6 @@ export default class CMReaderPage extends React.Component<ICMReaderPageProps, IC
             req2 = get(API.serverinfo)
 
         const [file, server] = await Promise.all([req1, req2])
-        console.log(file, server);
         if (file.success && server.success) {
 
             const devid = CMWeb.GetDeviceData();
@@ -62,23 +139,23 @@ export default class CMReaderPage extends React.Component<ICMReaderPageProps, IC
                 contentid = file.data.id,
                 lesFile = joinUrlEncoded(domain + API.fileInfo.les, { pid, devid }),
                 serverid = server.data.serverid;
-            console.log('OpenDRMFile', devid);
-            console.log('cleFile:' + cleFile);
-            console.log('lesFile:' + lesFile);
-            console.log('serverid:' + serverid);
-            console.log('contentid:' + contentid);
-            console.log('title:' + title);
-            console.log('filesize:' + filesize);
-            console.log(CMWeb.GetDeviceData, window, CMWeb.OpenDRMFile);
+            // console.log('OpenDRMFile', devid);
+            // console.log('cleFile:' + cleFile);
+            // console.log('lesFile:' + lesFile);
+            // console.log('serverid:' + serverid);
+            // console.log('contentid:' + contentid);
+            // console.log('title:' + title);
+            // console.log('filesize:' + filesize);
+            // console.log(CMWeb.GetDeviceData, window, CMWeb.OpenDRMFile);
             CMWeb.OpenDRMFile(cleFile, lesFile, serverid, contentid, title, filesize);
-            console.log('CMWeb.OpenDRMFile:' + filesize);
+            // console.log('CMWeb.OpenDRMFile:' + filesize);
 
         }
     }
     InitCLE() {
-        // 检测浏览器  
+        // return;
+        // 检测浏览器
         if (this.isBrowser() != 'IE') {
-            message.error('请在IE或兼容IE浏览器下使用！');
             location.href = location.href.replace(/cmweb.html/, 'scle.html')
             return;
         }
@@ -86,17 +163,15 @@ export default class CMReaderPage extends React.Component<ICMReaderPageProps, IC
         // 检测CMWeb控件是否安装     
         try {
             var ver = CMWeb.GetVerion();
-            if (ver < 1001007) {
-                // 检测控件新增接口时使用，
-                // 提示下载升级新版本
-                return;
-            }
-
+            // if (ver < 1001007) {
+            //     // 检测控件新增接口时使用，
+            //     // 提示下载升级新版本
+            //     location.href = location.href.replace(/cmweb.html/, 'scle.html')
+            //     return;
+            // }
         }
         catch (err) {
-            if (confirm('您尚未安装CMWeb控件')) {
-                // windows.location=''; //引号里可以写控件的下载地址url
-            }
+            location.href = location.href.replace(/cmweb.html/, 'scle.html')
             return;
         }
 

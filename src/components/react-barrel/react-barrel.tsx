@@ -75,6 +75,8 @@ class ReactBarrel extends Component<Props, State>{
     render() {
         const { barrelData } = this.state;
         const { wrapClassName } = this.props;
+        console.log(barrelData);
+
         return (
             <div
                 ref={this.BarrelContainer}
@@ -115,6 +117,8 @@ class ReactBarrel extends Component<Props, State>{
         this.firstLoadData = data; // 保留初始化加载的数据，当屏幕重置时重新计算
         // 获取行高一样的图片数据
         const rowHeights: barrelItem[] = this.getStandardHeight(data);
+        console.log(rowHeights);
+
         let barrelData: barrelItem[] = []; // 最终渲染的数据
         let wholeWidth: number = 0; // 计算一行图片的宽度总和
         let tempBarrel: barrelItem[] = []; // 临时存储一行的数据
@@ -164,6 +168,8 @@ class ReactBarrel extends Component<Props, State>{
             tempBarrel[tempBarrel.length - 1].margin = 0
         }
         barrelData.push(...tempBarrel); //将剩余的不够一行的数据追加到最后
+        console.log(barrelData, data);
+
         // 渲染数据
         this.setState({
             barrelData,
@@ -270,8 +276,9 @@ class ReactBarrel extends Component<Props, State>{
             }, 50);
         });
     }
-    componentWillReceiveProps(nextProps: any) {
+    UNSAFE_componentWillReceiveProps(nextProps: any) {
         if (nextProps.data.length !== this.state.barrelData.length) {
+
             this.initRender(nextProps.data)
         }
     }

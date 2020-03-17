@@ -18,13 +18,15 @@ export default class CLEUpload extends React.Component<ICLEUploadProps, ICLEUplo
         super(props);
 
         this.state = {
-            fileList: [],
+            fileList: props.defaultList || [],
             percent: 0,
             showProgress: false
         }
     }
 
     public render() {
+        console.log(this.state.fileList);
+
         const uploadProps = {
             name: 'file',
             multiple: false,
@@ -76,6 +78,11 @@ export default class CLEUpload extends React.Component<ICLEUploadProps, ICLEUplo
         );
     }
 
+    UNSAFE_componentWillReceiveProps(nextProps) {
+
+        console.log(nextProps);
+
+    }
     changePercent(percent: number) {
         this.setState({
             percent: percent,

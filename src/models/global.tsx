@@ -122,6 +122,10 @@ export default {
 				islogin: false,
 			}
 			return { ...state, ...payload };
+		},
+		setAvatar(state: any, { payload }: any) {
+			return { ...state, avatar: payload.avatar };
 		}
+
 	}
 };

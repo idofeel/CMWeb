@@ -9,6 +9,8 @@ import './CMList.less'
 
 export interface ICMListProps extends CMListProps {
     loadMore: () => void,
+    itemOnClick: () => void
+    onDelete: () => void
     actions?: React.ReactNode[]
 }
 
@@ -23,15 +25,19 @@ const { Meta } = Card
 export default class CMList extends React.Component<ICMListProps, ICMListState> {
     static defaultProps = {
         loadMore: () => { }
+        itemOnClick: (item: any) => { },
+        onDelete: (item, index) => { }
     }
     constructor(props: ICMListProps) {
         super(props)
     }
-
-
+    state = {
+        modify: props.modify
+    }
 
     public render() {
-        const { list, loading, empty, loadEnd, actions } = this.props
+        const { list, loading, empty, loadEnd } = this.props
+
         return (
             <div className='listContainer'>
                 <InfiniteScroll
@@ -41,13 +47,14 @@ export default class CMList extends React.Component<ICMListProps, ICMListState> 
                     hasMore={true}
                     useWindow={true}
                 >
-                    <Spin spinning={loading} size='large'>
+                    <Spin spinning={false} size='large'>
                         <ReactBarrel
                             baseHeight={150}
                             data={list}
                             margin={15}
                             autoload={false}
                             renderItem={(item: any, index: any) => {
+
                                 return (
                                     <Card
                                         className='CMListCard'
@@ -63,7 +70,18 @@ export default class CMList extends React.Component<ICMListProps, ICMListState> 
                                         onClick={() => {
                                             this.goCMReader(item)
                                         }}
-                                        actions={actions}
+                                        actions={this.state.modify ? [
+                                            <Icon type="edit" key="edit" onClick={(e) => {
+                                                e.stopPropagation()
+                                                e.preventDefault()
+                                                this.props.itemOnClick(item, index)
+                                            }} />,
+                                            <Icon type="delete" key="delete" onClick={(e) => {
+                                                e.stopPropagation()
+                                                e.preventDefault()
+                                                this.props.onDelete(item)
+                                            }} />,
+                                        ] : null}
                                     >
                                         <Meta
                                             title={
@@ -84,9 +102,17 @@ export default class CMList extends React.Component<ICMListProps, ICMListState> 
             </div>
         );
     }
+    UNSAFE_componentWillReceiveProps(nextProps) {
+        console.log(nextProps);
+        if (this.state.modify !== nextProps.modify) {
+            this.setState({
+                modify: nextProps.modify
+            })
+        }
+    }
 
     goCMReader(item: ListItem) {
-        const origin = domain + '/web/cmweb.html'
+        const origin = domain + '/web/cmweb.html#/'
         const href = joinUrlEncoded(origin, {
             pid: item.pid,
             title: item.name,

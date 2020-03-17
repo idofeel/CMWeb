@@ -18,13 +18,11 @@ class Image extends Component<ImagePorps, ImageState> {
     }
     render() {
         const { source, loaded } = this.state;
-        console.log(this.props.source);
 
         return <div style={{ position: 'relative' }} {...this.props} >
             {loaded ? null : <img src={defaultSrc} style={{ position: 'absolute', width: '100%' }} />}
             <img src={this.props.source}
                 onLoad={(a) => {
-                    console.log(a);
                     this.setState({
                         loaded: true,
                     })

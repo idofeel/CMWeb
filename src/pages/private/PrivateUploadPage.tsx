@@ -1,13 +1,13 @@
 import * as React from 'react';
-import { Steps, Button, message, Form, Input, Icon, Result, Upload } from 'antd';
+import { Steps, Button, message, Form, Input, Icon, Result, Upload, Modal } from 'antd';
 import './PrivateUploadPage.less'
-import { get, post, postForm } from '../../utils';
+import { get, post, postForm, queryString, domain } from '../../utils';
 import API from '../../services/API';
 import CLEUpload from '../upload/CLEUpload';
 import ImgUpload from '../../components/ImgUpload/ImgUpload';
 import { connect } from 'dva';
 
-
+const { confirm } = Modal;
 export interface IPrivateUploadPageProps {
 }
 
@@ -81,9 +81,9 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
                 </Steps>
                 <div className="steps-content" >{this.renderContent(current)}</div>
                 <div className="steps-action">
-                    {current < steps.length - 1 && (
-                        <Button type="primary" onClick={() => this.next()}>
-                            下一步
+                    {current > 0 && (
+                        <Button onClick={() => this.prev()}>
+                            上一步
                         </Button>
                     )}
                     {current === steps.length - 1 && (
@@ -91,9 +91,9 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
                             完成
                          </Button>
                     )}
-                    {current > 0 && (
-                        <Button style={{ marginLeft: 8 }} onClick={() => this.prev()}>
-                            上一步
+                    {current < steps.length - 1 && (
+                        <Button type="primary" style={{ marginLeft: 8 }} onClick={() => this.next()}>
+                            下一步
                         </Button>
                     )}
                 </div>
@@ -105,7 +105,9 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
 
     renderContent(current: number) {
 
-        const { treeData, defaultChecked, selectKeys } = this.state;
+        console.log(this.state.uploadInfo);
+
+        const { treeData, defaultChecked, selectKeys, fileList } = this.state;
         const { name } = steps[current]
         const formItemLayout = {
             labelCol: { span: 4 },
@@ -127,10 +129,10 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
                     {this.state.uploadInfo.name}
                 </Form.Item>
                 <Form.Item label="封面上传" {...formItemLayout} className="coverStyle">
-                    <ImgUpload ref={ref => this.imgUpload = ref} title="封面上传" imgw={240} imgh={135} cropperImg={this.UploadCover} />
+                    <ImgUpload defaultImg={this.state.uploadInfo.img} ref={ref => this.imgUpload = ref} title="封面上传" imgw={240} imgh={135} cropperImg={this.UploadCover} />
                 </Form.Item>
                 <Form.Item label="CLE文件上传：" {...formItemLayout}>
-                    <CLEUpload startUpload={this.uploadCle} ref={(ref => this.cleupload = ref)} />
+                    <CLEUpload startUpload={this.uploadCle} ref={(ref => this.cleupload = ref)} defaultList={fileList} />
                 </Form.Item>
             </>
         } else if (name === 'done') {
@@ -139,15 +141,17 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
                 title="操作成功"
                 subTitle="上传成功，分类成功"
                 extra={[
-                    <Button type="primary" key="console">
-                        返回
+                    <Button type="primary" key="console" onClick={() => { this.props.history.push('/private') }}>
+                        返回私有资源查看
                     </Button>,
-                    <Button key="buy">去首页</Button>,
+                    <Button key="buy" onClick={() => { this.props.history.push('/upload') }}>继续添加</Button>,
                 ]}
             />
         }
 
     }
+
+
     UploadCover = async (img: any) => {
         const { infoid } = this.state.uploadInfo
         let formData = new FormData();
@@ -163,17 +167,30 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
             message.error(coverRes.faildesc)
             this.imgUpload.clear();
         }
-        console.log(img);
     }
 
     async next() {
         let { current } = this.state;
         const step = steps[current]
         if (step.name === 'name') {
-            console.log('stepstepstep', step.name);
             // this.uploadCle();
             // 新建名称
             await this.startTask()
+
+        }
+        if (step.name === 'uploadFile') {
+            // this.uploadCle();
+            // 新建名称
+            const res = await this.uploadEnd()
+            if (res.success) {
+                this.uploadDone()
+                this.setState({
+                    current: current + 1
+                })
+            } else {
+                this.uploadUnDone();
+                message.error(res.faildesc)
+            }
 
         }
         // 没有资源名称无法继续
@@ -210,17 +227,45 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
     async hasUndone() {
         const undone = await this.getUndone()
         if (undone.success) {
-            // 有未完成的信息
-            this.setState({
-                uploadInfo: undone.data[undone.data.length - 1],
-                modify: true
-            })
+
+            confirm({
+                title: '操作未完成',
+                // icon: <ExclamationCircleOutlined />,
+                content: '当前有未完成的资源任务，是否继续？',
+                okText: '继续',
+                cancelText: '删除',
+                onOk: async () => {
+
+                    let data = undone.data[undone.data.length - 1];
+                    const res = await get(API.upload.getInfo, { infoid: data.infoid })
+                    this.setState({
+                        uploadInfo: res.data,
+                        fileList: [{ ...res.data, url: res.data.cle, name: res.data.cle }]
+                    })
+
+                },
+                onCancel: () => {
+                    this.cancelTask();
+                    this.modifyTask();
+                },
+            });
+
+
         } else {
             // 没有,允许新增
             // this.setState({
             //     current: 0
             // })
             // message.error(undone.faildesc)
+            this.modifyTask()
+        }
+    }
+    async cancelTask() {
+        const res = await get(API.upload.cancel);
+        if (res.success) {
+
+        } else {
+            message.error(res.faildesc || '删除失败')
         }
     }
 
@@ -242,7 +287,8 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
             return;
         }
 
-        this.hasUndone()
+        if (this.props.global.checkLogin && this.props.global.islogin) this.hasUndone()
+
         // const undone = await this.getUndone()
         // if (undone.success) {
         //     // 有未完成的信息
@@ -256,6 +302,17 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
         // }
     }
 
+    async modifyTask() {
+        let params = queryString(location.href);
+        if (!params.pid) return;
+        const res = await get(API.source.base, params)
+        const cleRes = await get(API.fileInfo.cle, params)
+        this.setState({
+            fileList: [{ uid: cleRes.data.uid, name: cleRes.data.cle, status: 'done', url: cleRes.data.cle }],
+            uploadInfo: res.data,
+        })
+
+    }
 
     // 获取未完成发布的资源
     async getUndone() {
@@ -264,16 +321,17 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
 
     async startTask() {
         const { name, pid, infoid } = this.state.uploadInfo
-        console.log('createTask', infoid);
+        if (name === '') return message.error('资源名称不能为空。')
         let res = null;
         // 开始任务
-        if (pid || infoid) {
+        if (infoid) {
             // 修改名称
             res = await get(API.upload.changeName, { infoid, name })
 
         } else {
             // 新增名称
             const readyUpload = await get(API.upload.start, { pid: pid === null ? '' : pid, name })
+            res = readyUpload
             if (readyUpload.success) {
                 this.setState({
                     uploadInfo: {
@@ -344,7 +402,7 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
     }
 
     async uploadChunk(chunkIndex: any, filesInfo: any, chunks: any, wholeid: any) {
-        if (chunkIndex >= filesInfo.file.fileChunks) return this.uploadEnd();
+        if (chunkIndex >= filesInfo.file.fileChunks) return;
         let formData = new FormData(),
             blob = new Blob([chunks[chunkIndex].currentBuffer], { type: 'application/octet-stream' });
         console.log(chunkIndex);
@@ -362,13 +420,12 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
 
     async uploadEnd() {
         const { infoid } = this.state.uploadInfo
-        const importSQLRes = await get(API.upload.import, { infoid });
-        importSQLRes.success ? this.uploadDone() : this.uploadUnDone()
+        return await get(API.upload.import, { infoid })
     }
 
     uploadDone() {
         console.log('上传完成');
-
+        message.success('上传完成')
     }
     uploadUnDone() {
 

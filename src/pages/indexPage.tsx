@@ -103,7 +103,7 @@ class IndexPage extends Component<RoutesProps, State> {
 
 		const avatarAttr = {
 			icon: global.uname ? '' : 'user',
-			src: `${domain}/${global.avatar}`,
+			src: global.avatar.indexOf('http') > -1 ? global.avatar : `${domain}/${global.avatar}`,
 			style: { backgroundColor: "#1890ff", marginLeft: 10 }
 		}
 		const { drawerShow, downloadMenus } = this.state
@@ -161,14 +161,18 @@ class IndexPage extends Component<RoutesProps, State> {
 								}}
 								className='menusBtn'
 							/>
-							<img
-								className={styles.logo}
-								src={require('../assets/images/featureMaker.png')}
-							/>
-							<img
-								className={styles.logo2}
-								src={require('../assets/images/cmreader.png')}
-							/>
+							<a href="https://www.featuremaker.com/">
+								<img
+									className={styles.logo}
+									src={require('../assets/images/featureMaker.png')}
+								/>
+							</a>
+							<a href="/">
+								<img
+									className={styles.logo2}
+									src={require('../assets/images/cmreader.png')}
+								/>
+							</a>
 						</Col>
 						<Row>
 							<Col md={24} xs={0}>
