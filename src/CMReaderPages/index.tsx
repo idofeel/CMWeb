@@ -84,8 +84,8 @@ export default class CMReaderPage extends React.Component<ICMReaderPageProps, IC
         ]
         return (
             <div className="CMReader_View">
-                {/* <Switch onChange={this.toggleTools} /> */}
-                <Popover
+                <Switch onChange={this.toggleTools} />
+                {/* <Popover
                     className="CMReader_Popover"
                     placement="bottomLeft"
                     content={
@@ -102,7 +102,7 @@ export default class CMReaderPage extends React.Component<ICMReaderPageProps, IC
                     onVisibleChange={this.handleVisibleChange}
                 >
                     <Button icon="setting" type="primary"></Button>
-                </Popover>
+                </Popover> */}
                 <h3>{this.state.title}</h3>
                 <Button type="link" icon="close" onClick={() => {
                     window.close();
@@ -257,8 +257,8 @@ export default class CMReaderPage extends React.Component<ICMReaderPageProps, IC
             CMWeb.ShowToolbar(1)
             CMWeb.ShowNavigationPane(1, 200)
             CMWeb.ShowPropertyPane(1, 200)
-            // CMWeb.ShowTextPane(1, 50);
-            // CMWeb.ShowControlPane(1, 40);
+            CMWeb.ShowTextPane(1, 50);
+            CMWeb.ShowControlPane(1, 40);
             CMWeb.UpdateNavigationPaneItem("0;1;2;3")
             CMWeb.UpdatePropertyPaneItem("4;5;6")
         } catch (error) { }
