@@ -204,8 +204,8 @@ export default class CLEUpload extends React.Component<ICLEUploadProps, ICLEUplo
 
     async startUpload(params: any, arrayBufferData: any) {
         this.props.startUpload(params, arrayBufferData)
-        // const res2 = await get(API.upload.start, { pid: '', name: '测试' })
-        // const res = await post(API.upload.cleFile, params)
+        // const res2 = await get(API.private.start, { pid: '', name: '测试' })
+        // const res = await post(API.private.cleFile, params)
         // console.log(res);
         // // post(API.source.private, params)
         // let formData = new FormData(),

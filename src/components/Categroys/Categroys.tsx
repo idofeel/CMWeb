@@ -37,6 +37,7 @@ class Categroys extends Component<Props | any, State> {
 	lastCateId: string = ""
 	render() {
 		const { mode, menus, selectKey, dispatch } = this.props
+		if (!menus || menus.length < 1) return null
 		return (
 			<Menu theme='dark' mode={mode} selectedKeys={[selectKey]} style={{ lineHeight: "64px" }}>
 				{menus.map((item: MenusItem) => {

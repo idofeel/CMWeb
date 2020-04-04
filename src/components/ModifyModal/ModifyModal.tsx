@@ -25,7 +25,7 @@ export default class ModifyModal extends React.Component<IModifyModalProps, IMod
     }
     constructor(props: IModifyModalProps) {
         super(props);
-        console.log('props', props.item ? props.item[2] : '');
+        // console.log('props', props.item ? props.item[2] : '');
 
         this.state = {
             confirmLoading: false,

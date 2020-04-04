@@ -7,12 +7,11 @@ import { connect } from "dva"
 import SubRoutes, { NoMatchRoute, RedirectRoute } from "../utils/SubRoutes"
 import { domain } from "../utils"
 import Categroys, { SecondaryCate } from "../components/Categroys/Categroys"
-import styles from "./IndexPage.less"
-import "../@types"
 import SearchBar from "../components/SearchBar"
 import Login from "./ucenter/auth/login"
 import Register from "./ucenter/register"
-
+import styles from "./IndexPage.less"
+import "../@types"
 const { Header, Content, Footer } = Layout
 
 
@@ -291,7 +290,6 @@ class IndexPage extends Component<RoutesProps, State> {
 class UcenterModal extends Component<any, any>{
 	render() {
 		const { registerModal, loginModal } = this.props
-		console.log(registerModal, loginModal);
 
 		return <Modal
 			title={registerModal ? '账号注册' : '登录'}

@@ -89,7 +89,7 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
                     {current === steps.length - 1 && (
                         <Button type="primary" onClick={() => message.success('Processing complete!')}>
                             完成
-                         </Button>
+                        </Button>
                     )}
                     {current < steps.length - 1 && (
                         <Button type="primary" onClick={() => this.next()}>
@@ -187,12 +187,12 @@ export default class UploadPage extends React.Component<IUploadPageProps, IUploa
 
     }
     async componentDidMount() {
-        const res = await get(API.publish.category);
-        if (res.success) {
-            this.setState({
-                treeData: res.data
-            })
-        }
+        // const res = await get(API.publish.category);
+        // if (res.success) {
+        //     this.setState({
+        //         treeData: res.data
+        //     })
+        // }
 
 
     }
@@ -402,6 +402,10 @@ class TreeInfo extends React.Component<TreeInfoProps, TreeInfoState> {
                         <>
                             <span>{title}</span>
                             {newDelete && <span style={{ fontSize: '12px', color: '#ccc', marginLeft: '5px' }}>刚刚删除</span>}
+                            <div style={{ display: 'inline-block', marginLeft: '10px' }}>
+                                <Icon type="edit" />
+                                <Icon type="delete" />
+                            </div>
                         </>
                     } key={item.id} checkStrictly={true}
 

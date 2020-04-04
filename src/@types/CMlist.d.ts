@@ -1,6 +1,6 @@
 /** @format */
 
-declare module '*.less';
+declare module '*';
 
 interface CMListProps {
 	list: ListItem[]

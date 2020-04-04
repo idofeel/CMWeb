@@ -44,14 +44,15 @@ export default {
         category: '/?r=common&d=category&id=1',
         // 资源分类信息
         hasCategory: '/?r=cle&d=category', // {pid}
-        insertCate: '/admin.php?r=cle&d=setcate&o=insert', // {pid,cateid}
-        deleteCate: '/admin.php?r=cle&d=setcate&o=delete', //  {pid,cateid}
-        addCate: '/admin.php?r=category&d=set&o=add', //  {catename,parentid}
-        transCate: '/admin.php?r=category&d=set&o=graft', // {cateid, destid} // {迁移的分类id,迁移到其下的分类id}
-        refushCate: '/admin.php?r=category&d=set&o=countson'
+        insertCate: '/?r=admin&rt=cle&d=setcate&o=insert', // {pid,cateid}
+        deleteCate: '/?r=admin&rt=cle&d=setcate&o=delete', //  {pid,cateid}
+        addCate: '/?r=admin&rt=category&d=set&o=add', //  {catename,parentid}
+        transCate: '/?r=admin&rt=category&d=set&o=graft', // {cateid, destid} // {迁移的分类id,迁移到其下的分类id}
+        refreshCate: '/?r=admin&rt=category&d=set&o=countson',
+        reName: '/?r=admin&rt=category&d=set&o=resetname'
     },
     serverinfo: '/?r=common&d=serverinfo',
-    upload: {
+    private: {
         undone: '/?r=cle&d=importprivate&o=getting',
         start: '/?r=cle&d=importprivate&o=setone', // {pid,name}
         cleFile: '/?r=cle&d=importprivate&o=setfileinfo', //{infoid}
@@ -61,6 +62,18 @@ export default {
         import: '/?r=cle&d=importprivate&o=import',
         cancel: '/?r=cle&d=importprivate&o=cancel',
         getInfo: '/?r=cle&d=importprivate&o=getinfo', //{infoid}
+    },
+    public: {
+        undone: '/?r=admin&rt=cle&d=importpublic&o=getting',
+        start: '/?r=admin&rt=cle&d=importpublic&o=setone', // {pid,name}
+        cleFile: '/?r=admin&rt=cle&d=importpublic&o=setfileinfo', //{infoid}
+        cleChunk: '/?r=admin&rt=cle&d=importpublic&o=uploadchunk',
+        cover: '/?r=admin&rt=cle&d=importpublic&o=cover',
+        changeName: '/?r=admin&rt=cle&d=importpublic&o=resetname', //{infoid,name}
+        import: '/?r=admin&rt=cle&d=importpublic&o=import',
+        cancel: '/?r=admin&rt=cle&d=importpublic&o=cancel',
+        getInfo: '/?r=admin&rt=cle&d=importpublic&o=getinfo', //{infoid}
+        delete: '/?r=admin&rt=cle&d=del'
     },
     modify: {
         UpAvatar: '/?r=center&d=upavatar', // {file}

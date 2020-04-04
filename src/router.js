@@ -6,6 +6,28 @@ import SubRoutes from "./utils/SubRoutes"
 
 const RoutersConfig = [
 	{
+		path: "/admin",
+		component: () => import("./pages/admin"),
+		model: [import("./models/menus")],
+		routes: [
+			{
+				path: "/admin/source",
+				component: () => import("./pages/admin/source"),
+				model: [],
+			},
+			{
+				path: "/admin/category",
+				component: () => import("./pages/admin/categorys"),
+				model: [],
+			},
+			{
+				path: "/admin/upload",
+				component: () => import("./pages/admin/public/publicUpload"),
+				model: [],
+			},
+		]
+	},
+	{
 		path: "/",
 		component: () => import("./pages/indexPage"),
 		model: [import("./models/menus"), import("./models/CMList"), import("./models/searchModel"), import("./models/Ucenter")],
@@ -40,14 +62,18 @@ const RoutersConfig = [
 				component: () => import("./pages/ucenter/profile/ProfilePage"),
 				model: [],
 			},
-			{
-				path: "/uploadimg",
-				component: () => import("./components/UploadImg"),
-				model: [],
-			},
+
+			// {
+			// 	path: "/uploadimg",
+			// 	component: () => import("./components/UploadImg"),
+			// 	model: [],
+			// },
 
 		],
+
+
 	},
+
 ]
 function RouterConfig({ history, app }) {
 	return (

@@ -46,7 +46,7 @@ export default class PrivateSource extends React.Component<IPrivateSourceProps, 
                         empty={empty}
                         loadEnd={loadEnd}
                         modify={modify}
-                        itemOnClick={this.itemClick}
+                        onEdit={this.itemClick}
                         onDelete={this.delete}
                     />
                 </div>

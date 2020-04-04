@@ -45,7 +45,7 @@ export default class ImageCropper extends React.Component<IImageCropperProps, II
         if (typeof this.cropper.getCroppedCanvas() === 'undefined') {
             return;
         }
-        console.log(this.cropper.getCroppedCanvas().toDataURL());
+        // console.log(this.cropper.getCroppedCanvas().toDataURL());
 
         // this.setState({
         //     cropResult: this.cropper.getCroppedCanvas().toDataURL(),

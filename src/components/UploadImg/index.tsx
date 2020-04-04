@@ -15,7 +15,6 @@ export default class UploadImg extends React.Component<IUploadImgProps> {
             <div>
                 <input type="file" onChange={async (e) => {
                     let file = e.target.files[0];
-                    console.log(file);
                     let formData = new FormData();
                     formData.append('file', file);
                     const res = await postForm(API.profile.upavatar, formData)
