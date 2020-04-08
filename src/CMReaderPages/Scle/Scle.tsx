@@ -18,7 +18,7 @@ message.config({
 const { TreeNode } = Tree;
 
 const IconFont = Icon.createFromIconfontCN({
-	scriptUrl: '//at.alicdn.com/t/font_1616415_bf223nirjqf.js',
+	scriptUrl: '//at.alicdn.com/t/font_1616415_x0co1i09pnp.js',
 });
 
 const columns = [

@@ -38,6 +38,11 @@ const RoutersConfig = [
 				model: [],
 			},
 			{
+				path: "/share",
+				component: () => import("./pages/share/sharePage"),
+				model: [],
+			},
+			{
 				path: "/private",
 				component: () => import("./pages/private/PrivateSource"),
 				model: [],

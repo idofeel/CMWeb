@@ -1,3 +1,9 @@
+// File: EventActionjs
+
+/**
+ * @author wujiali
+ */
+ 
 //===================================================================================================
 
 // WebGL Context 全局变量
@@ -5,9 +11,14 @@ const canvas = document.querySelector('#glcanvas');
 var gl = canvas.getContext('webgl2');
 var isWebgl2 = true;
 if (!gl) {
-    gl = canvas.getContext('webgl');
+    gl = canvas.getContext('webgl')
+    if (!gl) {
+        gl = canvas.getContext( 'experimental-webgl');
+    }
     isWebgl2 = false;
 }
+var isPhone = false;
+var isPhoneMove = false;
 
 var glRunTime = new GLRunTime();
 
@@ -22,7 +33,11 @@ var isLockCavans = false;
 var isShiftDown = false;
 // 鼠标交互
 var isKeyTap = false;
+var lastObjectIndex = -1;
 var objectIndex = -1;
+var dragLeft = false, dragMid = false, dragRight = false;
+var lastX = -1, lastY = -1;
+var lastX1 = -1, lastY1 = -1, lastX2 = -1, lastY2 = -1;
 // 用户拾取零件的返回参数定义
 var pickObjectIndexs = null;        // 选中的零件索引，没选中为null
 var pickObjectVisible = false;      // 选中的零件的显隐性，单选表示显隐性，多选无效
@@ -33,11 +48,18 @@ var isMove = false;
 // 当前动画帧
 const ANIMRUN = 0;
 const ANIMPAUSE = 1;
-const ANIMTERMINAL = 2;
+const ANIMEND = 2;
+const ANIMTERMINAL = 3;
 var animationClock = null;
 var animationStatus = ANIMTERMINAL;
+var uTotalFrame = 0;
 var uCurFrame = 0;
 var uSleepTime = 30;
+// 时间
+var curDate = null;
+var lastTime = 0;
+// 数字孪生
+var isDigitalTwinMode = false;
 
 /**
  * 开始循环渲染
@@ -56,6 +78,7 @@ function startRender() {
     requestAnimationFrame(render);
     addKeyboardListener();
     addMouseListener(canvas);
+    document.addEventListener('DOMMouseScroll',fireFoxScollFun,false);
     window.onunload = addCloseListenser;
 }
 
@@ -89,17 +112,32 @@ function onDocumentKeyUp(event) {
     isShiftDown = false;
 }
 
+// 火狐浏览器滚轮事件
+function fireFoxScollFun(event) {
+    if (isLockCavans) {
+        return;
+    }
+    isKeyTap = false;
+    let fScale = 1.0 - event.detail / 25;
+    glRunTime.scale(fScale);
+    return false;
+}
+
 /**
  * 添加鼠标响应事
  */
 function addMouseListener(canvas) {
-    let dragLeft = false, dragMid = false, dragRight = false;
-    let lastX = -1, lastY = -1;
-    let lastX1 = -1, lastY1 = -1, lastX2 = -1, lastY2 = -1;
-
     canvas.ontouchstart = function (event) {
         isKeyTap = true;
-        if (event.targetTouches.length == 2) {
+        if (event.targetTouches.length == 1) {
+            // 单指
+            let touch = event.targetTouches[0];
+            let x = touch.clientX - canvas.offsetLeft, y = touch.clientY - canvas.offsetTop;
+            if (rect.left <= x && x < rect.right && rect.top <= y && y < rect.bottom) {
+                
+            }
+            lastX = x, lastY = y;
+        } else if (event.targetTouches.length == 2) {
             // 双指
             let touch1 = event.targetTouches[0], touch2 = event.targetTouches[1];
             lastX1 = touch1.clientX - canvas.offsetLeft, lastY1 = touch1.clientY - canvas.offsetTop;
@@ -108,29 +146,57 @@ function addMouseListener(canvas) {
     }
 
     canvas.ontouchmove = function (event) {
-        isKeyTap = false;
         if (event.targetTouches.length == 1) {
-            // 单指滑动：旋转
             let touch = event.targetTouches[0];
             let x = touch.clientX - canvas.offsetLeft, y = touch.clientY - canvas.offsetTop;
-            if (Math.abs(x - lastX1) < 5 && Math.abs(y - lastY1) < 5) {
-                isKeyTap = true;
-                return;
-            } else {
-                let factor = 200.0 / canvas.height;
-                let degreeX = factor * (x - lastX1);
-                let degreeY = factor * (y - lastY1);
-                glRunTime.rotate(degreeX, degreeY, 0);
+            // 手机端移动零件
+            if (isPhone) {
+                if (isMove) {
+                    if (objectIndex != -1) {
+                        if (Math.abs(x - lastX) > 2 || Math.abs(y - lastY) > 2) {
+                            glRunTime.objectMove(objectIndex, 2 * (x - lastX), -2 * (y - lastY));
+                            lastX = x, lastY = y;
+                            return;
+                        }
+                    }
+                }
+            }               
+            // 单指滑动：旋转
+            if (isKeyTap) {
+                if ((Math.abs(x - lastX) > 5 && Math.abs(x - lastX) < 50)
+                    || (Math.abs(y - lastY1) > 5 && Math.abs(y - lastY1) < 50)) {
+                    let factor = 200.0 / canvas.height;
+                    let degreeX = factor * (x - lastX);
+                    let degreeY = factor * (y - lastY);
+                    glRunTime.rotate(degreeX, degreeY, 0);
+                }
             }
-            lastX1 = x, lastY1 = y;
+            lastX = x, lastY = y;
         } else if (event.targetTouches.length == 2) {
             // 双指滑动：缩放
             let touch1 = event.targetTouches[0], touch2 = event.targetTouches[1];
             let x1 = touch1.clientX - canvas.offsetLeft, y1 = touch1.clientY - canvas.offsetTop;
             let x2 = touch2.clientX - canvas.offsetLeft, y2 = touch2.clientY - canvas.offsetTop;
-            let dist1 = Math.pow(Math.pow(lastX1 - lastX2, 2) + Math.pow(lastY1 - lastY2, 2), 0.5);
-            let dist2 = Math.pow(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2), 0.5);
-            glRunTime.scale(dist2 / dist1);
+            let vecX1 = lastX1 - lastX2, vecY1 = lastY1 - lastY2;
+            let vecX2 = x1 - x2, vecY2 = y1 - y2;
+            // 计算距离
+            let mVec1 = Math.sqrt(vecX1*vecX1 + vecY1*vecY1);
+            let mVec2 = Math.sqrt(vecX2*vecX2 + vecY2*vecY2);
+            // 计算角度
+            let seta1 = Math.atan2(lastY2-lastY1, lastX2-lastX1);
+            let seta2 = Math.atan2(y2-y1, x2-x1);
+            if (Math.abs(seta1-seta2)<=0.01 && Math.abs(mVec2-mVec1)<=10.0) {
+                // 距离变化不大，角度变化不大，且同指位移较大，则为平移
+                if (Math.abs(x1-lastX1)>5 || Math.abs(y1-lastY1)>5)
+                {
+                    glRunTime.move(2 * (x1 - lastX1), -2 * (y1 - lastY1));
+                }
+            } else {
+                // 缩放
+                let dist1 = Math.pow(Math.pow(lastX1 - lastX2, 2) + Math.pow(lastY1 - lastY2, 2), 0.5);
+                let dist2 = Math.pow(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2), 0.5);
+                glRunTime.scale(dist2 / dist1);
+            }
             lastX1 = x1, lastY1 = y1;
             lastX2 = x2, lastY2 = y2;
         }
@@ -140,15 +206,19 @@ function addMouseListener(canvas) {
         if (isKeyTap) {
             let rect = event.target.getBoundingClientRect();
             if (event.targetTouches.length == 1) {
+                if (isDigitalTwinMode) {
+                    return;
+                }
                 // 单指
                 let touch = event.targetTouches[0];
                 let x = touch.clientX - canvas.offsetLeft, y = touch.clientY - canvas.offsetTop;
                 if (rect.left <= x && x < rect.right && rect.top <= y && y < rect.bottom) {
                     objectIndex = glRunTime.pick(x, y, true, false);
-                    lastX1 = x, lastY1 = y;
                 }
             }
         }
+        isKeyTap = false;
+        isPhoneMove = false;
     }
 
     canvas.onmousedown = function (event) {
@@ -199,11 +269,21 @@ function addMouseListener(canvas) {
         switch (event.button) {
             case 0:
                 dragLeft = false;
+                if (isDigitalTwinMode) {
+                    return;
+                }
                 if (isKeyTap) {
                     if (!isShiftDown) {
                         objectIndex = glRunTime.pick(lastX, lastY, true, false);
                         pickObjectVisible = glRunTime.getObjectVisible(objectIndex);
                         pickObjectTransparent = glRunTime.getObjectTransparent(objectIndex);
+                        curDate = new Date();
+                        let curTime = curDate.getTime();
+                        if (curTime - lastTime < 500 && lastObjectIndex == objectIndex) {
+                            setFocusOnModel();
+                        }
+                        lastTime = curTime;
+                        lastObjectIndex = objectIndex;
                     } else {
                         objectIndex = glRunTime.pick(lastX, lastY, true, true);
                     }
@@ -255,8 +335,10 @@ function addMouseListener(canvas) {
         }
 
         if (isShiftDown && dragMid) {
-            //视角平移
-            glRunTime.move(2 * (x - lastX), -2 * (y - lastY));
+            if (!isDigitalTwinMode) {
+                //视角平移
+                glRunTime.move(2 * (x - lastX), -2 * (y - lastY));
+            }
         }
 
         // shift + 左键拖拽：模型平移
@@ -303,6 +385,15 @@ document.onmousewheel = function (event) {
 
 // 零件移动
 function moveModel() {
+    // 手机端
+    if (isPhone) {
+        if (isMove) {
+            isMove = false;
+        } else {
+            isMove = true;
+        }
+    }
+    // PC端
     isMove = true;
 }
 
@@ -377,9 +468,13 @@ function setHome() {
 
 // 开始动画、继续动画
 function setAnimationStart() {
+    uTotalFrame = glRunTime.getTotalFrame();
     isLockCavans = true;
     if (animationStatus == ANIMTERMINAL) {
         setHome();
+    }
+    if (uCurFrame >= uTotalFrame) {
+        uCurFrame = 0;
     }
     animationStatus = ANIMRUN;
     animRun();
@@ -392,8 +487,9 @@ function animRun() {
         uCurFrame++;
         animationClock = setTimeout("animRun()", uSleepTime);
     } else {
-        animationClock = null;
-        isLockCavans = false;
+        animPause();
+        animationStatus = ANIMEND;
+        setAnmiIcon(true);
     }
 }
 // 暂停
@@ -419,11 +515,20 @@ function animTerminal() {
 function setCurFrame(frame) {
     if (frame >= 0) {
         uCurFrame = frame;
-        if (animationStatus == ANIMPAUSE) {
-            if (glRunTime.setCameraAnim(uCurFrame)) {
-                glRunTime.setObjectAnim(uCurFrame);
-            }
+        if (glRunTime.setCameraAnim(uCurFrame)) {
+            glRunTime.setObjectAnim(uCurFrame);
         }
+        animPause();
+        setAnmiIcon(true);
+        // if (animationStatus == ANIMPAUSE) {
+        //     if (glRunTime.setCameraAnim(uCurFrame)) {
+        //         glRunTime.setObjectAnim(uCurFrame);
+        //     }
+        // } else if (animationStatus == ANIMEND) {
+        //     animationStatus = ANIMRUN;
+        //     setAnmiIcon(false);
+        //     animRun();
+        // }
     }
 }
 // 获取动画总帧数
@@ -434,6 +539,13 @@ function getTotalFrames() {
 function getCurFrame(frame) {
 
 }
+/**
+ * 设置暂停/继续图标状态
+ * @param {*} isPause true表示需要设置成暂停态，false表示要设置成继续态
+ */
+function setAnmiIcon(isPause) {
+
+}
 
 // 设置背景图片
 function setBackground(selectIndex) {
@@ -441,8 +553,8 @@ function setBackground(selectIndex) {
 }
 
 // 空格：视角聚焦到选中零件，模型整体围绕所选零件旋转
+// 如果未选中零件或装配体，则默认聚焦到模型整体
 function setFocusOnModel() {
-        // 只有在单选的状态下才执行聚焦功能
         glRunTime.setFocusOnObject();
 }
 
@@ -455,7 +567,10 @@ function pickModelByIndex(indexs) {
         pickObjectVisible = glRunTime.getObjectVisible(indexs[0]);
         pickObjectTransparent = glRunTime.getObjectTransparent(indexs[0]);
     }
-    setPickObjectParameters();
+    // setPickObjectParameters();
+    if (isPhone) {
+        setFocusOnModel();
+    }
 }
 
 // 模型树节点隐藏
@@ -480,4 +595,30 @@ function getPickStatus() {
 // 更新界面
 function setPickObjectParameters() {
     // console.log(pickObjectIndexs.length + ", " + pickObjectVisible + ", " + pickObjectTransparent);
+}
+
+
+// 开启数字孪生模式
+function digitalTwinStart() {
+    isDigitalTwinMode = true;
+    glRunTime.initDigitalTwinData();
+}
+
+// 退出数字孪生模式
+function digitalTwinTerminal() {
+    isDigitalTwinMode = false;
+}
+
+/**
+ * 数字孪生接口
+ * 通过物件ID设置物件矩阵
+ * @param {*} uObjectID 物件ID
+ * @param {*} strMatrix ADF_BASEMATRIX矩阵
+ */
+function setObjectOriWorldMatrix(uObjectID, strMatrix) {
+    // 关闭其余按钮和模型拾取功能那个，只允许用户进行视角变换和缩放
+    if (!isDigitalTwinMode) {
+        return;
+    }
+    glRunTime.setObjectOriWorldMatrix(uObjectID, strMatrix);
 }

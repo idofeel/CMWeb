@@ -1,4 +1,11 @@
+// File: GLRunTime.js
+
+/**
+ * @author wujiali
+ */
+ 
 //===================================================================================================
+
 // 三维模型数据
 var g_GLData = null;
 
@@ -39,8 +46,11 @@ function GLRunTime() {
     this.adfCamera = new ADF_CAMERA();
     this.adfCameraFocus = new Point3(0, 0, 0);
     this.curModelCenter = new Point3(0, 0, 0);
+    this.curObjectCenter = new Point3(0, 0, 0);
     // this.cameraMoveX = 0;
     // this.cameraMoveY = 0;
+    this.hashmapObjectID2Index = new HashMap();
+    this.pickIndexs = new Array();
 
     /**
      * 渲染引擎数据初始化
@@ -50,7 +60,7 @@ function GLRunTime() {
         this.glprogram.m_GLObjectSet = g_GLData.GLObjectSet;
         this.glprogram.m_GLPartSet = g_GLData.GLPartSet;
         this.glprogram.m_GLMaterialSet = g_GLData.GLMatertalSet;
-        this.glprogram.m_arrBgTexId = g_GLData.GLBgTexture;
+        this.glprogram.m_arrBgTexId = g_GLData.GLBgImageData;
         this.m_fModelLength = g_GLData.GLModelLength;
         this.SCALE_MIN = this.m_fModelLength / 20;
         this.SCALE_MAX = this.m_fModelLength * 2;
@@ -69,10 +79,19 @@ function GLRunTime() {
             this.adfCameraFocus.y = this.adfCamera._vFocus.y;
             this.adfCameraFocus.z = this.adfCamera._vFocus.z;
             this.glprogram.setModelCenter(this.adfCameraFocus);
+            this.ObjectOriginalCenter.x = this.adfCameraFocus.x;
+            this.ObjectOriginalCenter.y = this.adfCameraFocus.y;
+            this.ObjectOriginalCenter.z = this.adfCameraFocus.z;
         } else {
-            this.camera.setCamera(g_GLData.GLDefEyePos.x, g_GLData.GLDefEyePos.y, g_GLData.GLDefEyePos.z, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+            this.camera.setCamera(g_GLData.GLDefEyePos.x, g_GLData.GLDefEyePos.y, g_GLData.GLDefEyePos.z,
+                                  0.0, 0.0, 0.0,
+                                  g_GLData.GLDefUpAxis.x, g_GLData.GLDefUpAxis.y, g_GLData.GLDefUpAxis.z);
             this.glprogram.setModelCenter(g_GLData.GLModelCenter);
+            this.ObjectOriginalCenter.x = g_GLData.GLModelCenter.x;
+            this.ObjectOriginalCenter.y = g_GLData.GLModelCenter.y;
+            this.ObjectOriginalCenter.z = g_GLData.GLModelCenter.z;
         }
+        
         // 模型中心点归零
         g_GLData.GLModelCenter.x = 0;
         g_GLData.GLModelCenter.y = 0;
@@ -128,12 +147,12 @@ function GLRunTime() {
         // this.cameraMoveY += moveY;
 
         // 获得整个模型中心
-        this.ObjectOriginalCenter.x = g_GLData.GLModelCenter.x;
-        this.ObjectOriginalCenter.y = g_GLData.GLModelCenter.y;
-        this.ObjectOriginalCenter.z = g_GLData.GLModelCenter.z;
+        this.curModelCenter.x = g_GLData.GLModelCenter.x;
+        this.curModelCenter.y = g_GLData.GLModelCenter.y;
+        this.curModelCenter.z = g_GLData.GLModelCenter.z;
         // 获得中心坐标在设备坐标系下的Z分量
         mat4.multiply(this.MVMatrix, this.camera.projectionMatrix, this.camera.viewMatrix);
-        CalTranslatePoint(this.ObjectOriginalCenter.x, this.ObjectOriginalCenter.y, this.ObjectOriginalCenter.z, this.MVMatrix, this.PointNDCCenter);
+        CalTranslatePoint(this.curModelCenter.x, this.curModelCenter.y, this.curModelCenter.z, this.MVMatrix, this.PointNDCCenter);
         // 获得位移终点的世界坐标
         let x = deltaX / this.WIDTH, y = deltaY / this.HEIGHT;
         mat4.invert(this.viewMatInverse, this.camera.viewMatrix);
@@ -142,24 +161,25 @@ function GLRunTime() {
         CalTranslatePoint(0.0, 0.0, this.PointNDCCenter.z, this.inverseMVPMatrix, this.ObjectMoveCenterStart);
         CalTranslatePoint(x, y, this.PointNDCCenter.z, this.inverseMVPMatrix, this.ObjectMoveCenterEnd);
         // 获得真实中心
-        this.ObjectOriginalCenter.x -= this.ObjectMoveCenterEnd.x-this.ObjectMoveCenterStart.x;
-        this.ObjectOriginalCenter.y -= this.ObjectMoveCenterEnd.y-this.ObjectMoveCenterStart.y;
-        this.ObjectOriginalCenter.z -= this.ObjectMoveCenterEnd.z-this.ObjectMoveCenterStart.z;
-        this.glprogram.moveModelCenter(this.ObjectOriginalCenter);
+        this.curModelCenter.x -= this.ObjectMoveCenterEnd.x-this.ObjectMoveCenterStart.x;
+        this.curModelCenter.y -= this.ObjectMoveCenterEnd.y-this.ObjectMoveCenterStart.y;
+        this.curModelCenter.z -= this.ObjectMoveCenterEnd.z-this.ObjectMoveCenterStart.z;
+        this.glprogram.moveModelCenter(this.curModelCenter);
     }
 
     /**
      * 模型平移
      */
     this.objectMove = function(nObjectIndex, screenX, screenY) {
-        let ObjectMat = g_GLData.GLObjectSet._arrObjectSet[nObjectIndex]._matObject;
+        // let ObjectMat = g_GLData.GLObjectSet._arrObjectSet[nObjectIndex]._matObject;
+        let ObjectMat = this.glprogram.getObjectModelMatrix(nObjectIndex);
         let PartIndex = g_GLData.GLObjectSet._arrObjectSet[nObjectIndex]._uPartIndex;
         // 计算Object在世界坐标下的位移量
-        getModelBoxCenter(g_GLData.GLPartSet._arrPartSet[PartIndex]._arrPartLODData[0]._boxset._ObjectBox, this.ObjectOriginalCenter);
+        getModelBoxCenter(g_GLData.GLPartSet._arrPartSet[PartIndex]._arrPartLODData[0]._boxset._ObjectBox, this.curObjectCenter);
         // 获得中心坐标在设备坐标系下的Z分量
         mat4.multiply(this.MVMatrix, this.camera.projectionMatrix, this.camera.viewMatrix);
         mat4.multiply(this.MVPMatrix, this.MVMatrix, ObjectMat);
-        CalTranslatePoint(this.ObjectOriginalCenter.x, this.ObjectOriginalCenter.y, this.ObjectOriginalCenter.z, this.MVPMatrix, this.PointNDCCenter);
+        CalTranslatePoint(this.curObjectCenter.x, this.curObjectCenter.y, this.curObjectCenter.z, this.MVPMatrix, this.PointNDCCenter);
         // 获得位移终点的世界坐标
         let x = screenX / this.WIDTH, y = screenY / this.HEIGHT;
         mat4.invert(this.viewMatInverse, this.camera.viewMatrix);
@@ -259,16 +279,22 @@ function GLRunTime() {
      * 将当前摄像机推进到当前单选中的零件上
      */
     this.setFocusOnObject = function() {
-        if (this.glprogram.getPickStatus() == 0)
-            return;
-        let indexs = this.glprogram.getPickedIndex();
-        let curModelBox = getPublicModelBox(g_GLData.GLObjectSet, g_GLData.GLPartSet, indexs, this.glprogram.m_arrObjectMatrix);
+        this.pickIndexs.splice(0, this.pickIndexs.length);
+        this.pickIndexs = this.glprogram.getPickedIndex();
+        if (this.pickIndexs == null || this.pickIndexs.length == 0) {
+            // 如果没有选中任何零件或装配体，默认模型整体聚焦
+            for (let i=0; i<this.glprogram.m_arrObjectMatrix.length; i++) {
+                this.pickIndexs.push(i);
+            }
+        }
+        let curModelBox = getPublicModelBox(g_GLData.GLObjectSet, g_GLData.GLPartSet, this.pickIndexs, this.glprogram.m_arrObjectMatrix);
         getModelBoxCenter(curModelBox, this.curModelCenter);
         // 第一步：将模型整体中心移动到当前零件中心
         this.glprogram.moveModelCenter(this.curModelCenter);
         // 第二步：推进摄像机到一定位置
         let distance = 1.5 * getModelBoxLength(curModelBox);
         this.camera.slide(0.0, 0.0, distance - this.camera.getDist());
+        this.camera.resetPerspectiveMatrix(45 * Math.PI / 180, this.WIDTH / this.HEIGHT);
     }
 
     /**
@@ -292,35 +318,49 @@ function GLRunTime() {
         switch (viewType) {
             case 0:
                 // 主视图
-                this.camera.setCamera(0.0, 0.0, this.m_fModelLength, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+                this.camera.setCamera(0.0, 0.0, this.m_fModelLength,
+                                      0.0, 0.0, 0.0,
+                                      0.0, 1.0, 0.0);
                 break;
             case 1:
                 // 后视图
-                this.camera.setCamera(0.0, 0.0, -this.m_fModelLength, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+                this.camera.setCamera(0.0, 0.0, -this.m_fModelLength,
+                                      0.0, 0.0, 0.0,
+                                      0.0, 1.0, 0.0);
                 break;
             case 2:
                 // 左视图
-                this.camera.setCamera(-this.m_fModelLength, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+                this.camera.setCamera(-this.m_fModelLength, 0.0, 0.0,
+                                      0.0, 0.0, 0.0,
+                                      0.0, 1.0, 0.0);
                 break;
             case 3:
                 // 右视图
-                this.camera.setCamera(this.m_fModelLength, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+                this.camera.setCamera(this.m_fModelLength, 0.0, 0.0,
+                                      0.0, 0.0, 0.0,
+                                      0.0, 1.0, 0.0);
                 break;
             case 4:
                 // 俯视图
-                this.camera.setCamera(0.0, this.m_fModelLength, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+                this.camera.setCamera(0.0, this.m_fModelLength, 0.0,
+                                      0.0, 0.0, 0.0,
+                                      0.0, 0.0, 1.0);
                 break;
             case 5:
                 // 仰视图
-                this.camera.setCamera(0.0, -this.m_fModelLength, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+                this.camera.setCamera(0.0, -this.m_fModelLength, 0.0,
+                                      0.0, 0.0, 0.0,
+                                      0.0, 0.0, 1.0);
                 break;
             case 6:
                 this.camera.setCamera(this.m_fModelLength / 2.0, this.m_fModelLength / Math.cos(45.0*Math.PI/180.0),
-                               this.m_fModelLength / 2.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+                                      this.m_fModelLength / 2.0, 0.0, 0.0, 0.0,
+                                      0.0, 1.0, 0.0);
                 break;
             default:
                 break;
         }
+        this.camera.setPerspectiveMatrix(45 * Math.PI / 180, this.WIDTH / this.HEIGHT);
     }
 
     /**
@@ -398,6 +438,47 @@ function GLRunTime() {
         return g_GLData.GLObjectSet._uFrameSize;
     }
 
+    this.initDigitalTwinData = function() {
+        // 用户自定义数据复原
+        this.home();
+        // this.glprogram.pickByIndex(-1, false);
+        // 模型回到原始中心
+        this.glprogram.moveModelCenter(this.ObjectOriginalCenter);
+        // 建立索引表
+        this.setObjectIDHashMap();
+    }
+
+    /**
+     * 数字孪生接口
+     * 建立哈希表，初始化
+     */
+    this.setObjectIDHashMap = function() {
+        if (this.hashmapObjectID2Index.isEmpty()) {
+            for (let i=0; i<g_GLData.GLObjectSet._arrObjectSet.length; i++) {
+                this.hashmapObjectID2Index.put(g_GLData.GLObjectSet._arrObjectSet[i]._uObjectID, i);
+            }
+        }
+    }
+
+    /**
+     * 数字孪生接口
+     * 通过物件ID设置物件矩阵
+     * @param {*} uObjectID 物件ID
+     * @param {*} strMatrix ADF_BASEMATRIX矩阵
+     */
+    this.setObjectOriWorldMatrix = function(uObjectID, strMatrix) {
+        // 通过映射表快速查找到Object索引
+        let nObjectIndex = this.hashmapObjectID2Index.get(uObjectID);
+        if (nObjectIndex == undefined) {
+            return;
+        }
+        // 设置物件World矩阵
+        CalMat4(g_GLData.GLObjectSet._arrObjectSet[nObjectIndex]._matLocal, g_matLocal);
+        CalMat4(strMatrix, g_matWorld);
+        mat4.multiply(g_matMultiply, g_matWorld, g_matLocal);
+        this.glprogram.setObjectMatrixByIndex(nObjectIndex, g_matMultiply);
+    }
+
     //===================================================================================================
     // 辅助运算数据
 
@@ -442,5 +523,4 @@ function GLRunTime() {
     this.rotateZ = function (degreeZ) {
         this.camera.roll(degreeZ);
     }
-
 }

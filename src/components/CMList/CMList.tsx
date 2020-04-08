@@ -2,16 +2,23 @@ import * as React from 'react';
 import InfiniteScroll from 'react-infinite-scroller';
 import ReactBarrel from '../react-barrel/react-barrel';
 import { Spin, Card, Divider, Empty, Typography, Icon } from 'antd';
-import { joinUrlEncoded, domain } from '../../utils';
+import { joinUrlEncoded, domain, queryString } from '../../utils';
 import Image from '../Image';
 
 import './CMList.less'
+
+
+const IconFont = Icon.createFromIconfontCN({
+    scriptUrl: '//at.alicdn.com/t/font_1616415_x0co1i09pnp.js',
+});
+
 
 export interface ICMListProps extends CMListProps {
     list: any;
     loadMore: () => void,
     onEdit: () => void
     onDelete: () => void
+    onShare: () => void
     actions?: React.ReactNode[]
     hasMore: boolean
 }
@@ -27,9 +34,10 @@ const { Meta } = Card
 export default class CMList extends React.Component<ICMListProps, ICMListState> {
     static defaultProps = {
         loadMore: () => { },
-        onEdit: (item: any) => { },
-        onDelete: (item, index) => { },
+        // onEdit: (item: any) => { },
+        // onDelete: (item, index) => { },
         hasMore: true,
+        // actions: []
     }
     constructor(props: ICMListProps) {
         super(props)
@@ -74,18 +82,7 @@ export default class CMList extends React.Component<ICMListProps, ICMListState> 
                                             onClick={() => {
                                                 this.goCMReader(item)
                                             }}
-                                            actions={this.state.modify ? [
-                                                <Icon type="edit" key="edit" onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    e.preventDefault()
-                                                    this.props.onEdit(item, index)
-                                                }} />,
-                                                <Icon type="delete" key="delete" onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    e.preventDefault()
-                                                    this.props.onDelete(item, index)
-                                                }} />,
-                                            ] : null}
+                                            actions={this.renderActions(item, index)}
                                         >
                                             <Meta
                                                 title={
@@ -106,6 +103,22 @@ export default class CMList extends React.Component<ICMListProps, ICMListState> 
             </div>
         );
     }
+
+    renderActions(item: any, index: number) {
+        const { onDelete, onEdit, onShare } = this.props;
+        let TempActions = [];
+        if (onDelete) TempActions.push(<Icon type="delete" key="delete" onClick={(e: React.MouseEvent) => this.stopPre(e, item, index onDelete)} />)
+        if (onEdit) TempActions.push(<Icon type="edit" key="edit" onClick={(e: React.MouseEvent) => this.stopPre(e, item, index onEdit)} />)
+        if (onShare) TempActions.push(<IconFont type="icon-share" key="share" onClick={(e: React.MouseEvent) => this.stopPre(e, item, index onShare)} />)
+        return TempActions;
+    }
+
+    stopPre(e: React.MouseEvent, item: any, index: number, callback: Function) {
+        e.stopPropagation()
+        e.preventDefault()
+        callback(item, index)
+    }
+
     UNSAFE_componentWillReceiveProps(nextProps) {
         if (this.state.modify !== nextProps.modify) {
             this.setState({
@@ -115,10 +128,12 @@ export default class CMList extends React.Component<ICMListProps, ICMListState> 
     }
 
     goCMReader(item: ListItem) {
+        const params = queryString(location.href);
         const origin = location.origin + '/web/cmweb.html#/'
         const href = joinUrlEncoded(origin, {
             pid: item.pid,
             title: item.name,
+            lic: params.lic
         })
         window.open(href, "_blank")
     }

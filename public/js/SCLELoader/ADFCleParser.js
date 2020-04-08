@@ -33,6 +33,8 @@ function CleStreamDataSetDesc() {
     this._size = 0;                         // 长度(单位:字节)，Uint32
 }
 
+// 是否解析精确数据
+var g_bParsejq = false;
 // 资源文件个数
 var g_nResFileCount = 0;
 // 资源文件的存储路径
@@ -40,8 +42,9 @@ var g_strResbaseUrl;
 
 //===================================================================================================
 
-// cle数据存储
+// cle数据存储, DataView数据
 var g_arrayCleBuffer;
+var g_arrayByteBuffer;
 // 总长度，Uint32
 var g_nCleBufferlength = 0;
 
@@ -54,202 +57,200 @@ function ADFCleParser() {
     // 当前cle文件的版本号
     this._curVersion = 0;                             
  
-    this.parseStreamADF_INT = function(){
-        var dataView = new DataView(g_arrayCleBuffer, this._cur_pos, 4);
+    this.parseStreamADF_INT = function() {
+        this._last_pos = this._cur_pos;
         this._cur_pos += 4;
-        return dataView.getInt32(0, true);	
+        return g_arrayCleBuffer.getInt32(this._last_pos, true);	
     }
     
     this.parseStreamADF_UINT = function(){
-        var dataView = new DataView(g_arrayCleBuffer, this._cur_pos, 4);
+        this._last_pos = this._cur_pos;
         this._cur_pos += 4;
-        return dataView.getUint32(0, true);	
+        return g_arrayCleBuffer.getUint32(this._last_pos, true);	
     }
     
     this.parseStreamADF_FLOAT = function(){
-        var dataView = new DataView(g_arrayCleBuffer, this._cur_pos, 4);
+        this._last_pos = this._cur_pos;
         this._cur_pos += 4;
-        return dataView.getFloat32(0, true);
+        return g_arrayCleBuffer.getFloat32(this._last_pos, true);
     }
 
     this.parseStreamADF_DOUBLE = function(){
-        var dataView = new DataView(g_arrayCleBuffer, this._cur_pos, 8);
+        this._last_pos = this._cur_pos;
         this._cur_pos += 8;
-        return dataView.getFloat64(0, true);
+        return g_arrayCleBuffer.getFloat64(this._last_pos, true);
     }
 
     this.parseStreamADF_BASEUINT2 = function(data){
-        var dataView = new DataView(g_arrayCleBuffer, this._cur_pos, 4*2);
+        this._last_pos = this._cur_pos;
         this._cur_pos += 4*2;
-        data.x = dataView.getUint32(0, true);
-        data.y = dataView.getUint32(4, true);
+        data.x = g_arrayCleBuffer.getUint32(this._last_pos, true);
+        data.y = g_arrayCleBuffer.getUint32(this._last_pos+4, true);
     }
 
     this.parseStreamADF_BASEFLOAT2 = function(data){
-        var dataView = new DataView(g_arrayCleBuffer, this._cur_pos, 4*2);
+        this._last_pos = this._cur_pos;
         this._cur_pos += 4*2;
-        data.x = dataView.getFloat32(0, true);
-        data.y = dataView.getFloat32(4, true);        
+        data.x = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        data.y = g_arrayCleBuffer.getFloat32(this._last_pos+4, true);        
     }
 
     this.parseStreamADF_BASEFLOAT3 = function(data){
-        var dataView = new DataView(g_arrayCleBuffer, this._cur_pos, 4*3);
+        this._last_pos = this._cur_pos;
         this._cur_pos += 4*3;
-        data.x = dataView.getFloat32(0, true);
-        data.y = dataView.getFloat32(4, true);   
-        data.z = dataView.getFloat32(8, true); 
+        data.x = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        data.y = g_arrayCleBuffer.getFloat32(this._last_pos+4, true);   
+        data.z = g_arrayCleBuffer.getFloat32(this._last_pos+8, true); 
     }
 
     this.parseStreamADF_BASEFLOAT4 = function(data){
-        var dataView = new DataView(g_arrayCleBuffer, this._cur_pos, 4*4);
+        this._last_pos = this._cur_pos;
         this._cur_pos += 4*4;
-        data.x = dataView.getFloat32(0, true);
-        data.y = dataView.getFloat32(4, true);   
-        data.z = dataView.getFloat32(8, true); 
-        data.w = dataView.getFloat32(12, true); 
+        data.x = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        data.y = g_arrayCleBuffer.getFloat32(this._last_pos+4, true);   
+        data.z = g_arrayCleBuffer.getFloat32(this._last_pos+8, true); 
+        data.w = g_arrayCleBuffer.getFloat32(this._last_pos+12, true); 
     }
 
     this.parseStreamADF_BASETRIANGLE = function(data){
-        var dataView = new DataView(g_arrayCleBuffer, this._cur_pos, 4*3*3);
+        this._last_pos = this._cur_pos;
         this._cur_pos += 4*3*3;
 
-        var tempCus = 0;
-        data.p1.x = dataView.getFloat32(tempCus, true);
-        tempCus += 4;
-        data.p1.y = dataView.getFloat32(tempCus, true);
-        tempCus += 4;   
-        data.p1.z = dataView.getFloat32(tempCus, true);
-        tempCus += 4;
+        data.p1.x = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        this._last_pos += 4;
+        data.p1.y = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        this._last_pos += 4;   
+        data.p1.z = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        this._last_pos += 4;
 
-        data.p2.x = dataView.getFloat32(tempCus, true);
-        tempCus += 4;
-        data.p2.y = dataView.getFloat32(tempCus, true);
-        tempCus += 4;   
-        data.p2.z = dataView.getFloat32(tempCus, true);
-        tempCus += 4;
+        data.p2.x = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        this._last_pos += 4;
+        data.p2.y = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        this._last_pos += 4;   
+        data.p2.z = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        this._last_pos += 4;
 
-        data.p3.x = dataView.getFloat32(tempCus, true);
-        tempCus += 4;
-        data.p3.y = dataView.getFloat32(tempCus, true);
-        tempCus += 4;   
-        data.p3.z = dataView.getFloat32(tempCus, true);
+        data.p3.x = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        this._last_pos += 4;
+        data.p3.y = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        this._last_pos += 4;   
+        data.p3.z = g_arrayCleBuffer.getFloat32(this._last_pos, true);
     }
 
     this.parseStreamADF_BASEMATRIX = function(data){
-        var dataView = new DataView(g_arrayCleBuffer, this._cur_pos, 4*4*4);
+        this._last_pos = this._cur_pos;
         this._cur_pos += 4*4*4;
 
-        var tempCus = 0;
-        data._11 = dataView.getFloat32(tempCus, true);
-        tempCus += 4;
-        data._12 = dataView.getFloat32(tempCus, true);
-        tempCus += 4;   
-        data._13 = dataView.getFloat32(tempCus, true);
-        tempCus += 4;
-        data._14 = dataView.getFloat32(tempCus, true);
-        tempCus += 4;
+        data._11 = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        this._last_pos += 4;
+        data._12 = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        this._last_pos += 4;   
+        data._13 = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        this._last_pos += 4;
+        data._14 = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        this._last_pos += 4;
 
-        data._21 = dataView.getFloat32(tempCus, true);
-        tempCus += 4;
-        data._22 = dataView.getFloat32(tempCus, true);
-        tempCus += 4;   
-        data._23 = dataView.getFloat32(tempCus, true);
-        tempCus += 4;
-        data._24 = dataView.getFloat32(tempCus, true);
-        tempCus += 4;
+        data._21 = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        this._last_pos += 4;
+        data._22 = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        this._last_pos += 4;   
+        data._23 = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        this._last_pos += 4;
+        data._24 = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        this._last_pos += 4;
 
-        data._31 = dataView.getFloat32(tempCus, true);
-        tempCus += 4;
-        data._32 = dataView.getFloat32(tempCus, true);
-        tempCus += 4;   
-        data._33 = dataView.getFloat32(tempCus, true);
-        tempCus += 4;
-        data._34 = dataView.getFloat32(tempCus, true);
-        tempCus += 4;
+        data._31 = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        this._last_pos += 4;
+        data._32 = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        this._last_pos += 4;   
+        data._33 = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        this._last_pos += 4;
+        data._34 = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        this._last_pos += 4;
 
-        data._41 = dataView.getFloat32(tempCus, true);
-        tempCus += 4;
-        data._42 = dataView.getFloat32(tempCus, true);
-        tempCus += 4;   
-        data._43 = dataView.getFloat32(tempCus, true);
-        tempCus += 4;
-        data._44 = dataView.getFloat32(tempCus, true);
+        data._41 = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        this._last_pos += 4;
+        data._42 = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        this._last_pos += 4;   
+        data._43 = g_arrayCleBuffer.getFloat32(this._last_pos, true);
+        this._last_pos += 4;
+        data._44 = g_arrayCleBuffer.getFloat32(this._last_pos, true);
     }
 
     this.parseStreamADF_BASEDOUBLE2 = function(data){
-        var dataView = new DataView(g_arrayCleBuffer, this._cur_pos, 8*2);
+        this._last_pos = this._cur_pos;
         this._cur_pos += 8*2;
-        data.x = dataView.getFloat64(0, true);
-        data.y = dataView.getFloat64(8, true);  
+        data.x = g_arrayCleBuffer.getFloat64(this._last_pos, true);
+        data.y = g_arrayCleBuffer.getFloat64(this._last_pos+8, true);  
     }
 
     this.parseStreamADF_BASEDOUBLE3 = function(data){
-        var dataView = new DataView(g_arrayCleBuffer, this._cur_pos, 8*3);
+        this._last_pos = this._cur_pos;
         this._cur_pos += 8*3;
-        data.x = dataView.getFloat64(0, true);
-        data.y = dataView.getFloat64(8, true);   
-        data.z = dataView.getFloat64(16, true); 
+        data.x = g_arrayCleBuffer.getFloat64(this._last_pos, true);
+        data.y = g_arrayCleBuffer.getFloat64(this._last_pos+8, true);   
+        data.z = g_arrayCleBuffer.getFloat64(this._last_pos+16, true); 
     }
 
     this.parseStreamADF_BASEDOUBLE4 = function(data){
-        var dataView = new DataView(g_arrayCleBuffer, this._cur_pos, 8*4);
+        this._last_pos = this._cur_pos;
         this._cur_pos += 8*4;
-        data.x = dataView.getFloat64(0, true);
-        data.y = dataView.getFloat64(8, true);   
-        data.z = dataView.getFloat64(16, true); 
-        data.w = dataView.getFloat64(24, true); 
+        data.x = g_arrayCleBuffer.getFloat64(this._last_pos, true);
+        data.y = g_arrayCleBuffer.getFloat64(this._last_pos+8, true);   
+        data.z = g_arrayCleBuffer.getFloat64(this._last_pos+16, true); 
+        data.w = g_arrayCleBuffer.getFloat64(this._last_pos+24, true); 
     }    
 
     this.parseStreamADF_BASEMATRIXD = function(data){
-        var dataView = new DataView(g_arrayCleBuffer, this._cur_pos, 8*4*4);
+        this._last_pos = this._cur_pos;
         this._cur_pos += 8*4*4;
 
-        var tempCus = 0;
-        data._11 = dataView.getFloat64(tempCus, true);
-        tempCus += 8;
-        data._12 = dataView.getFloat64(tempCus, true);
-        tempCus += 8;   
-        data._13 = dataView.getFloat64(tempCus, true);
-        tempCus += 8;
-        data._14 = dataView.getFloat64(tempCus, true);
-        tempCus += 8;
+        data._11 = g_arrayCleBuffer.getFloat64(this._last_pos, true);
+        this._last_pos += 8;
+        data._12 = g_arrayCleBuffer.getFloat64(this._last_pos, true);
+        this._last_pos += 8;   
+        data._13 = g_arrayCleBuffer.getFloat64(this._last_pos, true);
+        this._last_pos += 8;
+        data._14 = g_arrayCleBuffer.getFloat64(this._last_pos, true);
+        this._last_pos += 8;
 
-        data._21 = dataView.getFloat64(tempCus, true);
-        tempCus += 8;
-        data._22 = dataView.getFloat64(tempCus, true);
-        tempCus += 8;   
-        data._23 = dataView.getFloat64(tempCus, true);
-        tempCus += 8;
-        data._24 = dataView.getFloat64(tempCus, true);
-        tempCus += 8;
+        data._21 = g_arrayCleBuffer.getFloat64(this._last_pos, true);
+        this._last_pos += 8;
+        data._22 = g_arrayCleBuffer.getFloat64(this._last_pos, true);
+        this._last_pos += 8;   
+        data._23 = g_arrayCleBuffer.getFloat64(this._last_pos, true);
+        this._last_pos += 8;
+        data._24 = g_arrayCleBuffer.getFloat64(this._last_pos, true);
+        this._last_pos += 8;
 
-        data._31 = dataView.getFloat64(tempCus, true);
-        tempCus += 8;
-        data._32 = dataView.getFloat64(tempCus, true);
-        tempCus += 8;   
-        data._33 = dataView.getFloat64(tempCus, true);
-        tempCus += 8;
-        data._34 = dataView.getFloat64(tempCus, true);
-        tempCus += 8;
+        data._31 = g_arrayCleBuffer.getFloat64(this._last_pos, true);
+        this._last_pos += 8;
+        data._32 = g_arrayCleBuffer.getFloat64(this._last_pos, true);
+        this._last_pos += 8;   
+        data._33 = g_arrayCleBuffer.getFloat64(this._last_pos, true);
+        this._last_pos += 8;
+        data._34 = g_arrayCleBuffer.getFloat64(this._last_pos, true);
+        this._last_pos += 8;
 
-        data._41 = dataView.getFloat64(tempCus, true);
-        tempCus += 8;
-        data._42 = dataView.getFloat64(tempCus, true);
-        tempCus += 8;   
-        data._43 = dataView.getFloat64(tempCus, true);
-        tempCus += 8;
-        data._44 = dataView.getFloat64(tempCus, true);
+        data._41 = g_arrayCleBuffer.getFloat64(this._last_pos, true);
+        this._last_pos += 8;
+        data._42 = g_arrayCleBuffer.getFloat64(this._last_pos, true);
+        this._last_pos += 8;   
+        data._43 = g_arrayCleBuffer.getFloat64(this._last_pos, true);
+        this._last_pos += 8;
+        data._44 = g_arrayCleBuffer.getFloat64(this._last_pos, true);
     }
 
     this.parseStreamADF_WString = function(){
-        var dataCountView = new DataView(g_arrayCleBuffer, this._cur_pos, 4);
+        this._last_pos = this._cur_pos;
         this._cur_pos += 4;
-        var nSrcLen = dataCountView.getInt32(0, true);  
+        var nSrcLen = g_arrayCleBuffer.getInt32(this._last_pos, true);  
         if (nSrcLen == 0) {
             return '';
         }
         else{
-            var dvTextReader = new Uint16Array(g_arrayCleBuffer, this._cur_pos, nSrcLen-1);
+            this._last_pos = this._cur_pos;
+            var dvTextReader = new Uint16Array(g_arrayByteBuffer, this._last_pos, nSrcLen-1);
             this._cur_pos += nSrcLen*2;
             return String.fromCharCode.apply(null, dvTextReader);
         }
@@ -263,6 +264,13 @@ function ADFCleParser() {
         this.parseStreamADF_BASEFLOAT3(data.vOrigin);
     }
 
+    this.parseStreamADF_PlaneDataLen = function(){
+        this._cur_pos += 4*3;
+        this._cur_pos += 4*3;
+        this._cur_pos += 4*3;
+        this._cur_pos += 4*3;
+    }
+
     // 圆柱面
     this.parseStreamADF_CylinderData = function(data){
         this.parseStreamADF_BASEFLOAT3(data.vAxisX);
@@ -270,6 +278,14 @@ function ADFCleParser() {
         this.parseStreamADF_BASEFLOAT3(data.vAxisZ);
         this.parseStreamADF_BASEFLOAT3(data.vOrigin);
         data.radius = this.parseStreamADF_FLOAT();
+    }
+  
+    this.parseStreamADF_CylinderDataLen = function(){
+        this._cur_pos += 4*3;
+        this._cur_pos += 4*3;
+        this._cur_pos += 4*3;
+        this._cur_pos += 4*3;
+        this._cur_pos += 4;
     }
 
     // 圆锥面
@@ -279,6 +295,14 @@ function ADFCleParser() {
         this.parseStreamADF_BASEFLOAT3(data.vAxisZ);
         this.parseStreamADF_BASEFLOAT3(data.vOrigin);
         data.alpha = this.parseStreamADF_FLOAT();
+    }
+
+    this.parseStreamADF_ConeDataLen = function(){
+        this._cur_pos += 4*3;
+        this._cur_pos += 4*3;
+        this._cur_pos += 4*3;
+        this._cur_pos += 4*3;
+        this._cur_pos += 4;
     }
 
     // 圆环面
@@ -291,12 +315,28 @@ function ADFCleParser() {
         data.radius2 = this.parseStreamADF_FLOAT();
     }
 
+    this.parseStreamADF_TorusDataLen = function(){
+        this._cur_pos += 4*3;
+        this._cur_pos += 4*3;
+        this._cur_pos += 4*3;
+        this._cur_pos += 4*3;
+        this._cur_pos += 4;
+        this._cur_pos += 4;
+    }
+
     // 旋转面
     this.parseStreamADF_RevolveData = function(data){
         this.parseStreamADF_BASEFLOAT3(data.vAxisX);
         this.parseStreamADF_BASEFLOAT3(data.vAxisY);
         this.parseStreamADF_BASEFLOAT3(data.vAxisZ);
         this.parseStreamADF_BASEFLOAT3(data.vOrigin);
+    }
+
+    this.parseStreamADF_RevolveDataLen = function(){
+        this._cur_pos += 4*3;
+        this._cur_pos += 4*3;
+        this._cur_pos += 4*3;
+        this._cur_pos += 4*3;
     }
     
     // 列表柱面
@@ -307,6 +347,13 @@ function ADFCleParser() {
         this.parseStreamADF_BASEFLOAT3(data.vOrigin);
     }
 
+    this.parseStreamADF_TabCylDataLen = function(){
+        this._cur_pos += 4*3;
+        this._cur_pos += 4*3;
+        this._cur_pos += 4*3;
+        this._cur_pos += 4*3;
+    }
+
     // 球面
     this.parseStreamADF_SphereData = function(data){
         this.parseStreamADF_BASEFLOAT3(data.vAxisX);
@@ -314,6 +361,14 @@ function ADFCleParser() {
         this.parseStreamADF_BASEFLOAT3(data.vAxisZ);
         this.parseStreamADF_BASEFLOAT3(data.vOrigin);
         data.radius = this.parseStreamADF_FLOAT();
+    }
+
+    this.parseStreamADF_SphereDataLen = function(){
+        this._cur_pos += 4*3;
+        this._cur_pos += 4*3;
+        this._cur_pos += 4*3;
+        this._cur_pos += 4*3;
+        this._cur_pos += 4;
     }
 
     // 面的形状数据
@@ -349,7 +404,7 @@ function ADFCleParser() {
             break;
         case ADF_SURFT_SPHERE:      // 球面
             data.Surfacedata.sphere = new ADF_SphereData();
-            this.parseStreamADF_SphereDataa(data.Surfacedata.sphere);
+            this.parseStreamADF_SphereData(data.Surfacedata.sphere);
             break;
         default:
             break;
@@ -364,10 +419,48 @@ function ADFCleParser() {
         }        
     }
 
+    this.parseStreamADF_SurfaceLen = function(){
+        this._cur_pos += 4;
+        var nType  = this.parseStreamADF_INT();
+
+        switch (nType)
+        {
+        case ADF_SURFT_PLANE:       // 平面
+            this.parseStreamADF_PlaneDataLen();
+            break;
+        case ADF_SURFT_CYLINDER:    // 圆柱面
+            this.parseStreamADF_CylinderDataLen();
+            break;
+        case ADF_SURFT_CONE:        // 圆锥面
+            this.parseStreamADF_ConeDataLen();
+            break;
+        case ADF_SURFT_TORUS:       // 圆环面
+            this.parseStreamADF_TorusDataLen();  
+            break;
+        case ADF_SURFT_REVOLVE:     // 旋转面
+            this.parseStreamADF_RevolveDataLen(); 
+            break;
+        case ADF_SURFT_TABCYL:      // 列表柱面
+            this.parseStreamADF_TabCylDataLen();
+            break;
+        case ADF_SURFT_SPHERE:      // 球面
+            this.parseStreamADF_SphereDataLen();
+            break;
+        default:
+            break;
+        }        
+        this._cur_pos += 4;     
+    }
+
     // 直线
     this.parseStreamADF_LineData = function(data){
         this.parseStreamADF_BASEFLOAT3(data.end1);
         this.parseStreamADF_BASEFLOAT3(data.end2);
+    }
+
+    this.parseStreamADF_LineDataLen = function(){
+        this._cur_pos += 4*3;
+        this._cur_pos += 4*3;
     }
 
     // 圆弧
@@ -381,7 +474,17 @@ function ADFCleParser() {
         data.fRadius = this.parseStreamADF_FLOAT();
     }
 
-    // 曲线的形状数据
+    this.parseStreamADF_ArcDataLen = function(){
+        this._cur_pos += 4*3;
+        this._cur_pos += 4*3;
+        this._cur_pos += 4*3;
+
+        this._cur_pos += 4;
+        this._cur_pos += 4;
+        this._cur_pos += 4;
+    }
+
+    // 曲线的形状
     this.parseStreamADF_Curve = function(data){
         data.nID  = this.parseStreamADF_INT();
         data.nType  = this.parseStreamADF_INT();
@@ -407,6 +510,25 @@ function ADFCleParser() {
         else{
             data.bIsTopological = false;
         } 
+    }
+
+    this.parseStreamADF_CurveLen = function(){
+        this._cur_pos += 4;
+        var nType  = this.parseStreamADF_INT();
+
+        switch (nType)
+        {
+        case ADF_CURVT_LINE:
+            this.parseStreamADF_LineDataLen();
+            break;
+        case ADF_CURVT_ARC:
+            this.parseStreamADF_ArcDataLen();
+            break;
+        default:
+            break;
+        }
+    
+        this._cur_pos += 4;
     }
 
     // 二维直线
@@ -571,8 +693,10 @@ function ADFCleParser() {
         data._uStartIndex = this.parseStreamADF_UINT();
         data._uIndexCount = this.parseStreamADF_UINT();
         this.parseStreamADF_BBOX(data._box);
-        data._nSubsetType = this.parseStreamADF_INT();
-        data._uGeomIndex = this.parseStreamADF_UINT();
+        this._cur_pos += 4;
+        this._cur_pos += 4;
+       // data._nSubsetType = this.parseStreamADF_INT();
+       // data._uGeomIndex = this.parseStreamADF_UINT();
     } 
 
     // 模型数据
@@ -625,7 +749,7 @@ function ADFCleParser() {
                     var index = data._arrIndexData[data._arrSubset[i]._uStartIndex + j];
                     this._cur_pos = tempPos + 8 * index * 4;
                     for (var k=0; k<8; k++) {
-                        data._arrVertexData[pos++] = this.parseStreamADF_FLOAT();
+                      data._arrVertexData[pos++] = this.parseStreamADF_FLOAT();
                     }
                 }
             }
@@ -637,15 +761,23 @@ function ADFCleParser() {
         // 曲面数据
         nCount = this.parseStreamADF_UINT();
         for (var i = 0; i < nCount; i++){
-            data._arrSurface[i] = new ADF_Surface();
-            this.parseStreamADF_Surface(data._arrSurface[i]);
+            if (g_bParsejq) {
+                data._arrSurface[i] = new ADF_Surface();
+                this.parseStreamADF_Surface(data._arrSurface[i]);
+            }else{
+                this.parseStreamADF_SurfaceLen();
+            }
         }
     
         // 曲线数据
         nCount = this.parseStreamADF_UINT();
         for (var i = 0; i < nCount; i++){
-            data._arrCurve[i] = new ADF_Curve();
-            this.parseStreamADF_Curve(data._arrCurve[i]);
+            if (g_bParsejq) {
+                data._arrCurve[i] = new ADF_Curve();
+                this.parseStreamADF_Curve(data._arrCurve[i]);
+            }else{
+                this.parseStreamADF_CurveLen();
+            }
         }
 
         // 模型包围盒
@@ -664,11 +796,13 @@ function ADFCleParser() {
             // 模型信息
             data[i]._ModelInfo._uModelID = this.parseStreamADF_INT();
             data[i]._ModelInfo._strModelName = this.parseStreamADF_WString();
-            data[i]._ModelInfo._strModelFilePath = this.parseStreamADF_WString();
+            // data[i]._ModelInfo._strModelFilePath = this.parseStreamADF_WString();
+            this.parseStreamADF_WString();
             this.CleStreamModelDataParser(data[i]._ModelInfo._stuModelData);
 
             // 文件操作类型,参看类型ADF_FILEOPTYPE， Int32
-            data[i]._nFileOpType = this.parseStreamADF_INT();
+            // data[i]._nFileOpType = this.parseStreamADF_INT();
+            this._cur_pos += 4;
         }  
     } 
 
@@ -945,6 +1079,94 @@ function ADFCleParser() {
         data._reserve = this.parseStreamADF_UINT(); 
     } 
 
+    // 解析文字样式
+    this.CleStreamTextStyle = function(data) {
+        data.strFont = this.parseStreamADF_WString();
+        data.fHeight = this.parseStreamADF_FLOAT();
+        data.fWidth = this.parseStreamADF_FLOAT();
+        data.fThickness = this.parseStreamADF_FLOAT();
+        data.fSlant = this.parseStreamADF_FLOAT();
+
+        var nTemp = this.parseStreamADF_INT();
+        if (nTemp == 0)
+            data.bUnderline = false;
+        else
+            data.bUnderline = true;
+
+        data.nHorJust = this.parseStreamADF_INT();
+        data.nVerJust = this.parseStreamADF_INT();    
+
+        nTemp = this.parseStreamADF_INT();
+        if (nTemp == 0)
+            data.bMirror = false;
+        else
+            data.bMirror = true;
+
+        nTemp = this.parseStreamADF_INT();
+        if (nTemp == 0)
+            data.bReadonly = false;
+        else
+            data.bReadonly = true;
+        data.fLineSpace = this.parseStreamADF_FLOAT();
+    }
+
+     // 解析Note
+    this.CleStreamNoteData = function(data) {
+        this.parseStreamADF_BASEFLOAT3(data.attachPos);
+
+        var size = this.parseStreamADF_INT();
+        for (var i = 0; i < size; i++){
+            data.arrLeaderPos[i] = new ADF_BASEFLOAT3();
+            this.parseStreamADF_BASEFLOAT3(data.arrLeaderPos[i]);
+        }
+    
+        data.strText =  this.parseStreamADF_WString();
+        data.strText2 =  this.parseStreamADF_WString();
+
+        this.CleStreamTextStyle(data.textStyle);
+
+        data.nArrowStyle = this.parseStreamADF_INT();
+        data.nLeaderStyle = this.parseStreamADF_INT();
+        data.fElbowLength = this.parseStreamADF_FLOAT();
+        data.nTextDir = this.parseStreamADF_INT();
+        data.strReserve = this.parseStreamADF_WString();
+    }
+ 
+     // 解析批注
+    this.CleStreamAnnotData = function(data) {
+        var version = this.parseStreamADF_INT();
+
+        data.uID = this.parseStreamADF_UINT(); 
+        data.strOriAnnotID =  this.parseStreamADF_WString();
+        data.nType = this.parseStreamADF_INT(); 
+        data.strName =  this.parseStreamADF_WString();
+
+        // this.annoPlaneLocal;	                // 标注的局部注释平面，4*3个float, 暂时不用
+        this._cur_pos += 4*3*4;
+        // this.annoRenderProp;	                // 标注的渲染属性， 3个Int32, 暂时不用
+        this._cur_pos += 3*4;
+  
+        data.uMtlID = this.parseStreamADF_UINT(); 
+
+        if (data.nType == 2) {                   // ADF_AT_NOTE = 2,	// 注释
+            this.CleStreamNoteData(data.pNote);       // 注释集	
+        }
+    }
+
+    // 解析注释数据
+    this.CleStreamComment = function(data) {
+        this.CleStreamAnnotData(data.stuAnnot);
+
+        // 注释的属性信息
+        data.stuProperty._strUserName = this.parseStreamADF_WString();
+        data.stuProperty._strDateTime = this.parseStreamADF_WString();
+        data.stuProperty._nCommentType = this.parseStreamADF_INT(); 
+
+        this.parseStreamADF_CAMERA(data.stuProperty._stuCamera); 
+        data.stuProperty._uStartFrameID = this.parseStreamADF_UINT(); 
+        data.stuProperty._uFrameSize = this.parseStreamADF_UINT();     
+    }
+
     // 主入口函数
     this.parseMain = function(data) {
         this._curVersion = this.parseStreamADF_INT();
@@ -1019,8 +1241,14 @@ function ADFCleParser() {
                 this.CleStreamSceneParam(data.stuSceneParam);  
                 break;
             }
-            case CSDST_SYS_COMMENT:         
+            case CSDST_SYS_COMMENT:         // 批注数据   
             {
+                var commentVersion = this.parseStreamADF_INT();
+                var nCount = this.parseStreamADF_UINT();  
+                for (var i = 0; i < nCount; i++){
+                    data.arrComment[i] = new ADF_COMMENT();
+                    this.CleStreamComment(data.arrComment[i]);
+                }
                 break;
             }
             case CSDST_SYS_IMAGEFILEINFO:   // 图片文件信息
