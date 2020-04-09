@@ -33,6 +33,7 @@ export default class SourceAdmin extends React.Component<ISourceAdminProps, ISou
             empty: ''
         }
 
+        this.pageLoading = false
     }
 
     public render() {
@@ -171,7 +172,8 @@ export default class SourceAdmin extends React.Component<ISourceAdminProps, ISou
     }
 
     async search(value: string) {
-        if (this.next === -1) return;
+        if (this.next === -1 || this.pageLoading) return;
+        this.pageLoading =true;
         const res = await get(API.source.search, { name: value, st: this.next });
         let { list } = this.state;
         if (res.success) {
@@ -189,6 +191,8 @@ export default class SourceAdmin extends React.Component<ISourceAdminProps, ISou
                 searching: false
             }, () => this.next = -1)
         }
+        this.pageLoading =false;
+
     }
 
     findInitIndex(menus: any[], initIndex: number, parentNode?: any): any {

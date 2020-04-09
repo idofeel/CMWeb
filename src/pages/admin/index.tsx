@@ -1,5 +1,5 @@
 import React from 'react'
-import { Layout, Menu, Breadcrumb, Icon, Popover, Avatar } from 'antd';
+import { Layout, Menu, Breadcrumb, Icon, Popover, Avatar, message } from 'antd';
 import { Switch } from "dva/router"
 import SubRoutes, { RedirectRoute, NoMatchRoute } from '../../utils/SubRoutes';
 import Login from '../ucenter/auth/login';
@@ -16,13 +16,19 @@ export default class Admin extends React.Component {
     };
 
     componentWillMount() {
-        const { dispatch, global } = this.props;
+        const { dispatch, global }:any = this.props;
 
         if (global.checkLogin == null) {
             dispatch({
                 type: 'global/isLogin',
             })
+        }else{
+            if (global.roleid !=='' && global.roleid < 59) {
+                message.warning('管理员权限不足');
+                this.props.history.push('/');
+            }
         }
+       
     }
 
     render() {

@@ -228,7 +228,6 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
         const step = steps[current]
         current += 1
         if (step.name === 'name') {
-            console.log('stepstepstep', step.name);
             // this.uploadCle();
             // 新建名称
             this.hasUndone()
@@ -323,10 +322,11 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
         if (!params.pid) return;
         const res = await get(API.source.base, params)
         const cleRes = await get(API.fileInfo.cle, params)
+        console.log('修改任务')
         if (res.success && cleRes.success) {
             this.setState({
                 fileList: [{ uid: res.data.uid, name: cleRes.data.cle, status: 'done', url: cleRes.data.cle }],
-                uploadInfo: res.data,
+                uploadInfo: res.data[0],
             })
         } else {
             message.error(res.faildesc || cleRes.faildesc)

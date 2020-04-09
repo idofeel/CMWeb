@@ -137,7 +137,7 @@ export default class TreeInfo extends React.Component<TreeInfoProps, TreeInfoSta
                 onCheck={this.onCheck}
             >
                 {this.loop(treeData)}
-            </Tree> : <Button>当前没有任何分类，点击添加新的分类</Button>}
+            </Tree> : <Button onClick={()=>this.setState({cateOperation:'add'})}>当前没有任何分类，点击添加新的分类</Button>}
             <Modal
                 title={`${this.state.cateOperation === 'edit' ? '修改' : '新增'}分类`}
                 visible={this.state.cateOperation === 'add' || this.state.cateOperation === 'edit'}

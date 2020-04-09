@@ -15,6 +15,7 @@ export default {
 		forceUpdata: true, // 强制更新数据
 		checkLogin: null,
 		islogin: false,
+		roleid:'',
 	},
 
 	subscriptions: {
@@ -49,6 +50,7 @@ export default {
 			const res = yield call(async () => await get(API.auth.islogin));
 			if (res.success) {
 				payload = {
+					...res.data,
 					uname: res.data.dispname,
 					avatar: res.data.avatar,
 					orgname: res.data.orgname,
@@ -69,6 +71,7 @@ export default {
 					// loginModal: true,
 					// registerModal: false,
 					checkLogin: true,
+					roleid:''
 				}
 				// message.warn('未登录')
 			}
