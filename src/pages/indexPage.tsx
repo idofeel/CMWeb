@@ -14,7 +14,7 @@ import styles from "./IndexPage.less"
 import "../@types"
 const { Header, Content, Footer } = Layout
 
-
+const { SubMenu } = Menu;
 @connect()
 class IndexPage extends Component<RoutesProps, State> {
 	container: HTMLElement
@@ -94,6 +94,23 @@ class IndexPage extends Component<RoutesProps, State> {
 					})
 				}
 			},
+		],
+		xsMenus: [
+			{
+				id: 'searchSource',
+				name: '搜索资源',
+				icon: 'search',
+				onClick: () => {
+					this.props.dispatch({
+						type: 'searchStore/toggleSearchBar'
+					})
+				}
+			},
+			{
+				id: 'downlist',
+				name: '下载列表',
+				icon: 'download',
+			},
 		]
 
 	}
@@ -172,6 +189,9 @@ class IndexPage extends Component<RoutesProps, State> {
 									src={require('../assets/images/cmreader.png')}
 								/>
 							</a>
+							<Popover content={this.renderMenus2()} placement="bottomRight" >
+								<Avatar size="large" {...avatarAttr} className="xsAvatar">{global.uname}</Avatar>
+							</Popover>
 						</Col>
 						<Row>
 							<Col md={24} xs={0}>
@@ -229,6 +249,37 @@ class IndexPage extends Component<RoutesProps, State> {
 							{item.name}
 						</Button>
 					</Menu.Item>
+				))}
+			</Menu>
+		);
+	}
+	renderMenus2() {
+		const { xsMenus, downloadMenus } = this.state
+		const menus = this.props.global.islogin ? this.state.userLoginMenus : this.state.UserMenus
+		xsMenus.push(...menus)
+		return (
+			<Menu>
+				{xsMenus.map((item, index) => (
+					item.id === 'downlist' ?
+						<SubMenu key={index} title={
+							<Button type="link" icon={item.icon} >
+								{item.name}
+							</Button>
+						}>
+							{downloadMenus.map((item, index) =>
+								<Menu.Item key={index}>
+									<a href={item.download} download >
+										<Button type='primary' className={styles.downicon} icon={item.icon} size={"small"} title={item.title} />
+										{item.title}
+									</a>
+								</Menu.Item>
+							)}
+						</SubMenu>
+						: <Menu.Item key={index} >
+							<Button type="link" icon={item.icon} onClick={item.onClick}>
+								{item.name}
+							</Button>
+						</Menu.Item>
 				))}
 			</Menu>
 		);

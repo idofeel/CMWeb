@@ -528,6 +528,7 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 			// console.log('openCle', window.g_strResbaseUrl, cle.replace(/(.cle)$/, '.scle'));
 		} else {
 			message.error(files.faildesc)
+			this.setState({ Tips: true })
 		}
 
 
