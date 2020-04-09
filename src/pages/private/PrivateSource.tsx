@@ -1,16 +1,26 @@
 import * as React from 'react';
+import CopyToClipboard from 'react-copy-to-clipboard';
 import API from '../../services/API';
 import request, { get, joinUrlEncoded } from '../../utils';
-import { Tabs, Button, Icon, Alert, Modal, message } from 'antd';
+import { Tabs, Button, Icon, Alert, Modal, message, Input } from 'antd';
 import CMList from '../../components/CMList/CMList';
 const { confirm } = Modal;
+const { TabPane } = Tabs;
+const { Search } = Input;
+const InputGroup = Input.Group;
+
 export interface IPrivateSourceProps {
 }
 
 export interface IPrivateSourceState {
 }
 
-const { TabPane } = Tabs;
+
+const IconFont = Icon.createFromIconfontCN({
+    scriptUrl: '//at.alicdn.com/t/font_1616415_x0co1i09pnp.js',
+});
+
+
 
 
 export default class PrivateSource extends React.Component<IPrivateSourceProps, IPrivateSourceState> {
@@ -46,19 +56,49 @@ export default class PrivateSource extends React.Component<IPrivateSourceProps, 
                         empty={empty}
                         loadEnd={loadEnd}
                         modify={modify}
-                        onEdit={this.itemClick}
-                        onDelete={this.delete}
+                        onEdit={modify && this.itemClick}
+                        onDelete={modify && this.delete}
+                        onShare={(item, index) => {
+                            this.info(item, index)
+                        }}
                     />
                 </div>
             </div>
         );
+    }
+
+    async info(item, index) {
+        console.log(this)
+        const res = await get(API.source.share, { pid: item.pid, count: 0, days: 30 });
+        if (!res.success) return message.error(res.faildesc || ' 分享失败！');
+
+        const value = joinUrlEncoded(`${location.origin + location.pathname}#/share`, { lic: res.lic, pid: item.pid })
+
+        Modal.info({
+            title: '分享链接',
+            content: (
+                <>
+                    <InputGroup compact>
+                        <Input style={{ width: '60%' }} defaultValue={value} />
+                        <CopyToClipboard
+                            text={value}
+                            onCopy={() => {
+                                message.success("复制成功")
+                            }}>
+                            <Button icon="copy">复制链接</Button>
+                        </CopyToClipboard>
+                    </InputGroup>
+                </>
+
+            ),
+            okText: '关闭',
+        });
     }
     itemClick = item => {
         this.props.history.push(joinUrlEncoded('/upload', { pid: item.pid }))
     }
 
     delete = (item: any, index: any) => {
-
         confirm({
             title: '删除资源？',
             icon: <Icon type="delete" />,

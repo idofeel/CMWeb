@@ -1,3 +1,9 @@
+// File: SceneToGLData.js
+
+/**
+ * @author wujiali
+ */
+ 
 //===================================================================================================
 
 var RealMinPoint3 = new Point3(0, 0, 0);
@@ -23,8 +29,9 @@ function Scene2GLData() {
     var modelCenter = new Point3(0, 0, 0);
     getModelBoxCenter(modelBox, modelCenter);
     var defEyePos = new Point3(0, 0, 0);
-    getModelDefEyePos(modelBox, defEyePos);
-    var bgTextures = GetDefaultBgImg();
+    var defUpAxis = new Point3(0, 0, 0);
+    getModelDefEyePos(modelBox, defEyePos, defUpAxis);
+    var bgImageData = GetDefaultBgImg();
     // 释放内存
     g_sceneData.Clear();
     g_sceneData = null;
@@ -40,7 +47,8 @@ function Scene2GLData() {
         GLModelLength: modelLen,
         GLModelCenter: modelCenter,
         GLDefEyePos: defEyePos,
-        GLBgTexture: bgTextures,
+        GLDefUpAxis: defUpAxis,
+        GLBgImageData: bgImageData,
     };
 }
 
@@ -145,7 +153,7 @@ function GetSVZMaterialSet() {
                     image.onload = function() {
                         let texID = getTexImage(image);
                         for (let k=0; k<curTexMaterial.length; k++) {
-                            GLMatertalSet._arrMaterialSet[curTexMaterial[k]]._arrTexID[0] = texID
+                            GLMatertalSet._arrMaterialSet[curTexMaterial[k]]._arrTexID[0] = texID;
                         }
                     }
                     image.src = g_strResbaseUrl + curImageName;
@@ -253,7 +261,8 @@ function GetAnimCameraData() {
 
 // 获取动画总帧数
 function GetAnimFrameSize() {
-    if (g_sceneData.stuAnimSaveDataMgr._arrObjAnimSaveData.length > 0) {
+    if (g_sceneData.stuAnimSaveDataMgr._arrObjAnimSaveData.length > 0
+        || g_sceneData.stuCameraSaveDataMgr._arrCameraAnimSaveData.length > 0) {
         return g_sceneData.stuAnimSaveDataMgr._uFrameSize;
     } else {
         return 0;
@@ -325,6 +334,7 @@ function GetObjectData (ObjectID) {
     }
     // 当前Object数据
     let GL_Object = new GL_OBJECT();
+    GL_Object._uObjectID = g_sceneData.stuObjSaveDataMgr._arrObjSaveData[nObjIndex]._uObjectID;
     // 获取Object在GL_PARTSET中的索引
     GL_Object._uPartIndex = uMdlIndex;
     // 获取Object的Surface材质在GL_MATERIALSET中的索引
@@ -421,6 +431,8 @@ function getPublicModelBox(objectSet, partSet, indexs, objectMatrixs) {
     // 先求得最大最小顶点
     let min_x = Infinity, min_y = Infinity, min_z = Infinity;
     let max_x = -Infinity, max_y = -Infinity, max_z = -Infinity;
+    let tmpMinX = Infinity, tmpMinY = Infinity, tmpMinZ = Infinity;
+    let tmpMaxX = -Infinity, tmpMaxY = -Infinity, tmpMaxZ = -Infinity;
     for (let i=0; i<indexs.length; i++) {
         let uCurPartIndex = objectSet._arrObjectSet[indexs[i]]._uPartIndex;
         partSet._arrPartSet[uCurPartIndex]._arrPartLODData[0]._boxset._ObjectBox.MinVertex(ObjectMin);
@@ -430,12 +442,19 @@ function getPublicModelBox(objectSet, partSet, indexs, objectMatrixs) {
         CalTranslatePoint(ObjectMax.x, ObjectMax.y, ObjectMax.z, objectMatrixs[indexs[i]], RealMinPoint3);
         ObjectMax.x = RealMinPoint3.x; ObjectMax.y = RealMinPoint3.y; ObjectMax.z = RealMinPoint3.z;
 
-        if (ObjectMin.x < min_x) {min_x = ObjectMin.x;}
-        if (ObjectMin.y < min_y) {min_y = ObjectMin.y;}
-        if (ObjectMin.z < min_z) {min_z = ObjectMin.z;}
-        if (ObjectMax.x > max_x) {max_x = ObjectMax.x;}
-        if (ObjectMax.y > max_y) {max_y = ObjectMax.y;}
-        if (ObjectMax.z > max_z) {max_z = ObjectMax.z;}
+        tmpMinX = Math.min(ObjectMin.x, ObjectMax.x);
+        tmpMinY = Math.min(ObjectMin.y, ObjectMax.y);
+        tmpMinZ = Math.min(ObjectMin.z, ObjectMax.z);
+        tmpMaxX = Math.max(ObjectMin.x, ObjectMax.x);
+        tmpMaxY = Math.max(ObjectMin.y, ObjectMax.y);
+        tmpMaxZ = Math.max(ObjectMin.z, ObjectMax.z);
+
+        if (tmpMinX < min_x) {min_x = tmpMinX;}
+        if (tmpMinY < min_y) {min_y = tmpMinY;}
+        if (tmpMinZ < min_z) {min_z = tmpMinZ;}
+        if (tmpMaxX > max_x) {max_x = tmpMaxX;}
+        if (tmpMaxY > max_y) {max_y = tmpMaxY;}
+        if (tmpMaxZ > max_z) {max_z = tmpMaxZ;}
     }
     // 根据最大最小点设置模型包围盒
     m_ModelBox._Vertex[0].x = min_x, m_ModelBox._Vertex[0].y = min_y, m_ModelBox._Vertex[0].z = min_z;
@@ -487,26 +506,58 @@ function getModelBoxLength(modelBox) {
 /**
  * 计算默认摄像机位置
  */
-function getModelDefEyePos(modelBox, eye) {
-   let fLen = getModelBoxLength(modelBox);
+function getModelDefEyePos(modelBox, eye, up) {
+    let fLen = getModelBoxLength(modelBox);
     let dis = fLen / 2 / Math.tan(45.0 * Math.PI / 2.0 / 180.0);
-    eye.x = 0.0, eye.y = 0.0, eye.z = dis;
+    let defaultCameraAxis = GetDefaultCameraAxis();
+    if (defaultCameraAxis.GLSceneUpType == GL_SCENEUPTYPEX) {
+        if (defaultCameraAxis.GLUpAxisNegative) {
+            eye.x = 0.0, eye.y = 0.0, eye.z = dis;
+            up.x = -1.0, up.y = 0.0, up.z = 0.0;
+        } else {
+            eye.x = 0.0, eye.y = 0.0, eye.z = dis;
+            up.x = 1.0, up.y = 0.0, up.z = 0.0;
+        }
+    } else if (defaultCameraAxis.GLSceneUpType == GL_SCENEUPTYPEY) {
+        if (defaultCameraAxis.GLUpAxisNegative) {
+            eye.x = 0.0, eye.y = 0.0, eye.z = -dis;
+            up.x = 0.0, up.y = -1.0, up.z = 0.0;
+        } else {
+            eye.x = 0.0, eye.y = 0.0, eye.z = dis;
+            up.x = 0.0, up.y = 1.0, up.z = 0.0;
+        }
+    } else if (defaultCameraAxis.GLSceneUpType == GL_SCENEUPTYPEZ) {
+        if (defaultCameraAxis.GLUpAxisNegative) {
+            eye.x = 0.0, eye.y = dis, eye.z = 0.0;
+            up.x = 0.0, up.y = 0.0, up.z = -1.0;
+        } else {
+            eye.x = 0.0, eye.y = -dis, eye.z = 0.0;
+            up.x = 0.0, up.y = 0.0, up.z = 1.0;
+        }
+    }
 }
 
 /**
  * 转化背景图片数据
  */
 function GetDefaultBgImg() {
-    var arrBgTexture = new Array(3);
-    arrBgTexture[0] = -1, arrBgTexture[1] = -1, arrBgTexture[2] = -1;
-    for (let i=0; i<bgImage.length; i++) {
-        let image = new Image();
-        image.onload = function() {
-            arrBgTexture[i] = getTexImage(image);
-        }
-        image.src = bgImage[i];
+    var imageData = [-1, -1, -1];
+    let image0 = new Image();
+    image0.onload = function() {
+        imageData[0] = getTexImage(image0);
     }
-    return arrBgTexture;
+    image0.src = bgImage[0];
+    let image1 = new Image();
+    image1.onload = function() {
+        imageData[1] = getTexImage(image1);
+    }
+    image1.src = bgImage[1];
+    let image2 = new Image();
+    image2.onload = function() {
+        imageData[2] = getTexImage(image2);
+    }
+    image2.src = bgImage[2];
+    return imageData;
 }
 
 /**
@@ -520,14 +571,45 @@ function getTexImage(image) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     // ST坐标适应图片宽和高
-    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S, gl.REPEAT);
-    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T, gl.REPEAT);
+    if (isWebgl2) {
+        gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T, gl.REPEAT);
+    } else {
+        gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    }
     // 内存向GPU传输纹理数据，为1字节对齐
     gl.pixelStorei(gl.UNPACK_ALIGNMENT,1);
-    gl.pixelStorei(gl.UNPACK_ROW_LENGTH,0);
-    gl.pixelStorei(gl.UNPACK_SKIP_PIXELS,0);
-    gl.pixelStorei(gl.UNPACK_SKIP_ROWS,0);
+    if (isWebgl2) {
+        gl.pixelStorei(gl.UNPACK_ROW_LENGTH,0);
+        gl.pixelStorei(gl.UNPACK_SKIP_PIXELS,0);
+        gl.pixelStorei(gl.UNPACK_SKIP_ROWS,0);
+    }
     // 写入GPU缓存
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
     return uTexID;
+}
+
+/**
+ * 获取默认摄像机信息
+ */
+function GetDefaultCameraAxis() {
+    let nUp = 1, bNeg = false;
+    if (g_sceneData.stuConfig._nSceneUpType == ADFCUT_X) {
+        nUp = GL_SCENEUPTYPEX; bNeg = false;
+    } else if (g_sceneData.stuConfig._nSceneUpType == ADFCUT_NX) {
+        nUp = GL_SCENEUPTYPEX; bNeg = true;
+    } else if (g_sceneData.stuConfig._nSceneUpType == ADFCUT_Y) {
+        nUp = GL_SCENEUPTYPEY; bNeg = false;
+    } else if (g_sceneData.stuConfig._nSceneUpType == ADFCUT_NY) {
+        nUp = GL_SCENEUPTYPEY; bNeg = true;
+    } else if (g_sceneData.stuConfig._nSceneUpType == ADFCUT_Z) {
+        nUp = GL_SCENEUPTYPEZ; bNeg = false;
+    } else if (g_sceneData.stuConfig._nSceneUpType == ADFCUT_NZ) {
+        nUp = GL_SCENEUPTYPEZ; bNeg = true;
+    }
+    return {
+        GLSceneUpType: nUp,
+        GLUpAxisNegative: bNeg,
+    };
 }

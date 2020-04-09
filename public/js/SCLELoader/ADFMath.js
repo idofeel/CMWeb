@@ -80,6 +80,7 @@ var g_vBaseDouble4_1 = null;
 var g_vBaseDouble4_2 = null;
 var g_vBaseDouble4_3 = null;
 var g_vBaseDouble4_4 = null;
+var g_vBaseDouble4_5 = null;
 
 function ADFMathInt() {
 	// 二维矩阵临时变量
@@ -136,6 +137,7 @@ function ADFMathInt() {
 	g_vBaseDouble4_2 = new ADF_BASEDOUBLE4();
 	g_vBaseDouble4_3 = new ADF_BASEDOUBLE4();
 	g_vBaseDouble4_4 = new ADF_BASEDOUBLE4();
+	g_vBaseDouble4_5 = new ADF_BASEDOUBLE4();
 }
 
 //===================================================================================================
@@ -447,10 +449,11 @@ function ADFVec3TransformNormal(pOut, pV, pM) {
 	g_vBaseDouble4_1.z = pV.z;
 	g_vBaseDouble4_1.w = 0.0;
 
-	ADFVec4Transform(g_vBaseDouble4_1, g_vBaseDouble4_1, pM);
-	pOut.x = g_vBaseDouble4_1.x;
-	pOut.y = g_vBaseDouble4_1.y;
-	pOut.z = g_vBaseDouble4_1.z;
+	g_vBaseDouble4_5.Copy(g_vBaseDouble4_1);
+	ADFVec4Transform(g_vBaseDouble4_5, g_vBaseDouble4_1, pM);
+	pOut.x = g_vBaseDouble4_5.x;
+	pOut.y = g_vBaseDouble4_5.y;
+	pOut.z = g_vBaseDouble4_5.z;
 }
 
 // 获取一个垂直向量
@@ -522,8 +525,8 @@ function RotateAxisFromVecToVec(vAxis, v1, v2, arrRotValue) {
 		g_vVec4.Copy(g_vVec1);
 		g_vVec1.Mul(dSrcDot);
 
-		g_vVec5.sub(g_vVec2, g_vVec4);
-		g_vVec6.sub(g_vVec3, g_vVec4);
+		g_vVec5.Sub(g_vVec2, g_vVec4);
+		g_vVec6.Sub(g_vVec3, g_vVec4);
 		ADFVec3Normalize(g_vVec5);
 		ADFVec3Normalize(g_vVec6);	
 

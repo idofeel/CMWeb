@@ -124,10 +124,10 @@ export default class CMReaderPage extends React.Component<ICMReaderPageProps, IC
         }
     }
     async InitPage() {
-        const { pid, title = '三维模型' } = queryString(location.href)
+        const { pid, title = '三维模型', lic } = queryString(location.href)
         this.setState({ title })
         if (!pid) return message.error('获取pid失败，请重新打开！');
-        const req1 = get(API.fileInfo.cle, { pid }),
+        const req1 = get(API.fileInfo.cle, { pid, lic }),
             req2 = get(API.serverinfo)
 
         const [file, server] = await Promise.all([req1, req2])
@@ -137,7 +137,7 @@ export default class CMReaderPage extends React.Component<ICMReaderPageProps, IC
             const filesize = file.data.filesize,
                 cleFile = file.data.cle,
                 contentid = file.data.id,
-                lesFile = joinUrlEncoded(domain + API.fileInfo.les, { pid, devid }),
+                lesFile = joinUrlEncoded(domain + API.fileInfo.les, { pid, devid, lic }),
                 serverid = server.data.serverid;
             // console.log('OpenDRMFile', devid);
             // console.log('cleFile:' + cleFile);

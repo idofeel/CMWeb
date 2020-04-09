@@ -1,3 +1,9 @@
+// File: Camera.js
+
+/**
+ * @author wujiali
+ */
+ 
 //===================================================================================================
 
 function Camera() {
@@ -53,7 +59,7 @@ function Camera() {
      * 计算投影矩阵
      */
     this.setPerspectiveMatrix = function(angle, aspect) {
-        if (this.zFar < 0.0) {
+        if (this.zFar <= 0.0001) {
             let focusDistance = this.getDist();
             this.zNear = focusDistance * 0.02;
             this.zFar = focusDistance * 200.0;
@@ -63,6 +69,13 @@ function Camera() {
 
     this.setNearFar = function(near, far) {
         this.zNear = near; this.zFar = far;
+    }
+
+    this.resetPerspectiveMatrix = function(angle, aspect) {
+        let focusDistance = this.getDist();
+        this.zNear = focusDistance * 0.02;
+        this.zFar = focusDistance * 200.0;
+        mat4.perspective(this.projectionMatrix, angle, aspect, this.zNear, this.zFar);
     }
 
     /**

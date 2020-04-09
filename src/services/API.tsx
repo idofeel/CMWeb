@@ -11,7 +11,8 @@ export default {
         // 搜索
         search: '/?r=cle&d=name',  // {name}
         base: '/?r=cle&d=base', // {pid}
-        delete: '/?r=cle&d=delprivate' // {pid}
+        delete: '/?r=cle&d=delprivate', // {pid}
+        share: '/?r=cle&d=share', // {pid,count,days}
     },
     fileInfo: {
         // les 文件信息

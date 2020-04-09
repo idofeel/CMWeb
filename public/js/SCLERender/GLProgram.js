@@ -1,3 +1,9 @@
+// File: GLProgram.js
+
+/**
+ * @author wujiali
+ */
+ 
 //===================================================================================================
 
 function GLProgram() {
@@ -26,7 +32,6 @@ function GLProgram() {
     this.isPicked = false;
     this.isShowBox = true;
     // GPU缓存数据
-    this.m_OES_VAO_ext = null;
     this.m_arrObjectSurface_VAOs = new Array();
     this.m_arrObjectSurface_VBOs = new Array();
     this.m_arrObjectBox_VAOs = new Array();
@@ -82,7 +87,11 @@ function GLProgram() {
         if (this.m_GLObjectSet != null) {
             this.initGLConfig();
             this.setUniteMaterial();
-            this.setVAOs();
+            if (isWebgl2) {
+                this.setVAOs();
+            } else {
+                this.setVBOs_webgl1();
+            }
             this.setObjectModelMat();
             this.setObjectTransparent();
             this.setObjectVisible();
@@ -103,10 +112,6 @@ function GLProgram() {
      * 设置WebGL参数
      */
     this.initGLConfig = function() {
-        // WebGL1.0
-        if (!isWebgl2) {
-            this.m_OES_VAO_ext = gl.getExtension('OES_vertex_array_object');
-        }
         // 开启背面剔除
         gl.enable(gl.CULL_FACE);
         gl.frontFace(gl.CCW);
@@ -117,7 +122,9 @@ function GLProgram() {
         gl.enable(gl.BLEND);
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
         // 设置线宽
-        gl.lineWidth(3.0);
+        if (isWebgl2) {
+            gl.lineWidth(3.0);
+        }
     }
 
     /**
@@ -131,11 +138,31 @@ function GLProgram() {
 
         // 绘制背景图片
         gl.useProgram(this.pictureProgramInfo.program);
-        // gl.depthMask(gl.FALSE);
-        this.drawBackground();
+        if (isWebgl2) {
+            this.drawBackground();
+        } else {
+            this.drawBackground_webgl1();
+        }
 
         gl.useProgram(this.solidProgramInfo.program);
-        // gl.depthMask(gl.TRUE);
+        if (isWebgl2) {
+            this.drawObjectArray(camera);
+        } else {
+            this.drawObjectArray_webgl1(camera);
+        }
+        
+        // 绘制零件实例包围盒
+        gl.useProgram(this.lineProgramInfo.program);
+        if (this.isPicked) {
+            if (isWebgl2) {
+                this.drawBox();
+            } else {
+                this.drawBox_webgl1();
+            }
+        }
+    }
+
+    this.drawObjectArray = function(camera) {
         camera.getEyeLoc(this.eyeLocation);
         gl.uniform3f(this.solidProgramInfo.uniformLocations.eyeLocation, this.eyeLocation.x, this.eyeLocation.y, this.eyeLocation.z);
         mat4.multiply(this.PVMattrix, camera.projectionMatrix, camera.viewMatrix);
@@ -157,10 +184,29 @@ function GLProgram() {
                 this.drawObject(i);
             }
         }
-        // 绘制零件实例包围盒
-        gl.useProgram(this.lineProgramInfo.program);
-        if (this.isPicked) {
-            this.drawBox();
+    }
+
+    this.drawObjectArray_webgl1 = function(camera) {
+        camera.getEyeLoc(this.eyeLocation);
+        gl.uniform3f(this.solidProgramInfo.uniformLocations.eyeLocation, this.eyeLocation.x, this.eyeLocation.y, this.eyeLocation.z);
+        mat4.multiply(this.PVMattrix, camera.projectionMatrix, camera.viewMatrix);
+        // 绘制全不透明物体
+        for (let i=0; i<this.m_GLObjectSet._arrObjectSet.length; i++) {
+            if (this.m_arrObjectTransMode[i] == GLTRANS_NO) {
+                this.drawObject_webgl1(i);
+            }
+        }
+        // 绘制部分透明物体
+        for (let i=0; i<this.m_GLObjectSet._arrObjectSet.length; i++) {
+            if (this.m_arrObjectTransMode[i] == GLTRANS_PART) {
+                this.drawObject_webgl1(i);
+            }
+        }
+        // 绘制全透明物体
+        for (let i=0; i<this.m_GLObjectSet._arrObjectSet.length; i++) {
+            if (this.m_arrObjectTransMode[i] == GLTRANS_ALL) {
+                this.drawObject_webgl1(i);
+            }
         }
     }
 
@@ -220,6 +266,11 @@ function GLProgram() {
                     curMaterial = this.m_GLMaterialSet._arrMaterialSet[materialIndex];
                 }
             }
+
+            if (materialIndex <= 0 || curMaterial == null) {
+                curMaterial = this.defaultMaterial;
+            }
+            
             gl.uniform4f(this.solidProgramInfo.uniformLocations.materialDiffuse,
                 curMaterial._mtlPhysics.vDiffuse.x,
                 curMaterial._mtlPhysics.vDiffuse.y,
@@ -266,11 +317,117 @@ function GLProgram() {
                         curMaterial._arrData[0].w);
                 }
             }
-            if (isWebgl2) {
-                gl.bindVertexArray(this.m_arrObjectSurface_VAOs[objectIndex][j]);
-            } else {
-                this.m_OES_VAO_ext.bindVertexArrayOES(this.m_arrObjectSurface_VAOs[objectIndex][j]);
+            gl.bindVertexArray(this.m_arrObjectSurface_VAOs[objectIndex][j]);
+            gl.drawArrays(gl.TRIANGLES, 0, this.m_arrVAOVertexCounts[objectIndex][j]);
+        }
+    }
+
+    this.drawObject_webgl1 = function(objectIndex) {
+        // 判断是否可见
+        if (!this.m_arrObjectVisiable[objectIndex]) {
+            return;
+        }
+        // 获取Object透明度
+        let objectTrans = this.m_arrObjectTransparent[objectIndex];
+        if (objectTrans <= GL_ZERO) {
+            return;
+        }
+        // 正向面定义模式
+        if (this.m_GLObjectSet._arrObjectSet[objectIndex]._nCullMode == ADFCULL_NONE) {
+            gl.disable(gl.CULL_FACE);
+        } else {
+            gl.enable(gl.CULL_FACE);
+            gl.cullFace(gl.BACK);
+        }
+        // 同一个object矩阵相同
+        mat4.multiply(this.MVPMatrix, this.PVMattrix, this.m_arrObjectMatrix[objectIndex]);
+        gl.uniformMatrix4fv(this.solidProgramInfo.uniformLocations.MVPMatrix, false, this.MVPMatrix);
+        // 同一个Object的不同Surface材质不同
+        let curMaterial = null;
+        let isObjectUnit = false;
+        // 根据显示优先级做判断
+        if (this.arrPickObjectIndexs[objectIndex] && this.m_arrObjectMaterial[objectIndex] != null) {
+            switch (this.eMaterialPriority) {
+                case GL_ORIGINAL:
+                    break;
+                case GL_USERPICKED:
+                    curMaterial = this.defaultRed;
+                    break;
+                case GL_USERDEFINE:
+                    curMaterial = this.m_arrObjectMaterial[objectIndex];
+                    break;
             }
+            isObjectUnit = true;
+        } else if (this.arrPickObjectIndexs[objectIndex]) {
+            curMaterial = this.defaultRed;
+            isObjectUnit = true;
+        } else if (this.m_arrObjectMaterial[objectIndex] != null) {
+            curMaterial = this.m_arrObjectMaterial[objectIndex];
+            isObjectUnit = true;
+        }
+        for (let j=0; j<this.m_arrObjectSurface_VBOs[objectIndex].length; j++) {
+            // 材质数据
+            let materialIndex = this.m_arrMaterialIndex[objectIndex][j];
+            if (!isObjectUnit) {
+                if (this.m_arrMaterialIndex[objectIndex][j] == -1) {
+                    curMaterial = this.defaultMaterial;
+                } else {
+                    curMaterial = this.m_GLMaterialSet._arrMaterialSet[materialIndex];
+                }
+            }
+            gl.uniform4f(this.solidProgramInfo.uniformLocations.materialDiffuse,
+                curMaterial._mtlPhysics.vDiffuse.x,
+                curMaterial._mtlPhysics.vDiffuse.y,
+                curMaterial._mtlPhysics.vDiffuse.z,
+                curMaterial._mtlPhysics.vDiffuse.w);
+            gl.uniform4f(this.solidProgramInfo.uniformLocations.materialAmbient,
+                curMaterial._mtlPhysics.vAmbient.x,
+                curMaterial._mtlPhysics.vAmbient.y,
+                curMaterial._mtlPhysics.vAmbient.z,
+                curMaterial._mtlPhysics.vAmbient.w);
+            gl.uniform4f(this.solidProgramInfo.uniformLocations.materialSpecular,
+                curMaterial._mtlPhysics.vSpecular.x,
+                curMaterial._mtlPhysics.vSpecular.y,
+                curMaterial._mtlPhysics.vSpecular.z,
+                curMaterial._mtlPhysics.vSpecular.w);
+            gl.uniform1f(this.solidProgramInfo.uniformLocations.power, curMaterial._mtlPhysics.fPower);
+            gl.uniform4f(this.solidProgramInfo.uniformLocations.materialEmissive,
+                curMaterial._mtlPhysics.vEmissive.x,
+                curMaterial._mtlPhysics.vEmissive.y,
+                curMaterial._mtlPhysics.vEmissive.z,
+                curMaterial._mtlPhysics.vEmissive.w * objectTrans);
+            if (curMaterial._eMtlType == ADFMTLTYPE_PHYSICS) {
+                // 自然材质
+                gl.uniform1i(this.solidProgramInfo.uniformLocations.fragmentTex, 0);
+            } else if (curMaterial._eMtlType == ADFMTLTYPE_PICTURE) {
+                if (curMaterial._arrTexID[0] instanceof WebGLTexture) {
+                    // 贴图材质
+                    gl.uniform1i(this.solidProgramInfo.uniformLocations.fragmentTex, 1);
+                    // 设置贴图
+                    gl.uniform1i(this.solidProgramInfo.uniformLocations.textureUnit, 0);
+                    gl.bindTexture(gl.TEXTURE_2D, curMaterial._arrTexID[0]);
+                } else {
+                    gl.uniform1i(this.solidProgramInfo.uniformLocations.fragmentTex, 0);
+                }
+            } else {
+                // 纯色材质
+                gl.uniform1i(this.solidProgramInfo.uniformLocations.fragmentTex, 2);
+                // 设置纯色
+                if (curMaterial._arrData.length > 0) {
+                    gl.uniform4f(this.solidProgramInfo.uniformLocations.pureColor, 
+                        curMaterial._arrData[0].x,
+                        curMaterial._arrData[0].y,
+                        curMaterial._arrData[0].z,
+                        curMaterial._arrData[0].w);
+                }
+            }
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.m_arrObjectSurface_VBOs[objectIndex][j]);
+            gl.vertexAttribPointer(this.solidProgramInfo.attribLocations.vertexPosition, numVertex, type, normalize, stride, 0);
+            gl.enableVertexAttribArray(this.solidProgramInfo.attribLocations.vertexPosition);
+            gl.vertexAttribPointer(this.solidProgramInfo.attribLocations.vertexVector, numVector, type, normalize, stride, numVertex*4);
+            gl.enableVertexAttribArray(this.solidProgramInfo.attribLocations.vertexVector);
+            gl.vertexAttribPointer(this.solidProgramInfo.attribLocations.vertexUV, numUV, type, normalize, stride, (numVertex+numVector)*4);
+            gl.enableVertexAttribArray(this.solidProgramInfo.attribLocations.vertexUV);
             gl.drawArrays(gl.TRIANGLES, 0, this.m_arrVAOVertexCounts[objectIndex][j]);
         }
     }
@@ -285,11 +442,22 @@ function GLProgram() {
                 gl.uniformMatrix4fv(this.lineProgramInfo.uniformLocations.MVPMatrix, false, this.MVPMatrix);
                 gl.uniform3f(this.lineProgramInfo.uniformLocations.lineColor, 1.0, 1.0, 0.0);
                 let nPickPartIndex = this.m_GLObjectSet._arrObjectSet[i]._uPartIndex;
-                if (isWebgl2) {
-                    gl.bindVertexArray(this.m_arrObjectBox_VAOs[nPickPartIndex]);
-                } else {
-                    this.m_OES_VAO_ext.bindVertexArrayOES(this.m_arrObjectBox_VAOs[nPickPartIndex]);
-                }
+                gl.bindVertexArray(this.m_arrObjectBox_VAOs[nPickPartIndex]);
+                gl.drawArrays(gl.LINES, 0, BOX_LINEVERTEX_COUNT);
+            }
+        }
+    }
+
+    this.drawBox_webgl1 = function() {
+        for (let i=0; i<this.arrPickObjectIndexs.length; i++) {
+            if (this.arrPickObjectIndexs[i]) {
+                mat4.multiply(this.MVPMatrix, this.PVMattrix, this.m_arrObjectMatrix[i]);
+                gl.uniformMatrix4fv(this.lineProgramInfo.uniformLocations.MVPMatrix, false, this.MVPMatrix);
+                gl.uniform3f(this.lineProgramInfo.uniformLocations.lineColor, 1.0, 1.0, 0.0);
+                let nPickPartIndex = this.m_GLObjectSet._arrObjectSet[i]._uPartIndex;
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.m_arrObjectBox_VBOs[nPickPartIndex]);
+                gl.vertexAttribPointer(this.lineProgramInfo.attribLocations.vertexPosition, numVertex, type, normalize, numVertex*4, 0);
+                gl.enableVertexAttribArray(this.lineProgramInfo.attribLocations.vertexPosition);
                 gl.drawArrays(gl.LINES, 0, BOX_LINEVERTEX_COUNT);
             }
         }
@@ -301,11 +469,22 @@ function GLProgram() {
     this.drawBackground = function() {
         if (this.m_arrBgTexId != null) {
             if (this.m_arrBgTexId[this.m_bgIndex] instanceof WebGLTexture) {
-                if (isWebgl2) {
-                    gl.bindVertexArray(this.m_uBgVAO);
-                } else {
-                    this.m_OES_VAO_ext.bindVertexArrayOES(this.m_uBgVAO);
-                }
+                gl.bindVertexArray(this.m_uBgVAO);
+                gl.uniform1i(this.pictureProgramInfo.textureUnit, 0);
+                gl.bindTexture(gl.TEXTURE_2D, this.m_arrBgTexId[this.m_bgIndex]);
+                gl.drawArrays(gl.TRIANGLES, 0, bgVertex.count);
+            }
+        }
+    }
+
+    this.drawBackground_webgl1 = function() {
+        if (this.m_arrBgTexId != null) {
+            if (this.m_arrBgTexId[this.m_bgIndex] instanceof WebGLTexture) {
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.m_uBgVBO);
+                gl.vertexAttribPointer(this.pictureProgramInfo.attribLocations.vertexPosition, numVertex, type, normalize, (numVertex + numUV) * 4, 0);
+                gl.enableVertexAttribArray(this.pictureProgramInfo.attribLocations.vertexPosition);
+                gl.vertexAttribPointer(this.pictureProgramInfo.attribLocations.vertexUV, numUV, type, normalize, (numVertex + numUV) * 4, numVertex*4);
+                gl.enableVertexAttribArray(this.pictureProgramInfo.attribLocations.vertexUV);
                 gl.uniform1i(this.pictureProgramInfo.textureUnit, 0);
                 gl.bindTexture(gl.TEXTURE_2D, this.m_arrBgTexId[this.m_bgIndex]);
                 gl.drawArrays(gl.TRIANGLES, 0, bgVertex.count);
@@ -318,13 +497,18 @@ function GLProgram() {
      */
     this.clear = function() {
         // 清除顶点缓存数据
+        if (isWebgl2) {
+            this.clear_webgl2();
+        } else {
+            this.clear_webgl1();
+        }
+    }
+
+    this.clear_webgl2 = function() {
+        // 清除顶点缓存数据
         for (let i=0; i<this.m_arrObjectSurface_VAOs.length; i++) {
             for (let j=0; j<this.m_arrObjectSurface_VAOs[i].length; j++) {
-                if (isWebgl2) {
-                    gl.deleteVertexArray(this.m_arrObjectSurface_VAOs[i][j]);
-                } else {
-                    this.m_OES_VAO_ext.deleteVertexArrayOES(this.m_arrObjectSurface_VAOs[i][j]);
-                }
+                gl.deleteVertexArray(this.m_arrObjectSurface_VAOs[i][j]);
             }
         }
         for (let i=0; i<this.m_arrObjectSurface_VBOs.length; i++) {
@@ -333,11 +517,7 @@ function GLProgram() {
             }
         }
         for (let i=0; i<this.m_arrObjectBox_VAOs.length; i++) {
-            if (isWebgl2) {
-                gl.deleteVertexArray(this.m_arrObjectBox_VAOs[i]);
-            } else {
-                this.m_OES_VAO_ext.deleteVertexArrayOES(this.m_arrObjectBox_VAOs[i]);
-            }
+            gl.deleteVertexArray(this.m_arrObjectBox_VAOs[i]);
         }
         for (let i=0; i<this.m_arrObjectBox_VBOs.length; i++) {
             gl.deleteBuffer(this.m_arrObjectBox_VBOs[i]);
@@ -346,11 +526,37 @@ function GLProgram() {
             gl.deleteBuffer(this.m_uBgVBO);
         }
         if (this.m_uBgVAO != -1) {
-            if (isWebgl2) {
-                gl.deleteVertexArray(this.m_uBgVAO);
-            } else {
-                this.m_OES_VAO_ext.deleteVertexArrayOES(this.m_uBgVAO);
+            gl.deleteVertexArray(this.m_uBgVAO);
+        }
+        // 清除贴图缓存数据
+        for (let i=0; i<this.m_GLMaterialSet._arrMaterialSet.length; i++) {
+            if (this.m_GLMaterialSet._arrMaterialSet[i]._eMtlType == ADFMTLTYPE_PICTURE) {
+                if (this.m_GLMaterialSet._arrMaterialSet[i]._arrTexID[0] instanceof WebGLTexture) {
+                    gl.deleteTexture(this.m_GLMaterialSet._arrMaterialSet[i]._arrTexID[0]);
+                }
             }
+        }
+        if (this.m_arrBgTexId != null) {
+            for (let i=0; i<this.m_arrBgTexId.length; i++) {
+                if (this.m_arrBgTexId[i] instanceof WebGLTexture) {
+                    gl.deleteTexture(this.m_arrBgTexId[i]);
+                }
+            }
+        }
+    }
+
+    this.clear_webgl1 = function() {
+        // 清除顶点缓存数据
+        for (let i=0; i<this.m_arrObjectSurface_VBOs.length; i++) {
+            for (let j=0; j<this.m_arrObjectSurface_VBOs[i].length; j++) {
+                gl.deleteBuffer(this.m_arrObjectSurface_VBOs[i][j]);
+            }
+        }
+        for (let i=0; i<this.m_arrObjectBox_VBOs.length; i++) {
+            gl.deleteBuffer(this.m_arrObjectBox_VBOs[i]);
+        }
+        if (this.m_uBgVBO != -1) {
+            gl.deleteBuffer(this.m_uBgVBO);
         }
         // 清除贴图缓存数据
         for (let i=0; i<this.m_GLMaterialSet._arrMaterialSet.length; i++) {
@@ -397,6 +603,7 @@ function GLProgram() {
         }
     }
     this.pickMultByIndex = function(indexs) {
+        let isAllNull = true;
         for (let i=0; i<this.arrPickObjectIndexs.length; i++) {
             this.arrPickObjectIndexs[i] = false;
         }
@@ -405,6 +612,12 @@ function GLProgram() {
                 continue;
             }
             this.arrPickObjectIndexs[indexs[i]] = true;
+            isAllNull = false;
+        }
+        if (isAllNull) {
+            this.isPicked = false;
+            this.GL_PICKSTATUS = 0;
+            return;
         }
         this.eMaterialPriority = GL_USERPICKED;
         this.isPicked = true;
@@ -483,7 +696,7 @@ function GLProgram() {
             }
             return this.arrPickIndexs;
         } else {
-            return null;
+            return this.arrPickIndexs;
         }
     }
 
@@ -511,6 +724,12 @@ function GLProgram() {
                 mat4.multiply(this.m_arrObjectMatrix[i], modelMatrix, this.m_arrObjectMatrix[i]);
             }
         }
+    }
+    this.setObjectMatrixByIndex = function(index, matrix) {
+        if (index < 0 || index >= this.m_arrObjectMatrix.length) {
+            return;
+        }
+        mat4.multiply(this.m_arrObjectMatrix[index], this.modelMatrix, matrix);
     }
     this.getObjectModelMatrix = function(nObjectIndex) {
         if (nObjectIndex < 0 || nObjectIndex >= this.m_GLObjectSet._arrObjectSet.length) {
@@ -797,13 +1016,8 @@ function GLProgram() {
      */
     this.setVAOs = function() {
         // 创建背景图片VAO缓存
-        if (isWebgl2) {
-            this.m_uBgVAO = gl.createVertexArray();
-            gl.bindVertexArray(this.m_uBgVAO);
-        } else {
-            this.m_uBgVAO = this.m_OES_VAO_ext.createVertexArrayOES();
-            this.m_OES_VAO_ext.bindVertexArrayOES(this.m_uBgVAO);
-        }
+        this.m_uBgVAO = gl.createVertexArray();
+        gl.bindVertexArray(this.m_uBgVAO);
         this.m_uBgVBO = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.m_uBgVBO);
         gl.bufferData(gl.ARRAY_BUFFER, 6 * (numVertex + numUV) * 4, gl.STATIC_DRAW);
@@ -815,13 +1029,8 @@ function GLProgram() {
         // 创建包围盒VAO缓存
         for (let i=0; i<this.m_GLPartSet._arrPartSet.length; i++) {
             let nVAOId = -1;
-            if (isWebgl2) {
-                nVAOId = gl.createVertexArray();
-                gl.bindVertexArray(nVAOId);
-            } else {
-                nVAOId = this.m_OES_VAO_ext.createVertexArrayOES();
-                this.m_OES_VAO_ext.bindVertexArrayOES(nVAOId);
-            }
+            nVAOId = gl.createVertexArray();
+            gl.bindVertexArray(nVAOId);
             let nVBOId = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, nVBOId);
             // 建立显存缓存
@@ -872,13 +1081,8 @@ function GLProgram() {
                 for (let j=0; j<this.m_arrMaterialIndex[i].length; j++) {
                     // 创建一个VAO
                     let VAOArray = -1;
-                    if (isWebgl2) {
-                        VAOArray = gl.createVertexArray();
-                        gl.bindVertexArray(VAOArray);
-                    } else {
-                        VAOArray = this.m_OES_VAO_ext.createVertexArrayOES();
-                        this.m_OES_VAO_ext.bindVertexArrayOES(VAOArray);
-                    }
+                    VAOArray = gl.createVertexArray();
+                    gl.bindVertexArray(VAOArray);
                     // 创建一个VBO
                     let buffer = gl.createBuffer();
                     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
@@ -910,12 +1114,81 @@ function GLProgram() {
         }
         // 解除绑定
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
-        if (isWebgl2) {
-            gl.bindVertexArray(null);
-        } else {
-            this.m_OES_VAO_ext.bindVertexArrayOES(null);
-        }
+        gl.bindVertexArray(null);
     }
+
+    this.setVBOs_webgl1 = function() {
+        // 创建背景图片VAO缓存
+        this.m_uBgVBO = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.m_uBgVBO);
+        gl.bufferData(gl.ARRAY_BUFFER, 6 * (numVertex + numUV) * 4, gl.STATIC_DRAW);
+        gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(bgVertex.vertex), 0, 6 * (numVertex + numUV));
+        // 创建包围盒VAO缓存
+        for (let i=0; i<this.m_GLPartSet._arrPartSet.length; i++) {
+            let nVBOId = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, nVBOId);
+            // 建立显存缓存
+            this.setBoxLines(i);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.m_arrBoxLines), gl.STATIC_DRAW);
+            this.m_arrObjectBox_VBOs.push(nVBOId);
+        }
+        // 创建零件VAO缓存
+        let arrPartUsedFlag = new Array(this.m_GLPartSet._arrPartSet.length);
+        for (let i=0; i<this.m_GLPartSet._arrPartSet.length; i++) {
+            arrPartUsedFlag[i] = new Array();
+        }
+        for (let i=0; i<this.m_arrMaterialIndex.length; i++) {
+            let uCurPartIndex = this.m_GLObjectSet._arrObjectSet[i]._uPartIndex;
+            let uBeforeObjectIndex = -1;
+            let isEqualToBefore = false;
+            if (arrPartUsedFlag[uCurPartIndex].length > 0) {
+                for (let j=0; j<arrPartUsedFlag[uCurPartIndex].length; j++)
+                {
+                    uBeforeObjectIndex = arrPartUsedFlag[uCurPartIndex][j];
+                    // 判断俩Object是否完全相同
+                    if (this.m_arrMaterialIndex[i].length == this.m_arrMaterialIndex[uBeforeObjectIndex].length) {
+                        let k = 0;
+                        for (; k<this.m_arrMaterialIndex[i].length; k++) {
+                            if (this.m_arrMaterialIndex[i][k] != this.m_arrMaterialIndex[uBeforeObjectIndex][k])
+                                break;
+                        }
+                        if (k == this.m_arrMaterialIndex[i].length) {
+                            isEqualToBefore = true;
+                        }   
+                    }
+                }
+                if (!isEqualToBefore) {
+                    arrPartUsedFlag[uCurPartIndex].push(i);
+                } 
+            } else {
+                arrPartUsedFlag[uCurPartIndex].push(i);
+            }
+
+            let arrSurfaceVBOs = new Array();
+            if (!isEqualToBefore) {
+                let offset = 0;
+                for (let j=0; j<this.m_arrMaterialIndex[i].length; j++) {
+                    // 创建一个VBO
+                    let buffer = gl.createBuffer();
+                    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+                    let subData = this.m_GLPartSet._arrPartSet[uCurPartIndex]._arrPartLODData[0]._arrVertex.subarray(
+                        offset, offset+this.m_arrVAOVertexCounts[i][j]*(numVertex + numVector + numUV));
+                    gl.bufferData(gl.ARRAY_BUFFER, subData, gl.STATIC_DRAW);
+                    // 存值
+                    arrSurfaceVBOs.push(buffer);
+                    offset += this.m_arrVAOVertexCounts[i][j]*(numVertex + numVector + numUV);
+                }
+            } else {
+                for (let j=0; j<this.m_arrObjectSurface_VBOs[uBeforeObjectIndex].length; j++) {
+                    arrSurfaceVBOs.push(this.m_arrObjectSurface_VBOs[uBeforeObjectIndex][j]);
+                }
+            }
+            this.m_arrObjectSurface_VBOs.push(arrSurfaceVBOs);
+        }
+        // 解除绑定
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+    }
+
 
     /**
      * 生成包围盒数据

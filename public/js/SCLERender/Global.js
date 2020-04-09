@@ -5,6 +5,12 @@
  */
  
 //===================================================================================================
+// 公共矩阵，减小内存
+var g_matLocal = mat4.create();
+var g_matWorld = mat4.create();
+var g_matMultiply = mat4.create();
+
+//===================================================================================================
 
 function Point3(x, y, z) {
     this.x = x;
@@ -507,6 +513,7 @@ function GL_MATERIALSET() {
 var matAdfOut = new ADF_BASEMATRIX();
 // 物件数据
 function GL_OBJECT() {
+    this._uObjectID = 0;
     this._uPartIndex = 0;
     this._arrSurfaceMaterialIndex = new Array();
     this._nFillMode = ADFFILL_SOLID;
@@ -524,8 +531,14 @@ function GL_OBJECT() {
 
     this.GetAnimMatrix = function(uFrame, matGlOut) {
         ADFMatrixIdentity(matAdfOut);
-        CalculateObjectWldMatrix(uFrame, this._objectAnim, this._matLocal, this._matWorld, matAdfOut);
-        CalMat4(matAdfOut, matGlOut);
+        if (this._objectAnim._arrKeyFrameData.length == 0) {
+            CalMat4(this._matLocal, g_matLocal);
+            CalMat4(this._matWorld, g_matWorld);
+            mat4.multiply(matGlOut, g_matWorld, g_matLocal);
+        } else {
+            CalculateObjectWldMatrix(uFrame, this._objectAnim, this._matLocal, this._matWorld, matAdfOut);
+            CalMat4(matAdfOut, matGlOut);
+        }
     }
 
     this.GetAnimTransparent = function(uFrame) {
@@ -610,6 +623,11 @@ const GLTRANS_ALL         = 1;        // 零件全透明
 const GLTRANS_PART        = 2;        // 零件部分透明
 const GLTRANS_NO          = 3;        // 零件全不透明
 
+// 场景上方向
+const GL_SCENEUPTYPEX     = 0;        // X轴
+const GL_SCENEUPTYPEY     = 1;        // Y轴
+const GL_SCENEUPTYPEZ     = 2;        // Z轴
+
 //===================================================================================================
 /**
  * 公共函数
@@ -638,4 +656,198 @@ function CalADFMat(matrix) {
     adfMat._31 = matrix[8], adfMat._32 = matrix[9], adfMat._33 = matrix[10], adfMat._34 = matrix[11];
     adfMat._41 = matrix[12], adfMat._42 = matrix[13], adfMat._43 = matrix[14], adfMat._44 = matrix[15];
     return adfMat;
+}
+
+// 哈希函数
+// 定义为对1000求余
+var djb2Code = function (id) {
+    return id % 1000;
+}
+
+// 定义哈希表
+function HashMap() {
+    var map = [];
+    var keyValPair = function (key, value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    this.put = function (key, value) {
+        var position = djb2Code(key);
+        if (map[position] == undefined) {
+            map[position] = new LinkedList();
+        }
+        map[position].append(new keyValPair(key, value));
+    }
+
+    this.get = function (key) {
+        var position = djb2Code(key);
+        if (map[position] != undefined) {
+            var current = map[position].getHead();
+            while (current.next) {
+                // 严格判断
+                if (current.element.key === key) {      
+                    return current.element.value;
+                }
+                current = current.next;
+            }
+            // 如果只有head节点，则不会进while.  还有尾节点，不会进while,这个判断必不可少
+            if (current.element.key === key) {  
+                return current.element.value;
+            }
+        }
+        return undefined;
+    }
+
+    this.remove = function (key) {
+        var position = djb2Code(key);
+        if (map[position] != undefined) {
+            var current = map[position].getHead();
+            while (current.next) {
+                if (current.element.key === key) {
+                    map[position].remove(current.element);
+                    if (map[position].isEmpty()) {
+                        map[position] == undefined;
+                    }
+                    return true;
+                }
+                current = current.next;
+            }
+            if (current.element.key === key) {
+                map[position].remove(current.element);
+                if (map[position].isEmpty()) {
+                    map[position] == undefined;
+                }
+                return true;
+            }
+        }
+    }
+
+    this.isEmpty = function () {
+        if (map.length == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
+// 定义链表
+function LinkedList() {
+    // 新元素构造
+    var Node = function (element) {                 
+        this.element = element;
+        this.next = null;
+    };
+    var length = 0;
+    var head = null;
+
+    this.append = function (element) {
+        // 构造新的元素节点
+        var node = new Node(element);                
+        var current;
+        
+        // 头节点为空时  当前结点作为头节点
+        if (head === null) {
+            head = node;
+        } else {
+            current = head;
+            // 遍历，直到节点的next为null时停止循环，当前节点为尾节点
+            while (current.next) {                  
+                current = current.next;
+            }
+            // 将尾节点指向新的元素，新元素作为尾节点
+            current.next = node;
+        }
+        // 更新链表长度
+        length++;                                   
+    }
+
+    this.removeAt = function (position) {
+        if (position > -1 && position < length) {
+            var current = head;
+            var index = 0;
+            var previous;
+            if (position == 0) {
+                head = current.next;
+            } else {
+                while (index++ < position) {
+                    previous = current;
+                    current = current.next;
+                }
+                previous.next = current.next;
+            }
+            length--;
+            return current.element;
+        } else {
+            return null;
+        }
+    }
+
+    this.insert = function (position, element) {
+        // 校验边界
+        if (position > -1 && position <= length) {
+            var node = new Node(element);
+            current = head;
+            var index = 0;
+            var previous;
+
+            // 作为头节点，将新节点的next指向原有的头节点。
+            if (position == 0) {
+                node.next = current;
+
+                // 新节点赋值给头节点
+                head = node;                        
+            } else {
+                while (index++ < position) {
+                    previous = current;
+                    // 遍历结束得到当前position所在的current节点，和上一个节点
+                    current = current.next;
+                }         
+                // 上一个节点的next指向新节点  新节点指向当前结点，可以参照上图来看                          
+                previous.next = node;
+                node.next = current;
+            }
+            length++;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    this.toString = function () {
+        var current = head;
+        var string = '';
+        while (current) {
+            string += ',' + current.element;
+            current = current.next;
+        }
+        return string;
+    }
+
+    this.indexOf = function (element) {
+        var current = head;
+        var index = -1;
+        while (current) {
+            // 从头节点开始遍历
+            if (element === current.element) {
+                return index;
+            }
+            index++;
+            current = current.next;
+        }
+        return -1;
+    }
+
+    this.getLength = function () {
+        return length;
+    }
+
+    this.getHead = function () {
+        return head;
+    }
+
+    this.isEmpty = function () {
+        return length == 0;
+    }
 }
