@@ -4,7 +4,7 @@ import { Form, Input, Icon, Checkbox, Button } from 'antd';
 import { email_reg, user_name } from '../../../utils/Regexp';
 import './login.less'
 import API from '../../../services/API';
-import { domain } from '../../../utils';
+import { mainDomain } from '../../../utils';
 interface Props {
 
 }
@@ -94,7 +94,7 @@ class Login extends Component<Props, State> {
                     }}>
                         现在注册！
                     </Button>
-                    <a href={domain + API.auth.qqLogin}>
+                    <a href={mainDomain + API.auth.qqLogin}>
                         <Button icon="qq" type="link">
                         </Button>
                     </a>

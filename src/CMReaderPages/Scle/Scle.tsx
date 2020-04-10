@@ -502,7 +502,7 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 	// }
 	async componentDidMount() {
 		window.isPhone = IsPhone()
-		const { pid, title, link } = queryString(location.href)
+		const { pid, title, link,lic } = queryString(location.href)
 		document.title = title || '三维模型'
 		// console.log(pid, title);
 		// getByRequest('http://www.featuremaker.xyz/rs/141/3ae039d37c1c23894743376be1d6/1143.scle')
@@ -515,7 +515,7 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 		}
 		let files;
 		try {
-			files = await get(API.fileInfo.cle, { pid })
+			files = await get(API.fileInfo.cle, { pid, lic })
 		} catch (error) {
 			console.log(error);
 		}

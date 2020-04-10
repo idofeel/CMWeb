@@ -59,7 +59,7 @@ const replaceState = (urlSearch: string, payload: pageParams) => {
 // const domain = "http://cle.aijk.xyz"
 const domain = "/"
 
-// const domain = "http://www.featuremaker.xyz"
+const mainDomain = "http://www.featuremaker.xyz"
 
 /**
  *
@@ -122,5 +122,5 @@ const postForm = (url: string, formdata: FormData, showmsg?: string) => {
 	)
 }
 
-export { joinUrlEncoded, parseUrl, urlEncoded, queryString, get, post, postForm, replaceState, domain }
+export { joinUrlEncoded, parseUrl, urlEncoded, queryString, get, post, postForm, replaceState, domain,mainDomain }
 export default request

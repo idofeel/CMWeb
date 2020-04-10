@@ -1,9 +1,9 @@
 import * as React from 'react';
-import CopyToClipboard from 'react-copy-to-clipboard';
 import API from '../../services/API';
 import request, { get, joinUrlEncoded } from '../../utils';
 import { Tabs, Button, Icon, Alert, Modal, message, Input } from 'antd';
 import CMList from '../../components/CMList/CMList';
+import CopyToClipboard from 'react-copy-to-clipboard';
 const { confirm } = Modal;
 const { TabPane } = Tabs;
 const { Search } = Input;
