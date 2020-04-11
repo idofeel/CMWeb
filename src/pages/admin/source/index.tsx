@@ -12,13 +12,22 @@ const { SubMenu } = Menu
 const { Search } = Input
 
 export interface ISourceAdminProps {
+    menus: any;
+    history: any;
 }
 
 export interface ISourceAdminState {
+    keyWords: string;
+    searching: boolean;
+    list: any;
+    empty: string | boolean;
+    selectKey: string[]
+
 }
 
 @connect(({ HomeStore }: any) => HomeStore)
 export default class SourceAdmin extends React.Component<ISourceAdminProps, ISourceAdminState> {
+    pageLoading: boolean;
     constructor(props: ISourceAdminProps) {
         super(props);
 
@@ -173,7 +182,7 @@ export default class SourceAdmin extends React.Component<ISourceAdminProps, ISou
 
     async search(value: string) {
         if (this.next === -1 || this.pageLoading) return;
-        this.pageLoading =true;
+        this.pageLoading = true;
         const res = await get(API.source.search, { name: value, st: this.next });
         let { list } = this.state;
         if (res.success) {
@@ -191,7 +200,7 @@ export default class SourceAdmin extends React.Component<ISourceAdminProps, ISou
                 searching: false
             }, () => this.next = -1)
         }
-        this.pageLoading =false;
+        this.pageLoading = false;
 
     }
 
@@ -245,8 +254,10 @@ export default class SourceAdmin extends React.Component<ISourceAdminProps, ISou
 
     private next: number = 0; // 开始下标
     async getData(id: string, st: number = this.next) {
-        if (st < 0) return;
+        if (st < 0 || this.pageLoading) return;
+        this.pageLoading = true;
         const res = await get(API.source.public, { ids: id, st });
+        this.pageLoading = false;
         let { list, empty } = this.state;
         if (res.success) {
             list = list.concat(this.setWidthAndHeight(res.data))

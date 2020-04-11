@@ -137,7 +137,7 @@ export default class CMReaderPage extends React.Component<ICMReaderPageProps, IC
             const filesize = file.data.filesize,
                 cleFile = file.data.cle,
                 contentid = file.data.id,
-                lesFile = joinUrlEncoded(domain + API.fileInfo.les, { pid, devid, lic }),
+                lesFile = joinUrlEncoded(location.origin + API.fileInfo.les, { pid, devid, lic }),
                 serverid = server.data.serverid;
             // console.log('OpenDRMFile', devid);
             // console.log('cleFile:' + cleFile);

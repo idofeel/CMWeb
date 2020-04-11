@@ -323,10 +323,11 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
         const res = await get(API.source.base, params)
         const cleRes = await get(API.fileInfo.cle, params)
         console.log('修改任务')
+        const uploadInfo = res.data[0]
         if (res.success && cleRes.success) {
             this.setState({
-                fileList: [{ uid: res.data.uid, name: cleRes.data.cle, status: 'done', url: cleRes.data.cle }],
-                uploadInfo: res.data[0],
+                fileList: [{ uid: uploadInfo.uid, name: cleRes.data.cle, status: 'done', url: cleRes.data.cle }],
+                uploadInfo,
             })
         } else {
             message.error(res.faildesc || cleRes.faildesc)

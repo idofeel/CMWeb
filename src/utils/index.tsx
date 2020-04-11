@@ -122,5 +122,5 @@ const postForm = (url: string, formdata: FormData, showmsg?: string) => {
 	)
 }
 
-export { joinUrlEncoded, parseUrl, urlEncoded, queryString, get, post, postForm, replaceState, domain,mainDomain }
+export { joinUrlEncoded, parseUrl, urlEncoded, queryString, get, post, postForm, replaceState, domain }
 export default request

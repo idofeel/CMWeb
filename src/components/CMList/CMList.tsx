@@ -129,7 +129,7 @@ export default class CMList extends React.Component<ICMListProps, ICMListState> 
 
     goCMReader(item: ListItem) {
         const params = queryString(location.href);
-        const origin = location.origin + '/web/cmweb.html#/'
+        const origin = location.origin + location.pathname + 'cmweb.html#/'
         const href = joinUrlEncoded(origin, {
             pid: item.pid,
             title: item.name,

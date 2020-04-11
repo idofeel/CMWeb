@@ -4,7 +4,6 @@ import { Form, Input, Icon, Checkbox, Button } from 'antd';
 import { email_reg, user_name } from '../../../utils/Regexp';
 import './login.less'
 import API from '../../../services/API';
-import { mainDomain } from '../../../utils';
 interface Props {
 
 }
