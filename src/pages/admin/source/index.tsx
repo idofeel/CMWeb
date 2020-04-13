@@ -261,11 +261,14 @@ export default class SourceAdmin extends React.Component<ISourceAdminProps, ISou
         let { list, empty } = this.state;
         if (res.success) {
             list = list.concat(this.setWidthAndHeight(res.data))
-            this.next = res.next;
         } else {
+
             empty = `当前分类${res.faildesc || '资源加载失败'} `
         }
-        this.setState({ list })
+
+        this.next = res.next || -1;
+
+        this.setState({ list, empty })
     }
 
     setWidthAndHeight(data: any[]) {
