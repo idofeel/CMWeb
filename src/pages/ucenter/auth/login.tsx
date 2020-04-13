@@ -93,10 +93,10 @@ class Login extends Component<Props, State> {
                     }}>
                         现在注册！
                     </Button>
-                    <a href={API.auth.qqLogin}>
+                    {/* <a href={API.auth.qqLogin}>
                         <Button icon="qq" type="link">
                         </Button>
-                    </a>
+                    </a> */}
                 </Form.Item>
             </Form >
         );
