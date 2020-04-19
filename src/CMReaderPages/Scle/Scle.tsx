@@ -69,6 +69,8 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 			multipleSelcet: false, // 是否允许多选
 			isVisible: true, // 模型是否可见
 			Tips: false, // 
+			statusCode:0,
+			cleStatus:[ '模型下载中...', '模型打开中,请稍等...','模型下载失败',],
 			alphaRange: 1, // 透明度调节条
 			background: { // 调色板
 				r: 255,
@@ -83,6 +85,7 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 		window.setAnmiIcon = this.setAnmiIcon
 		window.setPickObjectParameters = this.pickObjectParameters
 		window.getCurFrame = (CurFrame) => this.getCurFrame(CurFrame)
+		window.cleStreamReady = ()=> this.cleStreamReady();
 		window.pickNull = this.pickNull
 		this.totalFrames = 0
 	}
@@ -90,7 +93,7 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 	keyCode = 0
 	cleDownload: any = null
 	public render() {
-		const { Tips, loading, treeData, AnimationPlay, ModelTreeVisible, ModelParamsVisible, treeNodeCheckedKeys, multipleSelcet, treeNodeSelectKeys, paramsData, AnimatePercent, background, isVisible, alphaRange, AnimateStop, expandedKeys } = this.state
+		const { Tips,cleStatus,statusCode, loading, treeData, AnimationPlay, ModelTreeVisible, ModelParamsVisible, treeNodeCheckedKeys, multipleSelcet, treeNodeSelectKeys, paramsData, AnimatePercent, background, isVisible, alphaRange, AnimateStop, expandedKeys } = this.state
 
 		return (
 			<div className="scleContainer">
@@ -107,7 +110,7 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 							percent={this.state.percent}
 							status="active"
 						/>}
-						<p>{Tips ? '模型下载失败' : '模型下载中...'}</p>
+						<p>{cleStatus[statusCode]}</p>
 					</div>
 				</div> :
 					<>
@@ -502,13 +505,11 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 	// }
 	async componentDidMount() {
 		window.isPhone = IsPhone()
-		const { pid, title, link,lic } = queryString(location.href)
+		const { pid, title, link, lic } = queryString(location.href)
 		document.title = title || '三维模型'
 		// console.log(pid, title);
-		// getByRequest('http://www.featuremaker.xyz/rs/141/3ae039d37c1c23894743376be1d6/1143.scle')
-		// getByRequest('../../src/assets/1.scle')
-		// getByRequest('../../src/assets/1f2f.scle')
-
+		// getByRequest('../../src/assets/Cable2Line.zip');
+		// return
 		if (link) {
 			this.openLink(link);
 			return
@@ -607,6 +608,15 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 			// AnimationPlay: !(nAnimatePercent > 100)
 		})
 	}
+	cleStreamReady(){
+		console.log('cleStreamReady');
+		
+		this.setState({
+			loading: false,
+			Tips: false,
+		})
+		this.loadTree();
+	}
 	updateProgress = async (evt: any) => {
 		// console.log(evt);
 
@@ -618,13 +628,14 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 			if (evt.loaded / evt.total === 1 && evt.target.status < 300) {
 				await this.sleep(500)
 				this.setState({
-					loading: false
+					Tips: false,
+					statusCode: 1,
 				})
-				this.loadTree()
 			}
 			if (evt.target.status === 404) {
 				this.setState({
-					Tips: true
+					Tips: true,
+					statusCode:2,
 				})
 			}
 			g_nCleBufferlength = evt.total;
@@ -754,7 +765,8 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 	transferFailed = (evt: any) => {
 		// message.error("下载文件失败！");
 		this.setState({
-			Tips: true
+			Tips: true,
+			statusCode:2
 		})
 	}
 	setAnmiIcon = (isPause: boolean) => {

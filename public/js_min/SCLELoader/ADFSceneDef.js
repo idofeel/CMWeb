@@ -134,19 +134,19 @@ function CleStreamResFileInfo(){this._name='';this._size=0;this._reserve=0;}
 function ADF_CONFIG_SAVEDATA(){this._nCameraProjectType=ADFCP_PERSPECTIVE;this._nCoordsType=ADFCST_RIGHTHAND;;this._nSceneUpType=ADFCUT_Y;this._stuSceneUnit=new ADF_SCENE_UNIT();this.Clear=function(){this._nCameraProjectType=ADFCP_PERSPECTIVE;this._nCoordsType=ADFCST_RIGHTHAND;;this._nSceneUpType=ADFCUT_Y;this._stuSceneUnit.Clear();}
 this.Clone=function(){var newData=new ADF_CONFIG_SAVEDATA();newData._nCameraProjectType=this._nCameraProjectType;newData._nCoordsType=this._nCoordsType;newData._nSceneUpType=this._nSceneUpType;newData._stuSceneUnit.Copy(this._stuSceneUnit);return newData;}
 this.Copy=function(data){this._nCameraProjectType=data._nCameraProjectType;this._nCoordsType=data._nCoordsType;this._nSceneUpType=data._nSceneUpType;this._stuSceneUnit.Copy(data._stuSceneUnit);}}
-function ADF_COMMENTPROPERTY(){this._strUserName='';this._strDateTime='';this._uStartFrameID=0;this._uFrameSize=0;this._nCommentType=0;this._stuCamera=new ADF_CAMERA();this.Clear=function(){this._strUserName='';this._strDateTime='';this._nCommentType=0;this._camera.Clear();this._stuCamera._vUp.y=1.0;this._stuCamera._vFocus.z=-1.0;this._uStartFrameID=0;this._uFrameSize=0;}
-this.Clone=function(){var newData=new ADF_COMMENTPROPERTY();newData._strUserName=this._strUserName;newData._strDateTime=this._strDateTime;newData._nCommentType=this._nCommentType;newData._camera.Copy(this._camera);newData._uStartFrameID=this._uStartFrameID;newData._uFrameSize=this._uFrameSize;return newData;}
-this.Copy=function(data){this._strUserName=data._strUserName;this._strDateTime=data._strDateTime;this._nCommentType=data._nCommentType;this._camera.Copy(data._camera);this._uStartFrameID=data._uStartFrameID;this._uFrameSize=data._uFrameSize;}}
+function ADF_COMMENTPROPERTY(){this._strUserName='';this._strDateTime='';this._uStartFrameID=0;this._uFrameSize=0;this._nCommentType=0;this._stuCamera=new ADF_CAMERA();this.Clear=function(){this._strUserName='';this._strDateTime='';this._nCommentType=0;this._stuCamera.Clear();this._stuCamera._vUp.y=1.0;this._stuCamera._vFocus.z=-1.0;this._uStartFrameID=0;this._uFrameSize=0;}
+this.Clone=function(){var newData=new ADF_COMMENTPROPERTY();newData._strUserName=this._strUserName;newData._strDateTime=this._strDateTime;newData._nCommentType=this._nCommentType;newData._stuCamera.Copy(this._stuCamera);newData._uStartFrameID=this._uStartFrameID;newData._uFrameSize=this._uFrameSize;return newData;}
+this.Copy=function(data){this._strUserName=data._strUserName;this._strDateTime=data._strDateTime;this._nCommentType=data._nCommentType;this._stuCamera.Copy(data._stuCamera);this._uStartFrameID=data._uStartFrameID;this._uFrameSize=data._uFrameSize;}}
 function ADF_TextStyle(){this.strFont='simfang';this.fHeight=3.5;this.fWidth=0.67;this.fThickness=0.0;this.fSlant=0.00;this.bUnderline=true;this.nHorJust=1;this.nVerJust=1;this.bMirror=false;this.bReadonly=false;this.fLineSpace=0.2;}
 function ADF_NoteInfo(){this.attachPos=new ADF_BASEFLOAT3();this.arrLeaderPos=new Array();this.strText='';this.strText2='';this.textStyle=new ADF_TextStyle();this.nArrowStyle=0;this.nLeaderStyle;this.fElbowLength=0.0;this.nTextDir=-1;this.strReserve='';this.Clear=function(){this.attachPos.Clear();this.arrLeaderPos.splice(0,this.arrLeaderPos.length);this.strText='';}
 this.Clone=function(){var newData=new ADF_NoteInfo();newData.attachPos.Copy(this.attachPos);for(var i in this.arrLeaderPos){newData.arrLeaderPos[i]=this.arrLeaderPos[i];}
 newData.strText=this.strText;return newData;}
 this.Copy=function(data){this.attachPos.Copy(data.attachPos);this.arrLeaderPos.splice(0,this.arrLeaderPos.length);for(var i in data.arrLeaderPos){this.arrLeaderPos[i]=data.arrLeaderPos[i];}
 this.strText=data.strText;}}
-function ADF_Annotation(){this.uID=-1;this.pNote=new ADF_NoteInfo();this.strOriAnnotID='';this.nType=0;this.strName='';this.annoPlaneLocal;this.annoRenderProp;this.uMtlID=-1;this.Clear=function(){this.uID=-1
-this.pNote.Clear();}
-this.Clone=function(){var newData=new ADF_Annotation();newData.uID=this.uID;newData.pNote.Copy(this.pNote);return newData;}
-this.Copy=function(data){this.uID=data.uID;this.pNote.Copy(data.pNote);}}
+function ADF_Annotation(){this.uID=-1;this.pNote=new ADF_NoteInfo();this.strOriAnnotID='';this.nType=0;this.strName='';this.annoPlaneLocal=new ADF_BASEFLOAT3();this.annoRenderProp;this.uMtlID=-1;this.Clear=function(){this.uID=-1
+this.pNote.Clear();this.annoPlaneLocal.Clear();}
+this.Clone=function(){var newData=new ADF_Annotation();newData.uID=this.uID;newData.pNote.Copy(this.pNote);newData.annoPlaneLocal.Copy(this.annoPlaneLocal);return newData;}
+this.Copy=function(data){this.uID=data.uID;this.pNote.Copy(data.pNote);this.annoPlaneLocal.Copy(data.annoPlaneLocal);}}
 function ADF_COMMENT(){this.stuAnnot=new ADF_Annotation();this.stuProperty=new ADF_COMMENTPROPERTY();this.Clear=function(){this.stuAnnot.Clear();this.stuProperty.Clear();}
 this.Clone=function(){var newData=new ADF_COMMENT();newData.stuAnnot.Copy(this.stuAnnot);newData.stuProperty.Copy(this.stuProperty);return newData;}
 this.Copy=function(data){this.stuAnnot.Copy(data.stuAnnot);this.stuProperty.Copy(data.stuProperty);}}
