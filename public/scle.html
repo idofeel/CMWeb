@@ -106,7 +106,9 @@
 	// 通过网络获取二进制数据
 	getByRequest = function (url) {
 		g_sclehttp = new XMLHttpRequest();
-		isZip = /[.](zip)$/.test(url)
+		// scle转换为zip		
+		url = url.replace('.scle', '.zip')
+		isZip = isZip = /[.](zip)$/.test(url)
 		fileName = url.replace(/(.*\/)*([^.]+).*/ig, "$2") + '.scle';
 
 		// 为事件添加事件监听，这些事件在使用 XMLHttpRequest 执行数据传输时被发出。
@@ -147,7 +149,6 @@
 		// alert("下载已取消！");
 	}
 
-
 	ReadcleStreamChange = function () {
 		if (g_sclehttp.readyState === 4 && g_sclehttp.status === 200) { // 4 = "loaded" // 200 = OK
 			console.log('g_sclehttp', g_sclehttp.response)
@@ -157,9 +158,7 @@
 				new_zip.loadAsync(g_sclehttp.response).then(function (zip) {
 					zip.files[fileName].async('arraybuffer').then(function (data) {
 						g_arrayByteBuffer = data;
-						g_nCleBufferlength = g_arrayByteBuffer.byteLength;
-
-						g_arrayCleBuffer = new DataView(g_arrayByteBuffer, 0, g_nCleBufferlength);
+							g_arrayCleBuffer = new DataView(g_arrayByteBuffer, 0, g_arrayByteBuffer.byteLength);
 						// 循环执行，每隔0.1秒钟执行一次
 						NetTimeTimeID = window.setInterval(StarLoadNetCLEFile, 100);
 					});
@@ -167,12 +166,10 @@
 
 			} else {
 				g_arrayByteBuffer = g_sclehttp.response;
-				g_arrayCleBuffer = new DataView(g_arrayByteBuffer, 0, g_nCleBufferlength);
+				g_arrayCleBuffer = new DataView(g_arrayByteBuffer, 0, g_arrayByteBuffer.byteLength);
 				// 循环执行，每隔0.1秒钟执行一次
 				NetTimeTimeID = window.setInterval(StarLoadNetCLEFile, 100);
 			}
-
-
 		}
 	}
 	cleStreamReady= function (){} // 
@@ -199,7 +196,6 @@
 		cleStreamReady();
 	}
 
-
 	var scrollFunc = function (e) {
 		e = e || window.event;
 		if (e.wheelDelta && event.ctrlKey) {//IE/Opera/Chrome
@@ -208,7 +204,6 @@
 			event.returnValue = false;
 		}
 	}
-
 
 	/*注册事件*/
 	if (document.addEventListener) {

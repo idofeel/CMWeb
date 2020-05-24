@@ -540,7 +540,7 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 	}
 
 	openLink(link: string) {
-		window.g_strResbaseUrl = link.replace(/(.scle)$/, '/');
+		window.g_strResbaseUrl = link.replace(/(.scle|.zip)$/, '/');
 		getByRequest(link)
 		canvasOnResize()
 	}
