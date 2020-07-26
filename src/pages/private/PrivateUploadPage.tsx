@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Steps, Button, message, Form, Input, Icon, Result, Upload, Modal } from 'antd';
+import { Steps, Button, message, Form, Input, Icon, Result, Upload, Modal, notification } from 'antd';
 import './PrivateUploadPage.less'
 import { get, post, postForm, queryString, domain } from '../../utils';
 import API from '../../services/API';
@@ -8,6 +8,7 @@ import ImgUpload from '../../components/ImgUpload/ImgUpload';
 import { connect } from 'dva';
 
 const { confirm } = Modal;
+const key = 'importNotification'
 export interface IPrivateUploadPageProps {
 }
 
@@ -17,6 +18,9 @@ export interface IPrivateUploadPageState {
     uploadInfo: uploadInfoProps
     cropperVisible: boolean;
     coverloading: boolean;
+    uploaded: boolean;
+    transFileing: boolean;
+    imporFileing: boolean;
 }
 
 interface uploadInfoProps {
@@ -64,7 +68,10 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
                 gid: '',
                 memo: {}
             },
+            transFileing: false,
+            uploaded: false,
             cropperVisible: false,
+            imporFileing: false,
             coverloading: false
         }
     }
@@ -107,7 +114,7 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
 
         console.log(this.state.uploadInfo);
 
-        const { treeData, defaultChecked, selectKeys, fileList } = this.state;
+        const { treeData, defaultChecked, selectKeys, fileList, transFileing, uploaded, imporFileing } = this.state;
         const { name } = steps[current]
         const formItemLayout = {
             labelCol: { span: 4 },
@@ -132,7 +139,12 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
                     <ImgUpload defaultImg={this.state.uploadInfo.img} ref={ref => this.imgUpload = ref} title="封面上传" imgw={240} imgh={135} cropperImg={this.UploadCover} />
                 </Form.Item>
                 <Form.Item label="CLE文件上传：" {...formItemLayout}>
-                    <CLEUpload startUpload={this.uploadCle} ref={(ref => this.cleupload = ref)} defaultList={fileList} />
+                    <CLEUpload
+                        disabled={transFileing === true}
+                        btnTitle={this.getUploadTitle()}
+                        startUpload={this.uploadCle}
+                        ref={(ref => this.cleupload = ref)}
+                        defaultList={fileList} />
                 </Form.Item>
             </>
         } else if (name === 'done') {
@@ -150,7 +162,17 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
         }
 
     }
-
+    getUploadTitle = () => {
+        const { transFileing, uploaded, imporFileing } = this.state;
+        let str = '点击上传'
+        if (transFileing) {
+            str = '文件转换中'
+        }
+        if (imporFileing) {
+            str = '文件导入中'
+        }
+        return str
+    }
 
     UploadCover = async (img: any) => {
         const { infoid } = this.state.uploadInfo
@@ -181,17 +203,7 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
         if (step.name === 'uploadFile') {
             // this.uploadCle();
             // 新建名称
-            const res = await this.uploadEnd()
-            if (res.success) {
-                this.uploadDone()
-                this.setState({
-                    current: current + 1
-                })
-            } else {
-                this.uploadUnDone();
-                message.error(res.faildesc)
-            }
-
+            this.queryTransFileStatus()
         }
         // 没有资源名称无法继续
         if (!this.state.uploadInfo.name) {
@@ -402,7 +414,12 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
     }
 
     async uploadChunk(chunkIndex: any, filesInfo: any, chunks: any, wholeid: any) {
-        if (chunkIndex >= filesInfo.file.fileChunks) return;
+        if (chunkIndex >= filesInfo.file.fileChunks) {
+            this.setState({
+                uploaded: true
+            })
+            return;
+        }
         let formData = new FormData(),
             blob = new Blob([chunks[chunkIndex].currentBuffer], { type: 'application/octet-stream' });
         console.log(chunkIndex);
@@ -418,17 +435,101 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
 
     }
 
-    async uploadEnd() {
+    async importFile() {
+        this.setState({
+            imporFileing: true, // 导入中
+            transFileing: false, // 转换中
+            uploaded: true, // 上传完成
+        })
+        notification.open({
+            key,
+            message: '导入中...',
+            duration: 0,
+            placement: 'bottomRight'
+        })
+        // 文件导入中
         const { infoid } = this.state.uploadInfo
-        return await get(API.private.import, { infoid })
+        const res = await get(API.private.import, { infoid })
+        if (res.success) {
+            // 文件导入完成
+            this.importDone()
+            notification.close(key);
+        } else {
+            // 文件导入未完成
+            this.uploadUnDone();
+            message.error(res.faildesc)
+        }
     }
+    // 查询文件转换状态
+    async queryTransFileStatus() {
+        const { infoid } = this.state.uploadInfo
 
-    uploadDone() {
-        console.log('上传完成');
+        const res = await get(API.private.cleFiletransStatus, { infoid }) // 获取上传
+        // 获取文件转换状态失败
+        if (!res.success) return message.warning(res.explain || '获取文件转换状态失败')
+
+        // 转换完成
+        if (res.state === res.done) {
+
+            this.importFile(); // 导入文件
+
+        } else if (res.state === res.cleing) { // 转换中
+
+            await this.sleep(3000) // 等待3s
+
+            this.queryTransFileStatus() // 查询转换状态
+
+        } else if (res.state === res.uploaded) { // 上传完成
+
+            this.transCleFile(); // 转换文件
+
+        } else if (res.state === res.undo) { // 上传未完成
+            this.uploadUnDone()
+            message.warning(res.explain || '文件上传未完成')
+
+        } else if (res.state === res.err) { // 转换失败
+            this.uploadUnDone()
+            message.warning(res.explain || '文件转换失败，请重试')
+
+        }
+    }
+    async transCleFile() {
+        notification.open({
+            key,
+            message: '文件转换中...',
+            duration: 0,
+            placement: 'bottomRight'
+        })
+        const { infoid } = this.state.uploadInfo
+        try {
+            const res = await get(API.private.convert, { infoid })
+            if (res.success) {
+                this.importFile(); // 导入文件
+            } else {
+                this.queryTransFileStatus()
+            }
+        }
+        catch (error) {
+            message.error('文件转换失败，请重试');
+            notification.close(key)
+        }
+    }
+    sleep(time: number) {
+        return new Promise((resolve) => setTimeout(resolve, time));
+    }
+    importDone() {
         message.success('上传完成')
+        this.setState({
+            current: this.state.current + 1
+        })
     }
     uploadUnDone() {
-
+        this.setState({
+            uploaded: false,
+            imporFileing: false,
+            transFileing: false
+        })
+        notification.close(key)
     }
 
 }

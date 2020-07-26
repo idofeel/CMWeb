@@ -59,6 +59,8 @@ export default {
         cleFile: '/?r=cle&d=importprivate&o=setfileinfo', //{infoid}
         cleChunk: '/?r=cle&d=importprivate&o=uploadchunk',
         cover: '/?r=cle&d=importprivate&o=cover',
+        convert: './r=cle&d=upload&o=convert', // {infoid}
+        cleFiletransStatus: './r=cle&d=upload&o=state', // {infoid}
         changeName: '/?r=cle&d=importprivate&o=resetname', //{infoid,name}
         import: '/?r=cle&d=importprivate&o=import',
         cancel: '/?r=cle&d=importprivate&o=cancel',

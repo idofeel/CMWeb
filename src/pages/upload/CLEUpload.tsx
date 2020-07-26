@@ -1,19 +1,26 @@
 import * as React from 'react';
 import { Upload, Icon, Button, message, Progress } from 'antd';
 import SparkMD5 from 'spark-md5'
-import { get, post, postForm } from '../../utils';
-import API from '../../services/API';
+// import { get, post, postForm } from '../../utils';
+// import API from '../../services/API';
 export interface ICLEUploadProps {
-    startUpload?: (params: any, arrayBufferData: any) => void
+    startUpload?: (params: any, arrayBufferData: any) => void,
+    btnTitle: string;
+    disabled: boolean;
+    defaultList: any[];
 }
 
 export interface ICLEUploadState {
-    fileList: any[],
-    percent: number,
-    showProgress: boolean
+    fileList: any[];
+    percent: number;
+    showProgress: boolean;
 }
 
 export default class CLEUpload extends React.Component<ICLEUploadProps, ICLEUploadState> {
+    static defaultProps = {
+        btnTitle: '点击上传',
+        disabled: false
+    }
     constructor(props: ICLEUploadProps) {
         super(props);
 
@@ -63,13 +70,14 @@ export default class CLEUpload extends React.Component<ICLEUploadProps, ICLEUplo
                 this.setState({ fileList });
             },
         };
+        const { disabled, btnTitle } = this.props
         return (
             <div style={{ textAlign: 'left' }}>
                 <Upload {...uploadProps} fileList={this.state.fileList} disabled={this.state.percent > 0}>
-                    <Button icon="upload" onClick={() => {
+                    <Button icon="upload" disabled={disabled} onClick={() => {
                         return
                     }}>
-                        点击上传
+                        {btnTitle}
                     </Button>
                 </Upload>
                 {(this.state.percent !== 0 && this.state.showProgress) && < Progress percent={this.state.percent} size="small" status="active" />}

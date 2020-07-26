@@ -1,7 +1,7 @@
 /** @format */
 
 import React from "react"
-import { Router, Route, Switch } from "dva/router"
+import { Router, Switch } from "dva/router"
 import SubRoutes from "./utils/SubRoutes"
 
 const RoutersConfig = [

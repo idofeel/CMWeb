@@ -1,6 +1,7 @@
 /** @format */
 
 import request from "./request"
+import domain from "./domainConfig"
 
 interface pageParams {
 	selectKey: string
@@ -55,11 +56,6 @@ const replaceState = (urlSearch: string, payload: pageParams) => {
 	window.history.replaceState({}, "0", joinUrlEncoded(param[0], parmas))
 }
 
-// const domain = "http://fm.aijk.xyz"
-// const domain = "http://cle.aijk.xyz"
-const domain = ""
-
-const mainDomain = "http://www.featuremaker.xyz"
 
 /**
  *
