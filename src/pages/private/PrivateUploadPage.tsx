@@ -24,6 +24,7 @@ export interface IPrivateUploadPageState {
 }
 
 interface uploadInfoProps {
+    history: any,
     name: string // 资源名称
     infoid: number
     uid: string
@@ -70,8 +71,8 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
             },
             transFileing: false,
             uploaded: false,
+            imporFileing: false, // 入库中
             cropperVisible: false,
-            imporFileing: false,
             coverloading: false
         }
     }
@@ -443,7 +444,8 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
         })
         notification.open({
             key,
-            message: '导入中...',
+            message: '入库中...',
+            description: '文件上传完成，转换完成，正在入库。',
             duration: 0,
             placement: 'bottomRight'
         })
@@ -453,7 +455,6 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
         if (res.success) {
             // 文件导入完成
             this.importDone()
-            notification.close(key);
         } else {
             // 文件导入未完成
             this.uploadUnDone();
@@ -497,6 +498,7 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
         notification.open({
             key,
             message: '文件转换中...',
+            description: '文件上传完成，正在转换文件...',
             duration: 0,
             placement: 'bottomRight'
         })
@@ -520,8 +522,12 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
     importDone() {
         message.success('上传完成')
         this.setState({
-            current: this.state.current + 1
+            current: this.state.current + 1,
+            imporFileing: false,
+            transFileing: false,
+            uploaded: true, // 
         })
+        notification.close(key)
     }
     uploadUnDone() {
         this.setState({
