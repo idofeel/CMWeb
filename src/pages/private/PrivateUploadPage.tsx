@@ -432,6 +432,10 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
         if (res.success) {
             this.cleupload.changePercent(parseInt(++chunkIndex / chunks.length * 100))
             this.uploadChunk(chunkIndex, filesInfo, chunks, wholeid)
+        }else{
+            message.warning(res.faildesc||'上传失败，请重新上传')
+            this.cleupload.changePercent(0)
+            this.cleupload.setFileList()
         }
 
     }

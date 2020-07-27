@@ -91,6 +91,11 @@ export default class CLEUpload extends React.Component<ICLEUploadProps, ICLEUplo
         console.log(nextProps);
 
     }
+    setFileList(fileList: any = []){
+        this.setState({
+            fileList
+        })
+    }
     changePercent(percent: number) {
         this.setState({
             percent: percent,
