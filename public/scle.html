@@ -156,7 +156,13 @@
 				// 兼容写法
 				var new_zip = new JSZip();
 				new_zip.loadAsync(g_sclehttp.response).then(function (zip) {
-					zip.files[fileName].async('arraybuffer').then(function (data) {
+                    const key = ()=>{
+                        for (let i in zip.files){
+                            return i
+                        }
+                    }
+					zip.files[key()].async('arraybuffer').then(function (data) {
+                    console.log(`%c ${new Date()}`,`color:#0f0;`,`: ReadcleStreamChange -> data`, data);
 						g_arrayByteBuffer = data;
 							g_arrayCleBuffer = new DataView(g_arrayByteBuffer, 0, g_arrayByteBuffer.byteLength);
 						// 循环执行，每隔0.1秒钟执行一次
