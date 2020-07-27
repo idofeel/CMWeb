@@ -123,7 +123,6 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
         console.log(this.state.uploadInfo);
 
         const { treeData, defaultChecked, selectKeys, fileList, transFileing, uploaded, imporFileing } = this.state;
-        const { treeData, defaultChecked, selectKeys, fileList } = this.state;
         const { name } = steps[current]
         const formItemLayout = {
             labelCol: { span: 4 },
