@@ -481,7 +481,7 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
         })
         // 文件导入中
         const { infoid } = this.state.uploadInfo
-        const res = await get(API.private.import, { infoid })
+        const res = await get(API.public.import, { infoid })
         if (res.success) {
             // 文件导入完成
             this.importDone()

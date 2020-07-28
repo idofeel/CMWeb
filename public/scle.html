@@ -162,7 +162,6 @@
                         }
                     }
 					zip.files[key()].async('arraybuffer').then(function (data) {
-                    console.log(`%c ${new Date()}`,`color:#0f0;`,`: ReadcleStreamChange -> data`, data);
 						g_arrayByteBuffer = data;
 							g_arrayCleBuffer = new DataView(g_arrayByteBuffer, 0, g_arrayByteBuffer.byteLength);
 						// 循环执行，每隔0.1秒钟执行一次
