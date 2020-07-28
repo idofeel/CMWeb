@@ -156,8 +156,8 @@
 				// 兼容写法
 				var new_zip = new JSZip();
 				new_zip.loadAsync(g_sclehttp.response).then(function (zip) {
-                    const key = ()=>{
-                        for (let i in zip.files){
+                    var key = function () {
+                        for (let i in zip.files) {
                             return i
                         }
                     }
