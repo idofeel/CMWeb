@@ -472,7 +472,7 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
         const res = await get(API.private.cleFiletransStatus, { infoid }) // 获取上传
         // 获取文件转换状态失败
         if (!res.success) return message.warning(res.explain || '获取文件转换状态失败')
-
+        res.state *= 1
         // 转换完成
         if (res.state === res.done) {
 
