@@ -95,7 +95,7 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
                         </Button>
                     )}
                     {current === steps.length - 1 && (
-                        <Button type="primary" onClick={() => message.success('Processing complete!')}>
+                        <Button type="primary" onClick={() => this.props.history.push('/private')}>
                             完成
                         </Button>
                     )}
@@ -225,7 +225,6 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
         const step = steps[current]
         current += 1
         if (step.name === 'name') {
-            console.log('stepstepstep', step.name);
             // this.uploadCle();
             // 新建名称
             this.hasUndone()
@@ -432,8 +431,8 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
         if (res.success) {
             this.cleupload.changePercent(parseInt(++chunkIndex / chunks.length * 100))
             this.uploadChunk(chunkIndex, filesInfo, chunks, wholeid)
-        }else{
-            message.warning(res.faildesc||'上传失败，请重新上传')
+        } else {
+            message.warning(res.faildesc || '上传失败，请重新上传')
             this.cleupload.changePercent(0)
             this.cleupload.setFileList()
         }
