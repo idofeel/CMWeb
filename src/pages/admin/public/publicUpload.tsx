@@ -23,6 +23,7 @@ export interface IPrivateUploadPageState {
     uploaded: boolean;
     transFileing: boolean;
     imporFileing: boolean;
+    sourceId:any;
 }
 
 interface uploadInfoProps {
@@ -76,6 +77,7 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
                 gid: '',
                 memo: {}
             },
+            sourceId:'',
             transFileing: false,
             uploaded: false,
             imporFileing: false, // 入库中
@@ -119,8 +121,6 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
     imgUpload: any = null
 
     renderContent(current: number) {
-
-        console.log(this.state.uploadInfo);
 
         const { treeData, defaultChecked, selectKeys, fileList, transFileing, uploaded, imporFileing } = this.state;
         const { name } = steps[current]
@@ -221,6 +221,7 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
             // this.uploadCle();
             // 新建名称
             this.queryTransFileStatus()
+            return 
         }
         // 没有资源名称无法继续
         if (!this.state.uploadInfo.name) {
@@ -231,9 +232,9 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
         }
 
         // 
-        // this.setState({
-        //     current: current + 1
-        // })
+        this.setState({
+            current: current + 1
+        })
     }
 
     prev() {
@@ -484,7 +485,7 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
         const res = await get(API.public.import, { infoid })
         if (res.success) {
             // 文件导入完成
-            this.importDone()
+            this.importDone(res.data)
         } else {
             // 文件导入未完成
             this.uploadUnDone();
@@ -549,9 +550,10 @@ export default class PrivateUploadPage extends React.Component<IPrivateUploadPag
     sleep(time: number) {
         return new Promise((resolve) => setTimeout(resolve, time));
     }
-    importDone() {
+    importDone(sourceId:any) {
         message.success('上传完成')
         this.setState({
+            sourceId,
             current: this.state.current + 1,
             imporFileing: false,
             transFileing: false,
