@@ -19,6 +19,7 @@ export interface ICMListProps extends CMListProps {
     onEdit: () => void
     onDelete: () => void
     onShare: () => void
+    onDownLoad: () => void,
     actions?: React.ReactNode[]
     hasMore: boolean
 }
@@ -105,11 +106,12 @@ export default class CMList extends React.Component<ICMListProps, ICMListState> 
     }
 
     renderActions(item: any, index: number) {
-        const { onDelete, onEdit, onShare } = this.props;
+        const { onDelete, onEdit, onShare, onDownLoad } = this.props;
         let TempActions = [];
-        if (onDelete) TempActions.push(<Icon type="delete" key="delete" onClick={(e: React.MouseEvent) => this.stopPre(e, item, index onDelete)} />)
-        if (onEdit) TempActions.push(<Icon type="edit" key="edit" onClick={(e: React.MouseEvent) => this.stopPre(e, item, index onEdit)} />)
-        if (onShare) TempActions.push(<IconFont type="icon-share" key="share" onClick={(e: React.MouseEvent) => this.stopPre(e, item, index onShare)} />)
+        if (onDelete) TempActions.push(<Icon type="delete" key="delete" onClick={(e: React.MouseEvent) => this.stopPre(e, item, index, onDelete)} />)
+        if (onEdit) TempActions.push(<Icon type="edit" key="edit" onClick={(e: React.MouseEvent) => this.stopPre(e, item, index, onEdit)} />)
+        if (onShare) TempActions.push(<IconFont type="icon-share" key="share" onClick={(e: React.MouseEvent) => this.stopPre(e, item, index, onShare)} />)
+        if (onDownLoad) TempActions.push(<Icon type="download" key="download" onClick={(e: React.MouseEvent) => this.stopPre(e, item, index, onDownLoad)} />)
         return TempActions;
     }
 
@@ -119,7 +121,7 @@ export default class CMList extends React.Component<ICMListProps, ICMListState> 
         callback(item, index)
     }
 
-    UNSAFE_componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps: any) {
         if (this.state.modify !== nextProps.modify) {
             this.setState({
                 modify: nextProps.modify

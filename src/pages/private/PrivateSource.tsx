@@ -61,10 +61,31 @@ export default class PrivateSource extends React.Component<IPrivateSourceProps, 
                         onShare={(item, index) => {
                             this.info(item, index)
                         }}
+                        onDownLoad={(item, index) => {
+                            // console.log(item, index);
+                            this.download(item, index)
+                        }}
                     />
                 </div>
             </div>
         );
+    }
+    async download(item: any, index: number) {
+        const res = await get(API.source.share, { pid: item.pid, count: 0, days: 30 });
+        if (!res.success) return message.error(res.faildesc || '下载失败');
+        const value = joinUrlEncoded(`${location.origin}/?r=cle&d=download`, { lic: res.lic, pid: item.pid })
+        console.log(value);
+        const download = (url: any, fileName: string) => {
+            const eleLink = document.createElement('a');
+            eleLink.style.display = 'none';
+            eleLink.target = "_blank"
+            eleLink.href = url;
+            // eleLink.download = fileName;
+            document.body.appendChild(eleLink);
+            eleLink.click();
+            document.body.removeChild(eleLink);
+        }
+        download(value, item.name)
     }
 
     async info(item, index) {
