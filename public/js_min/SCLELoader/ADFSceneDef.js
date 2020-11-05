@@ -60,8 +60,8 @@ this.Copy=function(data){this._arrObjSaveData.splice(0,this._arrObjSaveData.leng
 function ADF_MODELSUBSET_SAVEDATA(){this._nPrimitType=ADFPT_TRIANGLELIST;this._uStartIndex=0;this._uIndexCount=0;this._box=new ADF_BBOX();this.Clear=function(){this._nPrimitType=ADFPT_TRIANGLELIST;this._uStartIndex=0;this._uIndexCount=0;this._box.Clear();}
 this.Clone=function(){var newData=new ADF_MODELSUBSET_SAVEDATA();newData._nPrimitType=this._nPrimitType;newData._uStartIndex=this._uStartIndex;newData._uIndexCount=this._uIndexCount;newData._box.Copy(this._box);return newData;}
 this.Copy=function(data){this._nPrimitType=data._nPrimitType;this._uStartIndex=data._uStartIndex;this._uIndexCount=data._uIndexCount;this._box.Copy(data._box);}}
-function ADF_MODEL_SAVEDATA(){this._arrVertexData=null;this._arrIndexData=null;this._arrSubset=new Array();this._arrSurface=new Array();this._arrCurve=new Array();this._box=new ADF_BBOX();this.Clear=function(){if(_arrIndexData!=null)
-this._arrIndexData.splice(0,this._arrIndexData.length);this._arrSubset.splice(0,this._arrSubset.length);this._arrSurface.splice(0,this._arrSurface.length);this._arrCurve.splice(0,this._arrCurve.length);this._box.Clear();}}
+function ADF_MODEL_SAVEDATA(){this._arrVertexData=null;this._arrIndexData=null;this._arrSubset=new Array();this._arrSurface=new Array();this._arrCurve=new Array();this._box=new ADF_BBOX();this._uIsUV=1;this.Clear=function(){if(_arrIndexData!=null){this._arrIndexData.splice(0,this._arrIndexData.length);}
+this._arrSubset.splice(0,this._arrSubset.length);this._arrSurface.splice(0,this._arrSurface.length);this._arrCurve.splice(0,this._arrCurve.length);this._box.Clear();this._uIsUV=1;}}
 function ADF_MODEL(){this._uModelID=-1;this._strModelName='';this._stuModelData=new ADF_MODEL_SAVEDATA();this.Clear=function(){this._uModelID=-1;this._strModelName='';this._stuModelData.Clear();}
 this.Clone=function(){var newData=new ADF_MODEL();newData._uModelID=this._uModelID;newData._strModelName=this._strModelName;newData._stuModelData.Copy(this._stuModelData);return newData;}
 this.Copy=function(data){this._uModelID=data._uModelID;this._strModelName=data._strModelName;this._stuModelData.Copy(data._stuModelData);}}
@@ -130,7 +130,7 @@ this.Copy=function(data){this.uResID=data.uResID;this.nType=data.nType;this.strF
 function ADF_FILE_OPINFO(){this._FileInfo=new ADF_ResFileInfo();this._nFileOpType=ADF_FILEOP_INVALID;this.Clear=function(){this._FileInfo.Clear();this._nFileOpType=ADF_FILEOP_INVALID;}
 this.Clone=function(){var newData=new ADF_FILE_OPINFO();newData._FileInfo.Copy(this._FileInfo);newData._nFileOpType=this._nFileOpType;return newData;}
 this.Copy=function(data){this._FileInfo.Copy(data._FileInfo);this._nFileOpType=data._nFileOpType;}}
-function CleStreamResFileInfo(){this._name='';this._size=0;this._reserve=0;}
+function CleStreamResFileInfo(){this._name='';this._size=0;this._reserve=0;this._imageWidth=0;this._imageHeight=0;this._imageData=null;}
 function ADF_CONFIG_SAVEDATA(){this._nCameraProjectType=ADFCP_PERSPECTIVE;this._nCoordsType=ADFCST_RIGHTHAND;;this._nSceneUpType=ADFCUT_Y;this._stuSceneUnit=new ADF_SCENE_UNIT();this.Clear=function(){this._nCameraProjectType=ADFCP_PERSPECTIVE;this._nCoordsType=ADFCST_RIGHTHAND;;this._nSceneUpType=ADFCUT_Y;this._stuSceneUnit.Clear();}
 this.Clone=function(){var newData=new ADF_CONFIG_SAVEDATA();newData._nCameraProjectType=this._nCameraProjectType;newData._nCoordsType=this._nCoordsType;newData._nSceneUpType=this._nSceneUpType;newData._stuSceneUnit.Copy(this._stuSceneUnit);return newData;}
 this.Copy=function(data){this._nCameraProjectType=data._nCameraProjectType;this._nCoordsType=data._nCoordsType;this._nSceneUpType=data._nSceneUpType;this._stuSceneUnit.Copy(data._stuSceneUnit);}}

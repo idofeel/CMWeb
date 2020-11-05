@@ -36,7 +36,7 @@ if(this._Vertex[i].z>maxZ){maxZ=this._Vertex[i].z;}}
 maxPoint.x=maxX,maxPoint.y=maxY,maxPoint.z=maxZ;}}
 function GL_BoxSet(){this._ObjectBox=new GL_Box();this._SurfaceBoxes=new Array();this.Clear=function(){this._SurfaceBoxes.splice(0,this.surfaceBoxes.length);}}
 function GL_Vertex_Index(start,end){this._startIndex=start;this._endIndex=end;this.Copy=function(data){this._startIndex=data._startIndex;this._endIndex=data._endIndex;}}
-function GL_PARTLODDATA(){this._uLevel=0;this._fZDist=0;this._arrVertex=null;this._arrSubsetPrimitType=null;this._arrSurfaceVertexNum=new Array();this._arrCurveVertexNum=new Array();this._boxset=new GL_BoxSet();this.Clear=function(){if(this._arrVertex!=null){this._arrVertex.splice(0,this._arrVertex.length);}
+function GL_PARTLODDATA(){this._uLevel=0;this._fZDist=0;this._arrVertex=null;this._arrSubsetPrimitType=null;this._arrSurfaceVertexNum=new Array();this._arrCurveVertexNum=new Array();this._boxset=new GL_BoxSet();this._uIsUV=1;this.Clear=function(){if(this._arrVertex!=null){this._arrVertex.splice(0,this._arrVertex.length);}
 if(this._arrSubsetPrimitType!=null){this._arrSubsetPrimitType.splice(0,this._arrSubsetPrimitType.length);}
 this._arrSurfaceVertexNum.splice(0,this._arrSurfaceVertexNum.length);this._arrCurveVertexNum.splice(0,this._arrCurveVertexNum.length)
 this._boxset.Clear();}}
@@ -57,6 +57,9 @@ function GL_ANNOTATION(){this._arrComment=new Array();}
 const GL_ORIGINAL=0;const GL_USERDEFINE=1;const GL_USERPICKED=2;const GLTRANS_ALL=1;const GLTRANS_PART=2;const GLTRANS_NO=3;const GL_SCENEUPTYPEX=0;const GL_SCENEUPTYPEY=1;const GL_SCENEUPTYPEZ=2;var oldVec=vec3.create();var newVec=vec3.create();function CalTranslatePoint(x,y,z,ObjectMat,newPoint){oldVec[0]=x,oldVec[1]=y,oldVec[2]=z;vec3.transformMat4(newVec,oldVec,ObjectMat);newPoint.x=newVec[0],newPoint.y=newVec[1],newPoint.z=newVec[2];}
 function CalMat4(matAdfOut,matGlOut){mat4.set(matGlOut,matAdfOut._11,matAdfOut._12,matAdfOut._13,matAdfOut._14,matAdfOut._21,matAdfOut._22,matAdfOut._23,matAdfOut._24,matAdfOut._31,matAdfOut._32,matAdfOut._33,matAdfOut._34,matAdfOut._41,matAdfOut._42,matAdfOut._43,matAdfOut._44);}
 function CalADFMat(matrix){let adfMat=new ADF_BASEMATRIX();adfMat._11=matrix[0],adfMat._12=matrix[1],adfMat._13=matrix[2],adfMat._14=matrix[3];adfMat._21=matrix[4],adfMat._22=matrix[5],adfMat._23=matrix[6],adfMat._24=matrix[7];adfMat._31=matrix[8],adfMat._32=matrix[9],adfMat._33=matrix[10],adfMat._34=matrix[11];adfMat._41=matrix[12],adfMat._42=matrix[13],adfMat._43=matrix[14],adfMat._44=matrix[15];return adfMat;}
+function GetStringLength(str){var slength=0;for(i=0;i<str.length;i++){if((str.charCodeAt(i)>=0)&&(str.charCodeAt(i)<=255)){slength=slength+1;}
+else{slength=slength+2;}}
+return slength;}
 var djb2Code=function(id){return id%1000;}
 function HashMap(){var map=[];var keyValPair=function(key,value){this.key=key;this.value=value;}
 this.put=function(key,value){var position=djb2Code(key);if(map[position]==undefined){map[position]=new LinkedList();}

@@ -101,16 +101,13 @@
 	// 当前下载的长度，Uint32     
 	var g_loaded_pos = 0;
 	var NetTimeTimeID;
-	var isZip = false;
-	var fileName = '';
+
 	// 通过网络获取二进制数据
 	getByRequest = function (url) {
 		g_sclehttp = new XMLHttpRequest();
 		// scle转换为zip		
-		url = url.replace('.scle', '.zip')
-		isZip = isZip = /[.](zip)$/.test(url)
-		fileName = url.replace(/(.*\/)*([^.]+).*/ig, "$2") + '.scle';
-
+		// url = url.replace('.scle', '.zip')
+	
 		// 为事件添加事件监听，这些事件在使用 XMLHttpRequest 执行数据传输时被发出。
 		g_sclehttp.addEventListener("progress", updateProgress, false);
 		g_sclehttp.addEventListener("load", transferComplete, false);
@@ -118,7 +115,7 @@
 		g_sclehttp.addEventListener("abort", transferCanceled, false);
 
 		g_sclehttp.open("GET", url, true);                                  // true 表示异步，false表示同步
-		g_sclehttp.responseType = isZip ? "blob" : "arraybuffer";           // XMLHttpRequest Level 2 规范中新加入了 responseType 属性 ，使得发送和接收二进制数据变得更加容易 
+		g_sclehttp.responseType = "arraybuffer";           // XMLHttpRequest Level 2 规范中新加入了 responseType 属性 ，使得发送和接收二进制数据变得更加容易 
 
 		// g_sclehttp.responseType = "blob";                            
 		// g_sclehttp.overrideMimeType("text/plain; charset=x-user-defined");  // XMLHttpRequest 一般用来发送和接收文本数据，overrideMimeType方法强制XMLHttpRequest发送二进制数据
@@ -150,31 +147,24 @@
 	}
 
 	ReadcleStreamChange = function () {
-		if (g_sclehttp.readyState === 4 && g_sclehttp.status === 200) { // 4 = "loaded" // 200 = OK
-			console.log('g_sclehttp', g_sclehttp.response)
-			if (isZip) {
-				// 兼容写法
-				var new_zip = new JSZip();
-				new_zip.loadAsync(g_sclehttp.response).then(function (zip) {
-                    var key = function () {
-                        for (let i in zip.files) {
-                            return i
-                        }
-                    }
-					zip.files[key()].async('arraybuffer').then(function (data) {
-						g_arrayByteBuffer = data;
-							g_arrayCleBuffer = new DataView(g_arrayByteBuffer, 0, g_arrayByteBuffer.byteLength);
-						// 循环执行，每隔0.1秒钟执行一次
-						NetTimeTimeID = window.setInterval(StarLoadNetCLEFile, 100);
-					});
+		if (g_sclehttp.readyState === 4 && g_sclehttp.status === 200) { // 4 = "loaded" // 200 = OK		
+			// 兼容写法
+			var new_zip = new JSZip();
+			new_zip.loadAsync(g_sclehttp.response).then(function (zip) {
+				var key = function () {
+					for (let i in zip.files) {
+						return i
+					}
+				}
+				zip.files[key()].async('arraybuffer').then(function (data) {
+					g_arrayByteBuffer = data;
+					g_arrayCleBuffer = new DataView(g_arrayByteBuffer, 0, g_arrayByteBuffer.byteLength);
+					g_nCleBufferlength = g_arrayByteBuffer.byteLength;
+					
+					// 循环执行，每隔0.1秒钟执行一次
+					NetTimeTimeID = window.setInterval(StarLoadNetCLEFile, 100);
 				});
-
-			} else {
-				g_arrayByteBuffer = g_sclehttp.response;
-				g_arrayCleBuffer = new DataView(g_arrayByteBuffer, 0, g_arrayByteBuffer.byteLength);
-				// 循环执行，每隔0.1秒钟执行一次
-				NetTimeTimeID = window.setInterval(StarLoadNetCLEFile, 100);
-			}
+			});
 		}
 	}
 	cleStreamReady= function (){} // 
