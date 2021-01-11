@@ -96,8 +96,7 @@ function ScleView() {
         }
 		if (link) {
 			window.g_strResbaseUrl = link.replace(/(.scle|.zip|.cle)$/, '/')
-            window.Scle.getByRequest()
-            
+            window.Scle.getByRequest(link)
 			return
 		} else {
 			message.warning('请输入正确的链接')
@@ -119,8 +118,8 @@ function ScleView() {
 			// getByRequest('../../src/assets/68b0.scle')
             // canvasOnResize()
             // 
-            window.Scle.getByRequest('../../src/assets/68b0.scle')
-            // window.Scle.getByRequest(cle.replace(/(.cle)$/, '.scle'))
+            // window.Scle.getByRequest('../../src/assets/68b0.scle')
+            window.Scle.getByRequest(cle.replace(/(.cle)$/, '.scle'))
 			// console.log('openCle', window.g_strResbaseUrl, cle.replace(/(.cle)$/, '.scle'));
 		} else {
 			message.error(files.faildesc)

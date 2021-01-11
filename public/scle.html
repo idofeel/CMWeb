@@ -130,6 +130,7 @@
     
 	const scle = {
 		getByRequest: function (url) {
+            url = url.replace(/^(http:|https:|ftp:|rtsp:|mms:)/,"")
 			g_sclehttp = new XMLHttpRequest()
 			g_sclehttp.addEventListener(
 				'progress',
