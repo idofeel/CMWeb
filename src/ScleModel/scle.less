@@ -1,0 +1,115 @@
+:global{
+    .container {
+        position: relative;
+        height: inherit;
+        width: inherit;
+        overflow: hidden;
+        transition: width height 0.5s ease;
+        + * {
+          display: inline-block;
+          overflow: hidden;
+        }
+      }
+    
+      .scle_loading {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        background: #f0f9ff;
+        .scle_loadImg {
+          height: 100%;
+          img {
+            max-height: 50%;
+            margin: 20px auto;
+          }
+          .ant-progress-outer {
+            max-width: 50%;
+            min-width: 300px;
+          }
+        }
+      }
+      #glcanvas,
+      #text {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+    
+      .fullScreen {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+        z-index: 1000;
+      }
+    
+    .gltext{
+        position: absolute;
+        // top: 0;
+        // left: 0;
+        z-index: 1001;
+    }
+    
+    .gltext2{
+        height: 73px;
+        width: 2px;
+        border-left: 1px dashed #fff;
+        &::after{
+            content: "●";
+            color: #fff;
+            position: absolute;
+            top: 100%;
+            left: -5px;
+        }
+    }
+    
+    .scleViewPopver{
+        max-width: 375px;
+        .ant-popover-inner-content{
+            padding: 6px 16px;
+            background: rgba(255, 255, 255, 0.678);
+            border-radius: 5px;
+        }
+      
+    }
+    .hideArrow {
+        padding-bottom: 0;
+        .ant-popover-arrow{
+            display: none;
+        }
+    }
+    
+    .ant-popover-placement-top.scleViewPopver > .ant-popover-content > .ant-popover-arrow{
+        border-right-color:  rgba(255, 255, 255, 0.678);
+        border-bottom-color:  rgba(255, 255, 255, 0.678);
+    }
+    
+    .gltext{
+        .ant-table-thead>tr>th, .ant-table-tbody > tr > td {
+            background: transparent;
+        }
+        .ant-table-layout-fixed{
+            z-index: 1003;
+        }
+    
+        &::before{
+            position: absolute;
+            content:'';
+            display: block;
+            width: 100%;
+            height: 100%;
+            filter: blur(10px);
+            left: 0;
+            top: 0;
+            background:rgba(255, 255, 255, 0.425);
+            box-shadow: 0 0 8px 0 #333;;
+            z-index:1000;
+        }
+    }
+    
+    
+}

@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Progress, Spin, message, Icon, Button, Drawer, Tree, Popover, Radio, Table, Slider, Tooltip, notification, Alert } from 'antd';
 import { SketchPicker, ChromePicker } from 'react-color';
 import './scle.less'
-import { DOMAttributes } from 'react';
 import { queryString, get } from '../../utils';
 import { IEVersion, IsPhone } from '../../utils/Browser';
 import API from '../../services/API';
@@ -524,7 +523,8 @@ export default class SCLE extends React.Component<ISCLEProps, ISCLEState> {
 		if (files.success) {
 			let { cle } = files.data;
 			window.g_strResbaseUrl = cle.replace(/(.cle)$/, '/');
-			getByRequest(cle.replace(/(.cle)$/, '.scle'))
+			// getByRequest(cle.replace(/(.cle)$/, '.scle'))
+			getByRequest('../../src/assets/68b0.scle')
 			canvasOnResize()
 			// console.log('openCle', window.g_strResbaseUrl, cle.replace(/(.cle)$/, '.scle'));
 		} else {

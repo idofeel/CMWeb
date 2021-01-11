@@ -2,7 +2,7 @@ import "babel-polyfill";
 import 'url-search-params-polyfill'
 import dva from "dva";
 import "./index.css";
-
+import ScleView from './ScleModel/scleView'
 // 1. Initialize
 const app = dva();
 
@@ -13,7 +13,8 @@ const app = dva();
 app.model(require("./models/global").default);
 
 // 4. Router
-app.router(require("./ScleRouter").default);
+app.router(ScleView);
+// app.router(require("./ScleRouter").default);
 
 // 5. Start
-app.start("#root");
+app.start("#scleView");

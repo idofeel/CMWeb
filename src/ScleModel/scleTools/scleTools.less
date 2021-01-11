@@ -1,0 +1,157 @@
+:global{
+    .scleToolsBar {
+        position: absolute;
+        bottom: 10px;
+        width: 100%;
+        .ant-tabs {
+            margin: 0 auto;
+            min-width: 320px;
+            max-width: 560px;
+            z-index: 1;
+            background: hsla(0, 0%, 100%, 0.6);
+            padding: 10px 20px;
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+            border-radius: 10px;
+            .ant-tabs-bar {
+                border: none;
+                margin: 0;
+                text-align: center;
+            }
+            .ant-tabs-tab {
+                font-size: 1.2rem;
+                text-align: center;
+                margin: 0 32px;
+                padding: 0;
+                margin-right: 0;
+                .anticon {
+                    margin: 0;
+                }
+                &:hover {
+                    color: rgba(0, 0, 0, 0.65);
+                }
+                // &:active{
+                //     color:#1890ff;
+                // }
+            }
+            .ant-tabs-tab-active {
+                color: #1890ff;
+                &:hover {
+                    color: #1890ff;
+                }
+            }
+            .ant-tabs-ink-bar {
+                display: none !important;
+            }
+        }
+    
+        .ant-tabs-tab-next-icon,
+        .ant-tabs-tab-prev-icon {
+            .anticon {
+                font-size: 18px;
+            }
+        }
+    }
+    
+    .cleTreeDrawer {
+        position: absolute;
+        .ant-drawer-content-wrapper {
+            max-width: 30%;
+            min-width: 275px;
+    
+            .ant-drawer-content,
+            .ant-tabs-nav-wrap {
+                background: rgba(255, 255, 255, 0.6);
+            }
+        }
+    }
+    
+    .progressSlider {
+        width: 300px;
+        margin: 0;
+        padding: 0;
+    }
+    // -----------box----------------------------
+    
+    @boxwh: 30px;
+    @btnColor: rgb(4, 99, 187);
+    
+    .box {
+        display: inline-block;
+        margin: 0 10px;
+        width: @boxwh;
+        height: @boxwh;
+        cursor: pointer;
+        transform-style: preserve-3d;
+        border-radius: 50%;
+        transform: rotateX(-12deg) rotateY(-12deg);
+        transition: transform 0.2s ease;
+    }
+    .box > div {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        text-align: center;
+        line-height: 100px;
+        // font-size: 60px;
+        color: green;
+        border: 1px solid @btnColor;
+    }
+    
+    .left {
+        // background-color: rgba(255, 0, 0, 0.7);
+        // background-color: rgba(255, 0, 0, 0.7);
+        /*变换中心*/
+        transform-origin: left;
+        /*变换*/
+        transform: rotateY(90deg) translateX(-@boxwh / 2);
+    }
+    
+    .right {
+        // background-color: rgba(0, 0, 255, 0.7);
+        transform-origin: right;
+        transform: rotateY(90deg) translateX(@boxwh / 2);
+    }
+    
+    .forward {
+        // background-color: rgba(0, 255, 255, 0.7);
+        transform: translateZ(@boxwh / 2);
+    }
+    
+    .back {
+        // background-color: rgba(255, 255, 0, 0.7);
+        transform: translateZ(-@boxwh / 2);
+    }
+    
+    .up {
+        // background-color: rgba(99, 66, 33, 0.7);
+        transform: rotateX(90deg) translateZ(@boxwh / 2);
+    }
+    
+    .down {
+        // background-color: rgba(255, 0, 255, 0.7);
+        transform: rotateX(-90deg) translateZ(@boxwh / 2);
+    }
+    
+    .ant-popover-inner {
+        background: transparent;
+    }
+    
+    .ant-popover-inner-content {
+        padding: 0;
+    }
+    
+    .transparent {
+        padding: 0 5px;
+        width: 300px;
+    }
+    
+    @media screen and (max-width: 768px) {
+        .transparent {
+            width: 220px;
+        }
+        .progressSlider {
+            width: 120px;
+        }
+    }
+    
+}

@@ -7,7 +7,7 @@ import SubRoutes from "./utils/SubRoutes"
 const RoutersConfig = [
     {
         path: "/",
-        component: () => import("./CMReaderPages/Scle/Scle"),
+        component: () => import("./ScleModel/scleView"),
         model: [],
     },
 ]

@@ -1,3 +1,6 @@
 {
-    "powermode.enabled": true
+    "powermode.enabled": true,
+    "cSpell.words": [
+        "Resbase"
+    ]
 }

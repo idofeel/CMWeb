@@ -2,7 +2,7 @@ const canvas=document.querySelector('#glcanvas');var gl=canvas.getContext('webgl
 if(!gl){gl=canvas.getContext('experimental-webgl');}
 isWebgl2=false;}
 var textCanvas=document.querySelector("#text");var gl2d=textCanvas.getContext("2d");var container=document.getElementsByClassName("container");var offsetLeft=container[0].offsetLeft;var offsetTop=container[0].offsetTop;var isPhone=false;var isPhoneMove=false;var glRunTime=new GLRunTime();var bgImage=["./Resource/Background/blue.jpg","./Resource/Background/white.jpg","./Resource/Background/grey.jpg",];var isLockCavans=false;var isShiftDown=false;var isKeyTap=false;var lastObjectIndex=-1;var objectIndex=-1;var pickObjectIndexs=null;var pickObjectVisible=false;var pickObjectTransparent=0.0;var pickObjectMaterial=null;var isMove=false;const ANIMRUN=0;const ANIMPAUSE=1;const ANIMEND=2;const ANIMTERMINAL=3;var animationClock=null;var animationStatus=ANIMTERMINAL;var uTotalFrame=0;var uCurFrame=0;var uSleepTime=30;var curDate=null;var lastTime=0;var isDigitalTwinMode=false;var initRenderFlag=false;function startRender(){if(!gl){return;}
-glRunTime.initRender();initRenderFlag=true;function render(){glRunTime.draw();requestAnimationFrame(render);}
+glRunTime.initRender();initRenderFlag=true;function render(){glRunTime.draw();Scle.refreshNotation();requestAnimationFrame(render);}
 requestAnimationFrame(render);addKeyboardListener();addMouseListener(textCanvas);document.addEventListener('DOMMouseScroll',fireFoxScollFun,false);window.onunload=addCloseListenser;}
 function addKeyboardListener(){document.addEventListener('keydown',onDocumentKeyDown,false);document.addEventListener('keyup',onDocumentKeyUp,false);}
 function onDocumentKeyDown(event){if(isLockCavans){return;}
@@ -50,8 +50,7 @@ textCanvas.onmousemove=function(event){webKeyMove(event,textCanvas);}}
 function addCloseListenser(){glRunTime.clear();}
 window.onresize=canvasOnResize;document.onmousewheel=function(event){if(event.preventDefault){event.preventDefault();event.stopPropagation();}else{event.cancelBubble=true;event.returnValue=false;}
 return false;}
-function moveModel(){if(isPhone){if(isMove){isMove=false;}else{isMove=true;}}
-isMove=true;}
+function moveModel(){if(isMove){isMove=false;}else{isMove=true;}}
 function setMaterial(selectIndex){switch(selectIndex){case 0:glRunTime.setObjectMaterial(0.5,1.0,0.0,0.5);break;case 1:glRunTime.setObjectMaterial(0.25,0.87,0.8,0.5);break;case 2:glRunTime.setObjectMaterial(1.0,1.0,0.0,0.5);break;case 3:glRunTime.setObjectMaterial(1.0,0.75,0.8,0.5);break;default:break;}}
 function setMaterialRGBA(r,g,b,a){glRunTime.setObjectMaterial(r,g,b,a);}
 function setTransparentIndex(selectIndex){switch(selectIndex){case 0:glRunTime.setObjectTransparent(0.0);break;case 1:glRunTime.setObjectTransparent(0.5);break;case 2:glRunTime.setObjectTransparent(1.0);break;default:break;}}
@@ -67,6 +66,9 @@ function animPause(){if(animationClock!=null){clearTimeout(animationClock);}
 animationClock=null;isLockCavans=false;animationStatus=ANIMPAUSE;}
 function animTerminal(){uCurFrame=0;getCurFrame(uCurFrame);if(glRunTime.setCameraAnim(uCurFrame)){glRunTime.setObjectAnim(uCurFrame);glRunTime.setAnnotationAnim(uCurFrame);}
 animPause();animationStatus=ANIMTERMINAL;}
+var g_nAnimationStart=0;var g_nAnimationEnd=0;function PlaySceneAnimation(){animTerminal();isLockCavans=true;uCurFrame=g_nAnimationStart;if(uCurFrame>=g_nAnimationEnd){uCurFrame=g_nAnimationStart;}
+animationStatus=ANIMRUN;animSceneRun();}
+function animSceneRun(){if(glRunTime.setCameraAnim(uCurFrame)&&uCurFrame<=g_nAnimationEnd){glRunTime.setObjectAnim(uCurFrame);glRunTime.setAnnotationAnim(uCurFrame);getCurFrame(uCurFrame);uCurFrame++;animationClock=setTimeout("animSceneRun()",uSleepTime);}else{animPause();animationStatus=ANIMEND;setAnmiIcon(true);}}
 function setCurFrame(frame){if(frame>=0){uCurFrame=frame;if(glRunTime.setCameraAnim(uCurFrame)){glRunTime.setObjectAnim(uCurFrame);glRunTime.setAnnotationAnim(uCurFrame);}
 animPause();setAnmiIcon(true);}}
 function getTotalFrames(){return glRunTime.getTotalFrame();}
@@ -85,8 +87,7 @@ function digitalTwinStart(){isDigitalTwinMode=true;glRunTime.initDigitalTwinData
 function digitalTwinTerminal(){isDigitalTwinMode=false;}
 function setObjectOriWorldMatrix(uObjectID,strMatrix){if(!isDigitalTwinMode){return;}
 glRunTime.setObjectOriWorldMatrix(uObjectID,strMatrix);}
-var g_nAnimationStart=0;var g_nAnimationEnd=0;function PlaySceneAnimation(){isLockCavans=true;if(animationStatus==ANIMTERMINAL){setHome();}
-uCurFrame=g_nAnimationStart;if(uCurFrame>=g_nAnimationEnd){uCurFrame=g_nAnimationStart;}
-animationStatus=ANIMRUN;animSceneRun();}
-function animSceneRun(){if(glRunTime.setCameraAnim(uCurFrame)&&uCurFrame<=g_nAnimationEnd){glRunTime.setObjectAnim(uCurFrame);glRunTime.setAnnotationAnim(uCurFrame);getCurFrame(uCurFrame);uCurFrame++;animationClock=setTimeout("animSceneRun()",uSleepTime);}else{animPause();animationStatus=ANIMEND;setAnmiIcon(true);}}
 function addComment(objectID,annoText){glRunTime.addCommentOnObjectById(objectID,annoText);}
+function setObjectsHighlight(objectIDs){glRunTime.setObjectsPickedByIds(objectIDs);}
+function getObjectsCenter(objectIDs){let arrCenters=new Array();for(let i=0;i<objectIDs.length;++i){arrCenters.push(glRunTime.getObjectCenterById(objectIDs[i]));}
+return arrCenters;}

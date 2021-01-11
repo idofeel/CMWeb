@@ -61,7 +61,8 @@ if(max_y_len>fLen){fLen=max_y_len;}
 if(max_z_len>fLen){fLen=max_z_len;}
 return fLen;}
 function getModelDefEyePos(modelBox,eye,up){let fLen=getModelBoxLength(modelBox);let dis=fLen/2/Math.tan(45.0*Math.PI/2.0/180.0);let defaultCameraAxis=GetDefaultCameraAxis();if(defaultCameraAxis.GLSceneUpType==GL_SCENEUPTYPEX){if(defaultCameraAxis.GLUpAxisNegative){eye.x=0.0,eye.y=0.0,eye.z=dis;up.x=-1.0,up.y=0.0,up.z=0.0;}else{eye.x=0.0,eye.y=0.0,eye.z=dis;up.x=1.0,up.y=0.0,up.z=0.0;}}else if(defaultCameraAxis.GLSceneUpType==GL_SCENEUPTYPEY){if(defaultCameraAxis.GLUpAxisNegative){eye.x=0.0,eye.y=0.0,eye.z=-dis;up.x=0.0,up.y=-1.0,up.z=0.0;}else{eye.x=0.0,eye.y=0.0,eye.z=dis;up.x=0.0,up.y=1.0,up.z=0.0;}}else if(defaultCameraAxis.GLSceneUpType==GL_SCENEUPTYPEZ){if(defaultCameraAxis.GLUpAxisNegative){eye.x=0.0,eye.y=dis,eye.z=0.0;up.x=0.0,up.y=0.0,up.z=-1.0;}else{eye.x=0.0,eye.y=-dis,eye.z=0.0;up.x=0.0,up.y=0.0,up.z=1.0;}}}
-function getAnnotationData(arrComment,annotSet){for(let i=0;i<arrComment.length;i++){annotSet._arrComment.push(arrComment[i].Clone());}}
+function getAnnotationData(arrComment,annotSet){for(let i=0;i<arrComment.length;i++){annotSet._arrComment.push(arrComment[i].Clone());}
+for(let i=0;i<arrComment.length;i++){ConvertCommetText(annotSet._arrComment[i]);}}
 function GetDefaultBgImg(){var imageData=[-1,-1,-1];let image0=new Image();image0.onload=function(){imageData[0]=getTexImage(image0,true);}
 image0.src=bgImage[0];let image1=new Image();image1.onload=function(){imageData[1]=getTexImage(image1,true);}
 image1.src=bgImage[1];let image2=new Image();image2.onload=function(){imageData[2]=getTexImage(image2,true);}
