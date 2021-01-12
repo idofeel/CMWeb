@@ -117,9 +117,9 @@ function ScleView() {
 			// // getByRequest(cle.replace(/(.cle)$/, '.scle'))
 			// getByRequest('../../src/assets/68b0.scle')
             // canvasOnResize()
-            // window.Scle.getByRequest(cle.replace(/(.cle)$/, '.scle'))
+            window.Scle.getByRequest(cle.replace(/(.cle)$/, '.scle'))
             // 
-            window.Scle.getByRequest('../../src/assets/68b0.scle')
+            // window.Scle.getByRequest('../../src/assets/68b0.scle')
 			// console.log('openCle', window.g_strResbaseUrl, cle.replace(/(.cle)$/, '.scle'));
 		} else {
 			message.error(files.faildesc)
