@@ -449,6 +449,7 @@ export default class scleTools extends PureComponent {
 
 	// 工具栏 触发事件统一处理
 	toolsClickHandle(item, index) {
+        console.log(item);
 		const newTools = this.state.tools
 
 		if (item.type === 'eye') {
@@ -510,8 +511,13 @@ export default class scleTools extends PureComponent {
                         })
                     }
                 } else {
-                    if (this.isMove) {
+                    if (this.isMove && !item.type.startsWith('eye')) {
                         this.moveHandle()
+                    }
+                    if(item.type.startsWith('eye') && this.isMove){
+                        this.setState({
+                            activeTab: 'drag'
+                        })
                     }
                 }
         // console.log(this.isMove);
