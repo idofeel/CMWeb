@@ -1,0 +1,3 @@
+function resize() {}
+
+export { resize };

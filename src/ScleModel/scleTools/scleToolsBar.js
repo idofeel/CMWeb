@@ -2,6 +2,7 @@ import {
 	Drawer,
 	Icon,
 	message,
+    notification,
 	Popover,
 	Radio,
 	Slider,
@@ -44,7 +45,7 @@ export default class scleTools extends PureComponent {
 		},
 		{
 			type: 'apartment',
-			title: '属性',
+			title: '模型树',
 			onClick: () => this.drawerToggle()
 		},
 		{ type: 'eye-invisible', title: '隐藏' },
@@ -201,7 +202,8 @@ export default class scleTools extends PureComponent {
 				<Drawer
 					title={null}
 					closable={false}
-					mask={true}
+                    mask={false}
+                    maskClosable={false}
 					placement="left"
 					width="auto"
 					visible={this.state.drawerVisible}
@@ -230,7 +232,8 @@ export default class scleTools extends PureComponent {
 
 	drawerToggle() {
 		this.setState({
-			drawerVisible: !this.state.drawerVisible
+            drawerVisible: !this.state.drawerVisible,
+            activeTab: !this.state.drawerVisible ?  this.state.activeTab: null
 		})
 	}
 	hideDrawer() {
@@ -501,6 +504,7 @@ export default class scleTools extends PureComponent {
                 if (item.type === 'drag') {
                     // onClick: () => this.isPickNull(() => window.moveModel())
                     if (this.state.activeTab && this.isMove) {
+                      
                         this.setState({
                             activeTab: null
                         })
@@ -508,6 +512,13 @@ export default class scleTools extends PureComponent {
                     } else {
                         this.isPickNull(() => {
                             this.moveHandle()
+                            if(!IsPhone()){
+                                notification.info({
+                                    message:'移动操作',
+                                    description: '使用Ctrl+鼠标左键，移动模型。',
+                                    duration: 3,
+                                })
+                            }
                         })
                     }
                 } else {
@@ -520,6 +531,9 @@ export default class scleTools extends PureComponent {
                         })
                     }
                 }
+                
+                
+
         // console.log(this.isMove);
 
             }

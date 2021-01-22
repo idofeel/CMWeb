@@ -11,6 +11,28 @@
     .ant-tree {
       overflow-x: auto;
       width: 99%;
+      .ant-tree-node-content-wrapper {
+        line-height: 1;
+        height: auto;
+        line-height: normal;
+        padding: 0;
+        &:hover {
+          background: transparent;
+        }
+        &.ant-tree-node-selected {
+          padding: 0;
+        }
+      }
+      .ant-tree-title > span {
+        padding: 2px 4px;
+        border-radius: 4px;
+        &:hover {
+          background: #e6f7ff;
+        }
+      }
+      .tree_selected {
+        background: #bae7ff;
+      }
     }
 
     .ant-tabs-nav-wrap {

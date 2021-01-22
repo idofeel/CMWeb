@@ -68,6 +68,14 @@ export default class ScleAttrTree extends PureComponent {
                 this.findleafIndexs(e.node.props.dataRef),
                 e.checked
               );
+               // 模型树隐藏时 dofeel
+              const ms = this.state.treeNodeSelectKeys;
+              if (ms * 1 === e.node.props.dataRef.key) {
+                window.pickObjectVisible = e.checked;
+                window.setPickObjectParameters();
+              }
+            //   
+
             }}
           >
             {this.renderTreeNodes(treeData)}
@@ -121,13 +129,10 @@ export default class ScleAttrTree extends PureComponent {
     const key = item.key + "";
     return (
       <span
-        style={{
-          background:
-            this.state.treeNodeSelectKeys.indexOf(key) > -1
-              ? "#e6f7ff"
-              : "transparent",
-        }}
+        className={this.state.treeNodeSelectKeys.indexOf(key) > -1?'tree_selected': ''}
         onClick={() => {
+           // 选择模型名称时 dofeel
+          if (this.keyCode) return;
           this.hideSelect = true;
           this.tempMutilpSelect = this.findleafIndexs(item);
           this.setState({
@@ -135,6 +140,7 @@ export default class ScleAttrTree extends PureComponent {
             paramsData: item.params,
           });
           window.pickModelByIndex(this.tempMutilpSelect, IsPhone());
+          window.setPickObjectParameters();
         }}
         onMouseDown={() => {
           if (this.keyCode === 17) {
@@ -163,6 +169,8 @@ export default class ScleAttrTree extends PureComponent {
             });
 
             window.pickModelByIndex(this.tempMutilpSelect, IsPhone());
+            // 多选 dofeel
+            window.setPickObjectParameters();
           }
         }}
       >
@@ -187,7 +195,10 @@ export default class ScleAttrTree extends PureComponent {
 
   setVisible(visible) {
     let { treeNodeCheckedKeys } = this.state;
-    if(window.pickObjectIndexs === null){return}
+    treeNodeCheckedKeys = treeNodeCheckedKeys.checked || treeNodeCheckedKeys
+    if (window.pickObjectIndexs === null) {
+      return;
+    }
     const visibleKeys = this.setTreeVisible(
       this.state.treeData,
       window.pickObjectIndexs,
@@ -352,19 +363,17 @@ export default class ScleAttrTree extends PureComponent {
   };
   //   ---------------------
   componentDidMount() {
-    if(window.g_GLData){
-        this.loadTree()
-    }else{
-        window.addEventListener("scleStreamReady", ()=>this.loadTree(), {
-            passive: false,
-        });
+    if (window.g_GLData) {
+      this.loadTree();
+    } else {
+      window.addEventListener("scleStreamReady", () => this.loadTree(), {
+        passive: false,
+      });
     }
-
-    window.addEventListener(
-      "pickParams",
-      this.pickObjectParameters.bind(this),
-      { passive: false }
-    );
+    window.setVisibleTree = this.setVisible.bind(this)
+    window.addEventListener("pickParams", this.pickObjectParameters, {
+      passive: false,
+    });
     window.addEventListener("keydown", this.keydown);
     window.addEventListener("keyup", this.keyup);
     document.addEventListener("contextmenu", this.disableContextmenu);
@@ -374,11 +383,9 @@ export default class ScleAttrTree extends PureComponent {
       passive: false,
     });
 
-    window.removeEventListener(
-      "pickParams",
-      this.pickObjectParameters.bind(this),
-      { passive: false }
-    );
+    window.removeEventListener("pickParams", this.pickObjectParameters, {
+      passive: false,
+    });
     document.removeEventListener("contextmenu", this.disableContextmenu);
     window.removeEventListener("keyup", this.keyup);
     window.removeEventListener("keydown", this.keydown);
