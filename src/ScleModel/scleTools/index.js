@@ -20,10 +20,10 @@ import "./index.less";
 import "swiper/swiper.less";
 import "swiper/components/navigation/navigation.min.css";
 import { IsPhone } from "../../utils/Browser";
+import ToolsBarContext from "./ToolsBarContext";
 
 SwiperCore.use([Navigation]);
 let totalFrames = 0;
-
 function ScleTools() {
   const swiperRef = useRef(null);
 
@@ -33,6 +33,10 @@ function ScleTools() {
   const [player, setPlayerStatus] = useState(false);
   const [pause, setPause] = useState(false);
   //   let [totalFrames, setTotalFrames] = useState(0);
+  const [toolsState, setToolsState] = useState({
+    currentTab: "",
+  });
+
   const setSwiper = () => {
     if (player) return;
     setSliderNum((swiperRef.current.offsetWidth + 10) / 38);
@@ -59,6 +63,12 @@ function ScleTools() {
     setPlayPercent(playPercent);
   }
 
+  function scleStreamReady() {
+    window.setAnmiIcon = setAnmiIcon;
+    totalFrames = window.getTotalFrames();
+    window.getCurFrame = (CurFrame) => getCurFrame(CurFrame);
+  }
+
   useEffect(() => {
     window.isPhone = IsPhone();
 
@@ -66,14 +76,15 @@ function ScleTools() {
 
     window.addEventListener("resize", setSwiper);
 
-    window.addEventListener("scleStreamReady", () => {
-      window.setAnmiIcon = setAnmiIcon;
-      totalFrames = window.getTotalFrames();
-      window.getCurFrame = (CurFrame) => getCurFrame(CurFrame);
-    });
+    window.addEventListener("scleStreamReady", scleStreamReady);
+
+    return () => {
+      window.removeEventListener("scleStreamReady", scleStreamReady);
+    };
   }, []);
+
   return (
-    <>
+    <ToolsBarContext.Provider value={{ toolsState, setToolsState }}>
       <Drawer
         title={null}
         closable={false}
@@ -107,7 +118,7 @@ function ScleTools() {
                   prevEl: ".prev_icon",
                 }}
                 onSlideChange={() => console.log("slide change")}
-                onSwiper={(swiper) => console.log(swiper)}
+                // onSwiper={(swiper) => console.log(swiper)}
               >
                 <SwiperSlide>
                   <ScleRest />
@@ -181,7 +192,7 @@ function ScleTools() {
           )}
         </div>
       </div>
-    </>
+    </ToolsBarContext.Provider>
   );
 }
 

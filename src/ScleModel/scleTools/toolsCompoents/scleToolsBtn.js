@@ -1,5 +1,5 @@
 import { ChromePicker } from "react-color";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Icon,
   message,
@@ -15,23 +15,18 @@ import {
   IEVersion,
   IsPhone,
 } from "../../../utils/Browser";
+import ToolsBarContext from "../ToolsBarContext";
 
 const IconFont = Icon.createFromIconfontCN({
   scriptUrl: "./js_min/localiconfont/iconfont.js",
 });
 const renderTitle = (title) => (IsPhone() ? null : title);
 
-function test(){
-     const [state, setstate] = useState(1)
- 
-    return {state, setstate}
-}
 /**
  *  重置按钮
- * @param {*} props 
+ * @param {*} props
  */
 function ScleRest(props) {
-
   return (
     <>
       <Tooltip title={renderTitle("复位")}>
@@ -91,7 +86,6 @@ function ScleApartment(props) {
 
 function ScleHide(props) {
   const [icon, setIcon] = useState("eye-invisible");
-
   function toggle(bl) {
     const isHide = icon === "eye";
     setIcon(isHide ? "eye-invisible" : "eye");
@@ -114,22 +108,41 @@ function ScleHide(props) {
   );
 }
 
-function ScleColor(props) {
-  const [PopVisible, setPopVisible] = useState(false);
-  const [Color, setColor] = useState({ r: 255, g: 0, b: 0, a: 1 });
+function useTabs(props = {}) {
+  const { toolsState, setToolsState } = useContext(ToolsBarContext);
 
   useEffect(() => {
     window.addEventListener("pickParams", () => {
-      if (!window.pickObjectIndexs || window.pickObjectIndexs.length === 0) {
-        setPopVisible(false);
-      }
+      setToolsState({
+        currentTab: "",
+      });
     });
   }, []);
+
+  const isSelected = toolsState.currentTab === props.name;
+
+  return {
+    setTab: (tabName = props.name) => {
+      setToolsState({
+        currentTab: tabName,
+      });
+    },
+    isSelected,
+    tabClassName: isSelected ? "scleToolsChecked" : "",
+  };
+}
+
+function ScleColor(props) {
+  const { isSelected, tabClassName, setTab } = useTabs({ name: "color" });
+
+  const [Color, setColor] = useState({ r: 255, g: 0, b: 0, a: 1 });
+
   return (
     <Popover
       content={
         <ChromePicker
           onChange={(e) => {
+            // setState(state+1)
             isPickNull(() => {
               const { r, g, b, a } = e.rgb;
               setColor(e.rgb);
@@ -139,13 +152,17 @@ function ScleColor(props) {
           color={Color}
         ></ChromePicker>
       }
-      visible={PopVisible}
+      visible={isSelected}
     >
       <Tooltip title={renderTitle("颜色")}>
         <Icon
           type="bg-colors"
-          onClick={() => isPickNull(() => setPopVisible(!PopVisible))}
-          className={PopVisible ? "scleToolsChecked" : ""}
+          onClick={() =>
+            isPickNull(() => {
+              setTab();
+            })
+          }
+          className={tabClassName}
           {...props}
         />
       </Tooltip>
@@ -154,20 +171,11 @@ function ScleColor(props) {
 }
 
 function ScleOpacity(props) {
-  const [PopVisible, setPopVisible] = useState(false);
+  const { isSelected, tabClassName, setTab } = useTabs({ name: "opacity" });
   const [alpha, setAlpha] = useState(1);
-
   function changePopVisible() {
-    isPickNull(() => setPopVisible(!PopVisible));
+    isPickNull(() => setTab());
   }
-
-  useEffect(() => {
-    window.addEventListener("pickParams", () => {
-        if (!window.pickObjectIndexs || window.pickObjectIndexs.length === 0) {
-        setPopVisible(false);
-      }
-    });
-  }, []);
 
   return (
     <Popover
@@ -188,12 +196,16 @@ function ScleOpacity(props) {
           />
         </div>
       }
-      visible={PopVisible}
+      visible={isSelected}
+      trigger="focus"
+      onVisibleChange={(v) => {
+        console.log(v);
+      }}
     >
       <Tooltip title={renderTitle("透明度")}>
         <IconFont
           type="icon-toumingdu"
-          className={PopVisible ? "scleToolsChecked" : ""}
+          className={tabClassName}
           onClick={changePopVisible}
           {...props}
         />
@@ -203,12 +215,7 @@ function ScleOpacity(props) {
 }
 
 function ScleBgColor(props) {
-  const [PopVisible, setPopVisible] = useState(false);
-  useEffect(() => {
-    window.addEventListener("pickParams", (e) => {
-      setPopVisible(false);
-    });
-  }, []);
+  const { isSelected, tabClassName, setTab } = useTabs({ name: "BgColor" });
   return (
     <Popover
       content={
@@ -224,15 +231,13 @@ function ScleBgColor(props) {
           <Radio.Button value="2">银灰色</Radio.Button>
         </Radio.Group>
       }
-      visible={PopVisible}
+      visible={isSelected}
     >
       <Tooltip title={renderTitle("背景色")}>
         <IconFont
           type="icon-background-l"
-          className={PopVisible ? "scleToolsChecked" : ""}
-          onClick={(e) => {
-            setPopVisible(!PopVisible);
-          }}
+          className={tabClassName}
+          onClick={() => setTab()}
           {...props}
         />
       </Tooltip>
@@ -241,7 +246,7 @@ function ScleBgColor(props) {
 }
 
 function ScleViewDirection(props) {
-  const [PopVisible, setPopVisible] = useState(false);
+  const { isSelected, tabClassName, setTab } = useTabs({ name: "ViewDire" });
 
   const bg = { background: "rgba(24,144,255, 0.6)" };
   const viewDirections = [
@@ -253,12 +258,6 @@ function ScleViewDirection(props) {
     { title: "仰视图", value: 5, down: bg },
     { title: "等轴侧", value: 6, forward: bg, right: bg },
   ];
-
-  useEffect(() => {
-    window.addEventListener("pickParams", () => {
-      setPopVisible(false);
-    });
-  }, []);
 
   return (
     <Popover
@@ -290,15 +289,13 @@ function ScleViewDirection(props) {
           )}
         </div>
       }
-      visible={PopVisible}
+      visible={isSelected}
     >
       <Tooltip title={renderTitle("视图")}>
         <IconFont
           type="icon-box"
-          className={PopVisible ? "scleToolsChecked" : ""}
-          onClick={(e) => {
-            setPopVisible(!PopVisible);
-          }}
+          className={tabClassName}
+          onClick={(e) => setTab()}
           {...props}
         />
       </Tooltip>
