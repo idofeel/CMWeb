@@ -10,10 +10,12 @@ const columns = [
   {
     title: "参数名",
     dataIndex: "name",
+    width: 150,
   },
   {
     title: "参数值",
     dataIndex: "value",
+    width: 150,
   },
 ];
 export default class ScleAttrTree extends PureComponent {
@@ -25,11 +27,13 @@ export default class ScleAttrTree extends PureComponent {
     treeData: {
       child: [],
     },
+    currentTab: "1",
     paramsData: [], // 模型参数
     treeNodeCheckedKeys: [], // 显示隐藏复选框
     treeNodeSelectKeys: [], // 选中的key
     expandedKeys: [], //展开的key
   };
+
   render() {
     const {
       treeData,
@@ -37,14 +41,24 @@ export default class ScleAttrTree extends PureComponent {
       treeNodeSelectKeys,
       expandedKeys,
       paramsData,
+      currentTab,
     } = this.state;
     return (
-      <Tabs
-        defaultActiveKey="1"
-        className="scleAttrTree"
-        renderTabBar={this.renderTabBar}
-      >
-        <TabPane tab="模型树" key="1">
+      <div>
+        <Tabs
+          defaultActiveKey="1"
+          className="scleAttrTree"
+          onChange={(c) => {
+            this.setState({
+              currentTab: c ,
+            });
+          }}
+          renderTabBar={this.renderTabBar}
+        >
+          <TabPane tab="模型树" key="1"></TabPane>
+          <TabPane tab="模型树" key="2"></TabPane>
+        </Tabs>
+        {currentTab === "1" ? (
           <Tree
             checkable
             checkStrictly
@@ -68,20 +82,18 @@ export default class ScleAttrTree extends PureComponent {
                 this.findleafIndexs(e.node.props.dataRef),
                 e.checked
               );
-               // 模型树隐藏时 dofeel
+              // 模型树隐藏时 dofeel
               const ms = this.state.treeNodeSelectKeys;
               if (ms * 1 === e.node.props.dataRef.key) {
                 window.pickObjectVisible = e.checked;
                 window.setPickObjectParameters();
               }
-            //   
-
+              //
             }}
           >
             {this.renderTreeNodes(treeData)}
           </Tree>
-        </TabPane>
-        <TabPane tab="参数" key="2">
+        ) : (
           <Table
             className="attrTable"
             columns={columns}
@@ -89,8 +101,8 @@ export default class ScleAttrTree extends PureComponent {
             locale={{ emptyText: "无数据" }}
             size="middle"
           />
-        </TabPane>
-      </Tabs>
+        )}
+      </div>
     );
   }
 
@@ -129,9 +141,11 @@ export default class ScleAttrTree extends PureComponent {
     const key = item.key + "";
     return (
       <span
-        className={this.state.treeNodeSelectKeys.indexOf(key) > -1?'tree_selected': ''}
+        className={
+          this.state.treeNodeSelectKeys.indexOf(key) > -1 ? "tree_selected" : ""
+        }
         onClick={() => {
-           // 选择模型名称时 dofeel
+          // 选择模型名称时 dofeel
           if (this.keyCode) return;
           this.hideSelect = true;
           this.tempMutilpSelect = this.findleafIndexs(item);
@@ -195,7 +209,7 @@ export default class ScleAttrTree extends PureComponent {
 
   setVisible(visible) {
     let { treeNodeCheckedKeys } = this.state;
-    treeNodeCheckedKeys = treeNodeCheckedKeys.checked || treeNodeCheckedKeys
+    treeNodeCheckedKeys = treeNodeCheckedKeys.checked || treeNodeCheckedKeys;
     if (window.pickObjectIndexs === null) {
       return;
     }
@@ -370,7 +384,7 @@ export default class ScleAttrTree extends PureComponent {
         passive: false,
       });
     }
-    window.setVisibleTree = this.setVisible.bind(this)
+    window.setVisibleTree = this.setVisible.bind(this);
     window.addEventListener("pickParams", this.pickObjectParameters, {
       passive: false,
     });

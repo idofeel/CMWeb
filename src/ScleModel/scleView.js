@@ -118,7 +118,7 @@ function ScleView() {
       // canvasOnResize()
       window.Scle.getByRequest(cle.replace(/(.cle)$/, '.scle'))
       //
-    //   window.Scle.getByRequest("../../src/assets/68b0.scle");
+    //   window.Scle.getByRequest("../../src/assets/2972.scle");
       // console.log('openCle', window.g_strResbaseUrl, cle.replace(/(.cle)$/, '.scle'));
     } else {
       message.error(files.faildesc);
