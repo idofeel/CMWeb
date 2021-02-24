@@ -76,10 +76,11 @@ function ScleTools() {
 
     window.addEventListener("resize", setSwiper);
 
-    window.addEventListener("scleStreamReady", scleStreamReady);
+    // window.addEventListener("scleStreamReady", scleStreamReady);
+    window.addEventListener("onScleReady", scleStreamReady);
 
     return () => {
-      window.removeEventListener("scleStreamReady", scleStreamReady);
+      window.removeEventListener("onScleReady", scleStreamReady);
     };
   }, []);
 
